@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+{{with .Tabtitle}}
+  <title>{{html .}} - Gourdian Knot Server Programs</title>
+{{else}}
+  <title>Gourdian Knot Server Programs</title>
+{{end}}
+<link type="text/css" rel="stylesheet" href="/doc/style.css">
+<script type="text/javascript" src="/doc/godocs.js"></script>
+{{if .SearchBox}}
+<link rel="search" type="application/opensearchdescription+xml" title="godoc" href="/opensearch.xml" />
+{{end}}
+</head>
+<body>
+
+<div id="topbar"><div class="container{{if .Title}} wide{{end}}">
+
+<form method="GET" action="/search">
+<div id="menu">
+<a href="/pkg/">Packages</a>
+<input type="text" id="search" name="q" class="inactive" value="Search">
+</div>
+<div id="heading"><a href="/">Gourdian Knot Server Programs</a></div>
+</form>
+
+</div></div>
+
+<div id="page"{{if .Title}} class="wide"{{end}}>
+
+{{/* The Table of Contents is automatically inserted in this <div>.
+     Do not delete this <div>. */}}
+<div id="nav"></div>
+
+{{/* Content is HTML-escaped elsewhere */}}
+{{printf "%s" .Content}}
+
+</div>
+
+<div id="footer">
+<a href="http://gourdianknot.com">Gourdian Knot</a><br/>Copyright 1620469 Ontario Limited.<br/>
+</div>
+
+</body>
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+</html>
+
