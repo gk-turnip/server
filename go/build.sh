@@ -43,14 +43,15 @@ then
 
 	go clean all
 	rm -f */pkg/*/*.a
-	rm -f nw/bin/*
+	rm -f gk/bin/*
 
 	go install pq/pq
 	go install gk/sec
+	go install gk/wf
+
 	go test gk/sec
 
-	#go build -o nw/bin/xMain gk/src/main/xMain.go
+	go build -o gk/bin/wfToJsMain gk/src/gk/main/wfToJsMain.go
 
-	#go test gk
 fi
 
