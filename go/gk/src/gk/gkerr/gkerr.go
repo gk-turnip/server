@@ -27,14 +27,14 @@ const MAX_STACK = 15
 
 type GkErrDef struct {
 	message string
-	err error
+	err     error
 	errorId uint32
 	GkStack []GkStackEntryDef
 }
 
 type GkStackEntryDef struct {
 	program string
-	line int
+	line    int
 }
 
 // capture the current error stack 
@@ -46,7 +46,7 @@ func GenGkErr(message string, err error, errorId uint32) *GkErrDef {
 	gkErr.err = err
 	gkErr.errorId = errorId
 
-	for (i < MAX_STACK) {
+	for i < MAX_STACK {
 		var gkStackEntry GkStackEntryDef
 		var ok bool
 
@@ -55,7 +55,7 @@ func GenGkErr(message string, err error, errorId uint32) *GkErrDef {
 			break
 		}
 
-		gkErr.GkStack = append(gkErr.GkStack,gkStackEntry)
+		gkErr.GkStack = append(gkErr.GkStack, gkStackEntry)
 		i += 1
 	}
 
@@ -71,14 +71,13 @@ func (gkErr *GkErrDef) String() string {
 
 	stack = gkErr.message
 	if gkErr.err != nil {
-		stack = stack + fmt.Sprintf(" [%v] %x",gkErr.err, gkErr.errorId)
+		stack = stack + fmt.Sprintf(" [%v] %x", gkErr.err, gkErr.errorId)
 	}
 	stack = stack + "\n"
 
 	for i := 0; i < len(gkErr.GkStack); i++ {
-		stack = stack + fmt.Sprintf("\t%s %d\n",gkErr.GkStack[i].program, gkErr.GkStack[i].line)
+		stack = stack + fmt.Sprintf("\t%s %d\n", gkErr.GkStack[i].program, gkErr.GkStack[i].line)
 	}
 
 	return stack
 }
-

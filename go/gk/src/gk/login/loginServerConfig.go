@@ -18,9 +18,9 @@
 package login
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
-	"encoding/xml"
 )
 
 import (
@@ -28,16 +28,16 @@ import (
 )
 
 type loginConfigDef struct {
-	XMLName xml.Name `xml:"config"`
-	Port int `xml:"port"`
-	LogDir string `xml:"logDir"`
-	TemplateDir string `xml:"templateDir"`
-	WebAddressPrefix string `xml:"webAddressPrefix"`
-	DatabaseHost string `xml:"databaseHost"`
-	DatabasePort int `xml:"databasePort"`
-	DatabaseUserName string `xml:"databaseUserName"`
-	DatabasePassword string `xml:"databasePassword"`
-	DatabaseDatabase string `xml:"databaseDatabase"`
+	XMLName          xml.Name `xml:"config"`
+	Port             int      `xml:"port"`
+	LogDir           string   `xml:"logDir"`
+	TemplateDir      string   `xml:"templateDir"`
+	WebAddressPrefix string   `xml:"webAddressPrefix"`
+	DatabaseHost     string   `xml:"databaseHost"`
+	DatabasePort     int      `xml:"databasePort"`
+	DatabaseUserName string   `xml:"databaseUserName"`
+	DatabasePassword string   `xml:"databasePassword"`
+	DatabaseDatabase string   `xml:"databaseDatabase"`
 }
 
 func loadConfigFile(fileName string) (loginConfigDef, *gkerr.GkErrDef) {
@@ -47,13 +47,13 @@ func loadConfigFile(fileName string) (loginConfigDef, *gkerr.GkErrDef) {
 	var file *os.File
 	file, err = os.Open(fileName)
 	if err != nil {
-		return loginConfig, gkerr.GenGkErr(fmt.Sprintf("os.Open file: %s", fileName),err, ERROR_ID_OPEN_CONFIG)
+		return loginConfig, gkerr.GenGkErr(fmt.Sprintf("os.Open file: %s", fileName), err, ERROR_ID_OPEN_CONFIG)
 	}
 	defer file.Close()
 
 	err = xml.NewDecoder(file).Decode(&loginConfig)
 	if err != nil {
-		return loginConfig, gkerr.GenGkErr(fmt.Sprintf("xml.NewDecoder file: %s", fileName),err, ERROR_ID_DECODE_CONFIG)
+		return loginConfig, gkerr.GenGkErr(fmt.Sprintf("xml.NewDecoder file: %s", fileName), err, ERROR_ID_DECODE_CONFIG)
 	}
 
 	return loginConfig, nil

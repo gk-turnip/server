@@ -27,7 +27,7 @@ import (
 )
 
 var passwordHashConstant = []byte("jvk56j3Bu") // this value must not change
-const _hashLoopCount = 5000                     // this value must not change
+const _hashLoopCount = 5000                    // this value must not change
 const _saltLength = 10
 
 var saltValues = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")

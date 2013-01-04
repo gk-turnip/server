@@ -18,8 +18,8 @@
 package login
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
 	"net/http"
 )
 
@@ -30,7 +30,7 @@ import (
 
 func LoginServerStart() {
 
-	var fileName *string = flag.String("config","","config file name")
+	var fileName *string = flag.String("config", "", "config file name")
 	var loginConfig loginConfigDef
 	var gkErr *gkerr.GkErrDef
 
@@ -50,8 +50,7 @@ func LoginServerStart() {
 	gklog.LogInit(loginConfig.LogDir)
 	loginConfig.loginInit()
 
-	address := fmt.Sprintf(":%d",loginConfig.Port)
+	address := fmt.Sprintf(":%d", loginConfig.Port)
 
 	http.ListenAndServe(address, &loginConfig)
 }
-

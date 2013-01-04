@@ -18,11 +18,11 @@
 package gktmpl
 
 import (
-	"fmt"
-	"os"
 	"bytes"
-	"net/http"
+	"fmt"
 	"html/template"
+	"net/http"
+	"os"
 )
 
 import (
@@ -31,7 +31,7 @@ import (
 )
 
 type TemplateDef struct {
-	tmpl *template.Template
+	tmpl       *template.Template
 	dataBuffer *bytes.Buffer
 }
 
@@ -41,8 +41,8 @@ func NewTemplate(templateDir string, fileNames []string) (*TemplateDef, *gkerr.G
 	gkTemplate.tmpl = template.New("name")
 
 	var localFileNames []string
-	localFileNames = make([]string,len(fileNames),len(fileNames))
-	for i := 0;i < len(fileNames); i++ {
+	localFileNames = make([]string, len(fileNames), len(fileNames))
+	for i := 0; i < len(fileNames); i++ {
 		localFileNames[i] = templateDir + string(os.PathSeparator) + fileNames[i] + ".html"
 	}
 
@@ -50,21 +50,21 @@ func NewTemplate(templateDir string, fileNames []string) (*TemplateDef, *gkerr.G
 
 	_, err = gkTemplate.tmpl.ParseFiles(localFileNames...)
 	if err != nil {
-		return nil, gkerr.GenGkErr("tmpl.ParseFiles",err, ERROR_ID_PARSE_FILES)
+		return nil, gkerr.GenGkErr("tmpl.ParseFiles", err, ERROR_ID_PARSE_FILES)
 	}
 
 	return gkTemplate, nil
 }
 
 func (gkTemplate *TemplateDef) Build(buildData interface{}) *gkerr.GkErrDef {
-	gkTemplate.dataBuffer = bytes.NewBuffer(make([]byte,0,0))
+	gkTemplate.dataBuffer = bytes.NewBuffer(make([]byte, 0, 0))
 	var err error
 
-	gklog.LogError(fmt.Sprintf("trace buildData: %+v",buildData))
+	gklog.LogError(fmt.Sprintf("trace buildData: %+v", buildData))
 
 	err = gkTemplate.tmpl.ExecuteTemplate(gkTemplate.dataBuffer, "main", buildData)
 	if err != nil {
-		return gkerr.GenGkErr("tmpl.ExecuteTemplate",err, ERROR_ID_EXECUTE_TEMPLATE)
+		return gkerr.GenGkErr("tmpl.ExecuteTemplate", err, ERROR_ID_EXECUTE_TEMPLATE)
 	}
 
 	return nil
@@ -81,7 +81,7 @@ func (gkTemplate *TemplateDef) Send(res http.ResponseWriter, req *http.Request) 
 
 	writeCount, err = res.Write(gkTemplate.dataBuffer.Bytes())
 	if err != nil {
-		return gkerr.GenGkErr("res.Write",err, ERROR_ID_TEMPLATE_WRITE)
+		return gkerr.GenGkErr("res.Write", err, ERROR_ID_TEMPLATE_WRITE)
 	}
 	if writeCount != gkTemplate.dataBuffer.Len() {
 		return gkerr.GenGkErr("write count short", nil, ERROR_ID_SHORT_WRITE_COUNT)
@@ -91,4 +91,3 @@ func (gkTemplate *TemplateDef) Send(res http.ResponseWriter, req *http.Request) 
 
 	return nil
 }
-

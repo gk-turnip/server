@@ -20,8 +20,8 @@ package gklog
 
 import (
 	"fmt"
-	"time"
 	"os"
+	"time"
 )
 
 import (
@@ -29,6 +29,7 @@ import (
 )
 
 const _logSuffix = ".log"
+
 var _logDir string = ""
 
 const _error = 1
@@ -74,13 +75,13 @@ func logAll(level int, message string, argErr error, argGkErr *gkerr.GkErrDef) {
 	var err error
 
 	now := time.Now()
-	dateName := fmt.Sprintf("%d_%d_%d",now.Year(), now.Month(), now.Day())
-	timeStamp := fmt.Sprintf("%d %d %02d:%02d:%02d.%02d",now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond() / 10000000.0)
+	dateName := fmt.Sprintf("%d_%d_%d", now.Year(), now.Month(), now.Day())
+	timeStamp := fmt.Sprintf("%d %d %02d:%02d:%02d.%02d", now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond()/10000000.0)
 	fileName = _logDir + string(os.PathSeparator) + dateName + _logSuffix
 
-	file, err = os.OpenFile(fileName, os.O_WRONLY | os.O_APPEND | os.O_CREATE, 0644)
+	file, err = os.OpenFile(fileName, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
-		fmt.Printf("could not open output log file: %s\n",fileName)
+		fmt.Printf("could not open output log file: %s\n", fileName)
 		return
 	}
 
@@ -88,7 +89,7 @@ func logAll(level int, message string, argErr error, argGkErr *gkerr.GkErrDef) {
 
 	totalMessage := timeStamp + " " + levelString + " " + message
 	if err != nil {
-		totalMessage = totalMessage + " " + fmt.Sprintf("[%v]",err)
+		totalMessage = totalMessage + " " + fmt.Sprintf("[%v]", err)
 	}
 	if argGkErr != nil {
 		totalMessage = totalMessage + " <" + argGkErr.String() + ">"
@@ -98,8 +99,7 @@ func logAll(level int, message string, argErr error, argGkErr *gkerr.GkErrDef) {
 
 	_, err = file.Write([]byte(totalMessage))
 	if err != nil {
-		fmt.Printf("could not write log file: %s\n",fileName)
+		fmt.Printf("could not write log file: %s\n", fileName)
 		return
 	}
 }
-

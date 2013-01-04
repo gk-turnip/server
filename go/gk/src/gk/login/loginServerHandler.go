@@ -18,18 +18,18 @@
 package login
 
 import (
-//	"fmt"
-	"time"
+	//	"fmt"
+	"html/template"
 	"math/rand"
 	"net/http"
-	"html/template"
+	"time"
 )
 
 import (
+	"gk/database"
 	"gk/gkerr"
 	"gk/gklog"
 	"gk/gktmpl"
-	"gk/database"
 	"gk/sec"
 )
 
@@ -52,27 +52,27 @@ var _registerTemplate *gktmpl.TemplateDef
 var _errorTemplate *gktmpl.TemplateDef
 
 type loginDataDef struct {
-	Title string
-	ErrorList []string
-	UserName string
-	UserNameError template.HTML
-	PasswordError template.HTML
+	Title            string
+	ErrorList        []string
+	UserName         string
+	UserNameError    template.HTML
+	PasswordError    template.HTML
 	WebAddressPrefix string
 }
 
 type registerDataDef struct {
-	Title string
-	ErrorList []string
-	UserName string
-	UserNameError template.HTML
-	PasswordError template.HTML
-	Email string
-	EmailError template.HTML
+	Title            string
+	ErrorList        []string
+	UserName         string
+	UserNameError    template.HTML
+	PasswordError    template.HTML
+	Email            string
+	EmailError       template.HTML
 	WebAddressPrefix string
 }
 
 type errorDataDef struct {
-	Title string
+	Title   string
 	Message string
 }
 
@@ -85,19 +85,19 @@ func (loginConfig *loginConfigDef) loginInit() *gkerr.GkErrDef {
 
 	var fileNames []string
 
-	fileNames = []string {"main","head","login"}
+	fileNames = []string{"main", "head", "login"}
 	_loginTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, fileNames)
 	if gkErr != nil {
 		return gkErr
 	}
 
-	fileNames = []string {"main","head","register"}
+	fileNames = []string{"main", "head", "register"}
 	_registerTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, fileNames)
 	if gkErr != nil {
 		return gkErr
 	}
 
-	fileNames = []string {"main","head","error"}
+	fileNames = []string{"main", "head", "error"}
 	_errorTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, fileNames)
 	if gkErr != nil {
 		return gkErr
@@ -115,7 +115,7 @@ func (loginConfig *loginConfigDef) ServeHTTP(res http.ResponseWriter, req *http.
 
 	gklog.LogTrace(req.Method)
 	gklog.LogTrace(path)
-	
+
 	if req.Method == _methodGet || req.Method == _methodPost {
 		if requestMatch(path, _loginRequest) {
 			handleLogin(loginConfig, res, req)
@@ -179,7 +179,7 @@ func handleLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req *http
 		handleLoginRegister(loginConfig, res, req, userName, password, email)
 	default:
 		gklog.LogError("unknown act")
-		redirectToError("unknown act",res, req)
+		redirectToError("unknown act", res, req)
 		return
 	}
 }
@@ -200,7 +200,7 @@ func handleLoginInitial(loginConfig *loginConfigDef, res http.ResponseWriter, re
 
 	gkErr = _loginTemplate.Send(res, req)
 	if gkErr != nil {
-		gklog.LogGkErr("_loginTemplate.Send",gkErr)
+		gklog.LogGkErr("_loginTemplate.Send", gkErr)
 		return
 	}
 }
@@ -215,13 +215,13 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 	loginData.WebAddressPrefix = loginConfig.WebAddressPrefix
 
 	if loginData.UserName == "" {
-		loginData.ErrorList = append(loginData.ErrorList,"user name cannot be blank")
+		loginData.ErrorList = append(loginData.ErrorList, "user name cannot be blank")
 		loginData.UserNameError = genErrorMarker()
 		gotError = true
 	}
 
 	if password == "" {
-		loginData.ErrorList = append(loginData.ErrorList,"password cannot be blank")
+		loginData.ErrorList = append(loginData.ErrorList, "password cannot be blank")
 		loginData.PasswordError = genErrorMarker()
 		gotError = true
 	}
@@ -251,7 +251,7 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 				// make it take the same amount of time
 				// between no user and invalid password
 				passwordHashFromUser = sec.GenPasswordHashSlow([]byte(password), []byte(passwordSalt))
-				loginData.ErrorList = append(loginData.ErrorList,"invalid username/password")
+				loginData.ErrorList = append(loginData.ErrorList, "invalid username/password")
 				loginData.UserNameError = genErrorMarker()
 				loginData.PasswordError = genErrorMarker()
 				gotError = true
@@ -267,7 +267,7 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 		passwordHashFromUser = sec.GenPasswordHashSlow([]byte(password), []byte(passwordSalt))
 
 		if passwordHashFromDatabase != string(passwordHashFromUser) {
-			loginData.ErrorList = append(loginData.ErrorList,"invalid username/password")
+			loginData.ErrorList = append(loginData.ErrorList, "invalid username/password")
 			loginData.UserNameError = genErrorMarker()
 			loginData.PasswordError = genErrorMarker()
 			gotError = true
@@ -284,16 +284,16 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 		if gkErr != nil {
 			gklog.LogGkErr("_loginTemplate.Build", gkErr)
 			redirectToError("_loginTemplate.Build", res, req)
-				return
+			return
 		}
 
 		gkErr = _loginTemplate.Send(res, req)
 		if gkErr != nil {
-			gklog.LogGkErr("_loginTemplate.Send",gkErr)
+			gklog.LogGkErr("_loginTemplate.Send", gkErr)
 			return
 		}
 	} else {
-		http.Redirect(res, req, loginConfig.WebAddressPrefix + _gameServer, http.StatusFound)
+		http.Redirect(res, req, loginConfig.WebAddressPrefix+_gameServer, http.StatusFound)
 	}
 }
 
@@ -313,7 +313,7 @@ func handleLoginRegisterInitial(loginConfig *loginConfigDef, res http.ResponseWr
 
 	gkErr = _registerTemplate.Send(res, req)
 	if gkErr != nil {
-		gklog.LogGkErr("_registerTemplate.send",gkErr)
+		gklog.LogGkErr("_registerTemplate.send", gkErr)
 	}
 }
 
@@ -326,22 +326,22 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 	registerData.WebAddressPrefix = loginConfig.WebAddressPrefix
 	registerData.UserName = userName
 	registerData.Email = email
-	registerData.ErrorList = make([]string,0,0)
+	registerData.ErrorList = make([]string, 0, 0)
 
 	var gotError bool
 
 	if userName == "" {
-		registerData.ErrorList = append(registerData.ErrorList,"user name cannot be blank")
+		registerData.ErrorList = append(registerData.ErrorList, "user name cannot be blank")
 		registerData.UserNameError = genErrorMarker()
 		gotError = true
 	}
 	if password == "" {
-		registerData.ErrorList = append(registerData.ErrorList,"password cannot be blank")
+		registerData.ErrorList = append(registerData.ErrorList, "password cannot be blank")
 		registerData.PasswordError = genErrorMarker()
 		gotError = true
 	}
 	if email == "" {
-		registerData.ErrorList = append(registerData.ErrorList,"email cannot be blank")
+		registerData.ErrorList = append(registerData.ErrorList, "email cannot be blank")
 		registerData.EmailError = genErrorMarker()
 		gotError = true
 	}
@@ -358,11 +358,11 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 
 		defer gkDbCon.Close()
 
-		var passwordHash, passwordSalt []byte;
+		var passwordHash, passwordSalt []byte
 
 		passwordSalt, err = sec.GenSalt()
 		if err != nil {
-			gkErr = gkerr.GenGkErr("sec.GenSalt",err,ERROR_ID_GEN_SALT)
+			gkErr = gkerr.GenGkErr("sec.GenSalt", err, ERROR_ID_GEN_SALT)
 			gklog.LogGkErr("sec.GenSalt", gkErr)
 			redirectToError("sec.GenSalt", res, req)
 		}
@@ -377,7 +377,7 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 
 		if gkErr != nil {
 			if gkErr.GetErrorId() == database.ERROR_ID_UNIQUE_VIOLATION {
-				registerData.ErrorList = append(registerData.ErrorList,"user name already in use")
+				registerData.ErrorList = append(registerData.ErrorList, "user name already in use")
 				registerData.UserNameError = genErrorMarker()
 				gotError = true
 			} else {
@@ -398,10 +398,10 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 
 		gkErr = _registerTemplate.Send(res, req)
 		if gkErr != nil {
-			gklog.LogGkErr("_registerTemplate.send",gkErr)
+			gklog.LogGkErr("_registerTemplate.send", gkErr)
 		}
 	} else {
-		http.Redirect(res, req, loginConfig.WebAddressPrefix + _gameServer, http.StatusFound)
+		http.Redirect(res, req, loginConfig.WebAddressPrefix+_gameServer, http.StatusFound)
 	}
 }
 
@@ -418,12 +418,12 @@ func redirectToError(message string, res http.ResponseWriter, req *http.Request)
 
 	gkErr = _errorTemplate.Build(errorData)
 	if gkErr != nil {
-		gklog.LogGkErr("_errorTemplate.Build",gkErr)
+		gklog.LogGkErr("_errorTemplate.Build", gkErr)
 	}
 
 	gkErr = _errorTemplate.Send(res, req)
 	if gkErr != nil {
-		gklog.LogGkErr("_errorTemplate.Send",gkErr)
+		gklog.LogGkErr("_errorTemplate.Send", gkErr)
 	}
 }
 

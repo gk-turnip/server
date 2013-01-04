@@ -18,8 +18,8 @@
 package database
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 )
 
 import (
@@ -33,14 +33,14 @@ func (gkDbCon *GkDbConDef) GetPasswordHashAndSalt(userName string) (string, stri
 
 	stmt, err = gkDbCon.sqlDb.Prepare("select password_hash, password_salt from users where user_name = $1")
 	if err != nil {
-		return "", "", gkerr.GenGkErr("sql.Prepare" + getDatabaseErrorMessage(err),err,ERROR_ID_PREPARE)
+		return "", "", gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
 	var rows *sql.Rows
 
 	rows, err = stmt.Query(userName)
 	if err != nil {
-		return "", "", gkerr.GenGkErr("stmt.Query" + getDatabaseErrorMessage(err),err,ERROR_ID_QUERY)
+		return "", "", gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
 	}
 
 	var passwordHash, passwordSalt string
@@ -48,10 +48,10 @@ func (gkDbCon *GkDbConDef) GetPasswordHashAndSalt(userName string) (string, stri
 	if rows.Next() {
 		err = rows.Scan(&passwordHash, &passwordSalt)
 		if err != nil {
-			return "", "", gkerr.GenGkErr("rows.Scan" + getDatabaseErrorMessage(err),err,ERROR_ID_ROWS_SCAN)
+			return "", "", gkerr.GenGkErr("rows.Scan"+getDatabaseErrorMessage(err), err, ERROR_ID_ROWS_SCAN)
 		}
 	} else {
-		return "", "", gkerr.GenGkErr("select users",nil,ERROR_ID_NO_ROWS_FOUND)
+		return "", "", gkerr.GenGkErr("select users", nil, ERROR_ID_NO_ROWS_FOUND)
 	}
 
 	return passwordHash, passwordSalt, nil
@@ -73,17 +73,17 @@ func (gkDbCon *GkDbConDef) AddNewUser(userName string, passwordHash string, pass
 
 	stmt, err = gkDbCon.sqlDb.Prepare("insert into users (id, user_name, password_hash, password_salt, email) values ($1, $2, $3, $4, $5)")
 	if err != nil {
-		return gkerr.GenGkErr("stmt.Prepare" + getDatabaseErrorMessage(err),err,ERROR_ID_PREPARE)
+		return gkerr.GenGkErr("stmt.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
-	gklog.LogTrace(fmt.Sprintf("%s %s",passwordHash, passwordSalt))
+	gklog.LogTrace(fmt.Sprintf("%s %s", passwordHash, passwordSalt))
 
 	_, err = stmt.Exec(id, userName, passwordHash, passwordSalt, email)
 	if err != nil {
 		if isUniqueViolation(err) {
-			return gkerr.GenGkErr("stmt.Exec unique violation",err,ERROR_ID_UNIQUE_VIOLATION)
+			return gkerr.GenGkErr("stmt.Exec unique violation", err, ERROR_ID_UNIQUE_VIOLATION)
 		}
-		return gkerr.GenGkErr("stmt.Exec" + getDatabaseErrorMessage(err),err,ERROR_ID_EXECUTE)
+		return gkerr.GenGkErr("stmt.Exec"+getDatabaseErrorMessage(err), err, ERROR_ID_EXECUTE)
 	}
 
 	return nil
@@ -95,14 +95,14 @@ func (gkDbCon *GkDbConDef) getNextUsersId() (int64, *gkerr.GkErrDef) {
 
 	stmt, err = gkDbCon.sqlDb.Prepare("select nextval('users_seq')")
 	if err != nil {
-		return 0, gkerr.GenGkErr("sql.Prepare" + getDatabaseErrorMessage(err),err,ERROR_ID_PREPARE)
+		return 0, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
 	var rows *sql.Rows
 
 	rows, err = stmt.Query()
 	if err != nil {
-		return 0, gkerr.GenGkErr("stmt.Query" + getDatabaseErrorMessage(err),err,ERROR_ID_QUERY)
+		return 0, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
 	}
 
 	var userId int64
@@ -110,12 +110,11 @@ func (gkDbCon *GkDbConDef) getNextUsersId() (int64, *gkerr.GkErrDef) {
 	if rows.Next() {
 		err = rows.Scan(&userId)
 		if err != nil {
-			return 0, gkerr.GenGkErr("rows.Scan" + getDatabaseErrorMessage(err),err,ERROR_ID_ROWS_SCAN)
+			return 0, gkerr.GenGkErr("rows.Scan"+getDatabaseErrorMessage(err), err, ERROR_ID_ROWS_SCAN)
 		}
 	} else {
-		return 0, gkerr.GenGkErr("select users",nil,ERROR_ID_NO_ROWS_FOUND)
+		return 0, gkerr.GenGkErr("select users", nil, ERROR_ID_NO_ROWS_FOUND)
 	}
 
 	return userId, nil
 }
-

@@ -18,14 +18,14 @@
 package database
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 )
 
 import (
-	"pq/pq"
 	"gk/gkerr"
 	"gk/gklog"
+	"pq/pq"
 )
 
 type GkDbConDef struct {
@@ -39,14 +39,14 @@ func NewGkDbCon(userName string, password string, host string, port int, databas
 	var err error
 	var connectionString string
 
-	connectionString = fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s",userName, password, host, port, database)
+	connectionString = fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s", userName, password, host, port, database)
 
 	gklog.LogTrace(connectionString)
 
-	gkDbCon.sqlDb, err = sql.Open("postgres",connectionString)
+	gkDbCon.sqlDb, err = sql.Open("postgres", connectionString)
 
 	if err != nil {
-		return nil, gkerr.GenGkErr("sql.Open " + getDatabaseErrorMessage(err),err,ERROR_ID_DATABASE_CONNECTION)
+		return nil, gkerr.GenGkErr("sql.Open "+getDatabaseErrorMessage(err), err, ERROR_ID_DATABASE_CONNECTION)
 	}
 
 	return gkDbCon, nil
@@ -72,7 +72,7 @@ func getDatabaseErrorMessage(err error) string {
 			s = pge.Get('S')
 			f = pge.Get('F')
 
-			result = fmt.Sprintf("postgres error r: %s l: %s m: %s c: %s s: %s f: %s",r,l,m,c,s,f)
+			result = fmt.Sprintf("postgres error r: %s l: %s m: %s c: %s s: %s f: %s", r, l, m, c, s, f)
 		}
 	}
 
@@ -92,4 +92,3 @@ func isUniqueViolation(err error) bool {
 	}
 	return false
 }
-
