@@ -1,5 +1,5 @@
 /*
-	Copyright 2012 1620469 Ontario Limited.
+	Copyright 2012-2013 1620469 Ontario Limited.
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
@@ -28,12 +28,19 @@ func TestSec(t *testing.T) {
 
 func testPasswordHash(t *testing.T) {
 	var hash []byte
-	var password []byte = []byte("one")
-	var salt []byte = []byte("two")
+	var password []byte = []byte("password")
+	var salt []byte = []byte("salt")
 
-	hash = GenPasswordHash(password, salt)
+	hash = GenPasswordHashSlow(password, salt)
 
-	if string(hash) != "kdjcaicmghakemkiflkcjfhnncafmpedmaieboemekbeieeamfbchebmljkapalcfciljdgeialpiiogkgcabgdlaonbibpdnhdmaelafajimfdgngdagjadhgnbjklc" {
+	if string(hash) != "cbhijmafamnahilbilhmenbgdokfdihgdjgijkgdpfopdfinaepocgeebjlamhbkikfadpjbbodnehnegmjlghklfcefnlhicdnfkofmiefmmglpibncehmckaonfdmd" {
+		t.Logf("invalid hash: %s", string(hash))
+		t.Fail()
+	}
+
+	hash = GenPasswordHashFast(password, salt)
+
+	if string(hash) != "ofealbgibggfjgnhglicobibkahmhmjhlgfpgdodnfbliljpgggekgieahbljifohhfblenddmcknmmkjcbfapfmbckoniacnnkbphdemcghalebafjckedgfcmghidl" {
 		t.Logf("invalid hash: %s", string(hash))
 		t.Fail()
 	}
@@ -50,7 +57,7 @@ func testSalt(t *testing.T) {
 		t.Fail()
 		return
 	}
-	if len(salt1) != 20 {
+	if len(salt1) != 10 {
 		t.Logf("invalid salt: %s", salt1)
 		t.Fail()
 		return
@@ -62,7 +69,7 @@ func testSalt(t *testing.T) {
 		t.Fail()
 		return
 	}
-	if len(salt2) != 20 {
+	if len(salt2) != 10 {
 		t.Logf("invalid salt: %s", salt2)
 		t.Fail()
 		return

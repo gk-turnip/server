@@ -15,10 +15,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package main
+package login
 
-import "gk/wf"
+const (
+	ERROR_ID_OPEN_CONFIG = 0x20000000 + iota
+	ERROR_ID_DECODE_CONFIG
+	ERROR_ID_GEN_SALT
+)
 
-func main() {
-	wf.WfToJsStart()
-}

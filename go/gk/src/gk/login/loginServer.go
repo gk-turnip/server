@@ -15,10 +15,43 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package main
+package login
 
-import "gk/wf"
+import (
+	"fmt"
+	"flag"
+	"net/http"
+)
 
-func main() {
-	wf.WfToJsStart()
+import (
+	"gk/gkerr"
+	"gk/gklog"
+)
+
+func LoginServerStart() {
+
+	var fileName *string = flag.String("config","","config file name")
+	var loginConfig loginConfigDef
+	var gkErr *gkerr.GkErrDef
+
+	flag.Parse()
+
+	if *fileName == "" {
+		flag.PrintDefaults()
+		return
+	}
+
+	loginConfig, gkErr = loadConfigFile(*fileName)
+	if gkErr != nil {
+		fmt.Print(gkErr.String())
+		return
+	}
+
+	gklog.LogInit(loginConfig.LogDir)
+	loginConfig.loginInit()
+
+	address := fmt.Sprintf(":%d",loginConfig.Port)
+
+	http.ListenAndServe(address, &loginConfig)
 }
+

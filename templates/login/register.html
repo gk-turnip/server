@@ -1,0 +1,15 @@
+{{define "body"}}
+<body>
+<h1>Register</h1>
+<div>
+{{range .ErrorList}}<li class="errorList">{{.}}</li>{{end}}
+</div>
+<form action="{{.WebAddressPrefix}}/loginServer" method="post">
+User: <input name="userName"/>{{.UserNameError}}<br/>
+Password: <input type="password" name="password"/>{{.PasswordError}}<br/>
+Email: <input name="email"/>{{.EmailError}}<br/>
+<input type="submit" name="name" value="Register"/>
+<input type="hidden" name="act" value="register"/>
+</form>
+</body>
+{{end}}

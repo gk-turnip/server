@@ -45,13 +45,19 @@ then
 	rm -f */pkg/*/*.a
 	rm -f gk/bin/*
 
+	go install gk/gkerr
+	go install gk/gklog
+	go install gk/gktmpl
 	go install pq/pq
 	go install gk/sec
 	go install gk/wf
+	go install gk/login
+	go install gk/database
 
 	go test gk/sec
 
 	go build -o gk/bin/wfToJsMain gk/src/gk/main/wfToJsMain.go
+	go build -o gk/bin/loginServerMain gk/src/gk/main/loginServerMain.go
 
 fi
 

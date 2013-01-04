@@ -17,8 +17,10 @@
 
 package main
 
-import "gk/wf"
+import (
+	"gk/login"
+)
 
 func main() {
-	wf.WfToJsStart()
+	login.LoginServerStart()
 }

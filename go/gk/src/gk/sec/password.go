@@ -1,5 +1,5 @@
 /*
-	Copyright 2012 1620469 Ontario Limited.
+	Copyright 2012-2013 1620469 Ontario Limited.
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published by
@@ -27,13 +27,14 @@ import (
 )
 
 var passwordHashConstant = []byte("jvk56j3Bu") // this value must not change
-const hashLoopCount = 5000                     // this value must not change
-const saltLength = 20
+const _hashLoopCount = 5000                     // this value must not change
+const _saltLength = 10
 
 var saltValues = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 // generate a hash for the given password and salt
-func GenPasswordHash(password []byte, salt []byte) []byte {
+// intentionally slow for better security
+func GenPasswordHashSlow(password []byte, salt []byte) []byte {
 	var h hash.Hash
 	var lastHash []byte
 
@@ -43,7 +44,7 @@ func GenPasswordHash(password []byte, salt []byte) []byte {
 	h.Write(salt)
 	lastHash = h.Sum(nil)
 
-	for i := 0; i < hashLoopCount; i++ {
+	for i := 0; i < _hashLoopCount; i++ {
 		h.Reset()
 		h.Write(salt)
 		h.Write(lastHash)
@@ -61,9 +62,30 @@ func GenPasswordHash(password []byte, salt []byte) []byte {
 	return r
 }
 
+// generate a hash for the given password and salt
+// not as secure as GenPasswordHashSlow
+func GenPasswordHashFast(password []byte, salt []byte) []byte {
+	var h hash.Hash
+	var lastHash []byte
+
+	h = sha512.New()
+	h.Write(passwordHashConstant)
+	h.Write(password)
+	h.Write(salt)
+	lastHash = h.Sum(nil)
+
+	r := make([]byte, 0, 2*len(lastHash))
+	for i := 0; i < len(lastHash); i++ {
+		r = append(r, (lastHash[i]&0x0f)+'a')
+		r = append(r, ((lastHash[i]>>4)&0x0f)+'a')
+	}
+
+	return r
+}
+
 // geneate a new random salt
 func GenSalt() ([]byte, error) {
-	salt := make([]byte, saltLength, saltLength)
+	salt := make([]byte, _saltLength, _saltLength)
 
 	readCount, err := io.ReadFull(rand.Reader, salt)
 	if err != nil {

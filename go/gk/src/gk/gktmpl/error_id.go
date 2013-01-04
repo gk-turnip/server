@@ -15,10 +15,13 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package main
+package gktmpl
 
-import "gk/wf"
+const (
+	ERROR_ID_PARSE_FILES = 0x10000000 + iota
+	ERROR_ID_EXECUTE_TEMPLATE
+	ERROR_ID_MISSING_BUILD
+	ERROR_ID_TEMPLATE_WRITE
+	ERROR_ID_SHORT_WRITE_COUNT
+)
 
-func main() {
-	wf.WfToJsStart()
-}

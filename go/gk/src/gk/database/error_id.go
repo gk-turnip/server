@@ -15,10 +15,15 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package main
+package database
 
-import "gk/wf"
+const (
+	ERROR_ID_DATABASE_CONNECTION = 0x30000000 + iota
+	ERROR_ID_PREPARE
+	ERROR_ID_QUERY
+	ERROR_ID_ROWS_SCAN
+	ERROR_ID_NO_ROWS_FOUND
+	ERROR_ID_EXECUTE
+	ERROR_ID_UNIQUE_VIOLATION
+)
 
-func main() {
-	wf.WfToJsStart()
-}
