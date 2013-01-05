@@ -4,7 +4,7 @@
 <div>
 {{range .ErrorList}}<li class="errorList">{{.}}</li>{{end}}
 </div>
-<form action="{{.WebAddressPrefix}}/loginServer" method="post">
+<form action="{{.WebAddressPrefix}}/gk/loginServer" method="post">
 User: <input name="userName"/>{{.UserNameError}}<br/>
 Password: <input type="password" name="password"/>{{.PasswordError}}<br/>
 Email: <input name="email"/>{{.EmailError}}<br/>
