@@ -1,0 +1,10 @@
+{{define "error_list"}}
+<div class="errorListDiv">
+{{if .ErrorList}}
+<ul>
+{{range .ErrorList}}<li class="errorListItem">{{.}}</li>{{end}}
+</ul>
+{{end}}
+</div>
+{{end}}
+

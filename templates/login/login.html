@@ -1,9 +1,7 @@
 {{define "body"}}
 <body>
 <h1>Login</h1>
-<div>
-{{range .ErrorList}}<li class="errorList">{{.}}</li>{{end}}
-</div>
+{{template "error_list" .}}
 <form action="{{.WebAddressPrefix}}/gk/loginServer" method="post">
 User: <input name="userName" value="{{.UserName}}"/>{{.UserNameError}}<br/>
 Password: <input type="password" name="password"/>{{.PasswordError}}<br/>

@@ -85,19 +85,19 @@ func (loginConfig *loginConfigDef) loginInit() *gkerr.GkErrDef {
 
 	var fileNames []string
 
-	fileNames = []string{"main", "head", "login"}
+	fileNames = []string{"main", "head", "error_list", "login"}
 	_loginTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, fileNames)
 	if gkErr != nil {
 		return gkErr
 	}
 
-	fileNames = []string{"main", "head", "register"}
+	fileNames = []string{"main", "head", "error_list", "register"}
 	_registerTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, fileNames)
 	if gkErr != nil {
 		return gkErr
 	}
 
-	fileNames = []string{"main", "head", "error"}
+	fileNames = []string{"main", "head", "error_list", "error"}
 	_errorTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, fileNames)
 	if gkErr != nil {
 		return gkErr
