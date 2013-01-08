@@ -38,6 +38,8 @@ type loginConfigDef struct {
 	DatabaseUserName string   `xml:"databaseUserName"`
 	DatabasePassword string   `xml:"databasePassword"`
 	DatabaseDatabase string   `xml:"databaseDatabase"`
+	ServerFromEmail  string   `xml:"serverFromEmail"`
+	EmailServer  string   `xml:"emailServer"`
 }
 
 func loadConfigFile(fileName string) (loginConfigDef, *gkerr.GkErrDef) {

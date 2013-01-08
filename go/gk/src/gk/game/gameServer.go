@@ -48,7 +48,11 @@ func GameServerStart() {
 	}
 
 	gklog.LogInit(gameConfig.LogDir)
-	gameConfig.gameInit()
+	gkErr = gameConfig.gameInit()
+	if gkErr != nil {
+		gklog.LogGkErr("gameConfig.gameInit", gkErr)
+		return
+	}
 
 	address := fmt.Sprintf(":%d", gameConfig.Port)
 

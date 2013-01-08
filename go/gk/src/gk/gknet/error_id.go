@@ -15,46 +15,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package login
+package gknet
 
-import (
-	"flag"
-	"fmt"
-	"net/http"
+const (
+	ERROR_ID_SMTP_DIAL = 0x50000000 + iota
+	ERROR_ID_SMTP_DATA
+	ERROR_ID_SMTP_WRITE
+	ERROR_ID_SMTP_QUIT
 )
-
-import (
-	"gk/gkerr"
-	"gk/gklog"
-)
-
-func LoginServerStart() {
-
-	var fileName *string = flag.String("config", "", "config file name")
-	var loginConfig loginConfigDef
-	var gkErr *gkerr.GkErrDef
-
-	flag.Parse()
-
-	if *fileName == "" {
-		flag.PrintDefaults()
-		return
-	}
-
-	loginConfig, gkErr = loadConfigFile(*fileName)
-	if gkErr != nil {
-		gklog.LogGkErr("loadConfigFile", gkErr)
-		return
-	}
-
-	gklog.LogInit(loginConfig.LogDir)
-	gkErr = loginConfig.loginInit()
-	if gkErr != nil {
-		gklog.LogGkErr("loginConfig.loginInit", gkErr)
-		return
-	}
-
-	address := fmt.Sprintf(":%d", loginConfig.Port)
-
-	http.ListenAndServe(address, &loginConfig)
-}

@@ -53,6 +53,7 @@ then
 	go install gk/wf
 	go install gk/login
 	go install gk/game
+	go install gk/gknet
 	go install gk/database
 
 	go test gk/sec

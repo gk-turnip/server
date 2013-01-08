@@ -18,8 +18,9 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
+	"time"
+	"database/sql"
 )
 
 import (
@@ -27,35 +28,43 @@ import (
 	"gk/gklog"
 )
 
-func (gkDbCon *GkDbConDef) GetPasswordHashAndSalt(userName string) (string, string, *gkerr.GkErrDef) {
+type DbUserDef struct {
+	id int64
+	UserName string
+	PasswordHash string
+	PasswordSalt string
+	Email string
+	accountCreationDate time.Time
+	lastLoginDate time.Time
+}
+
+func (gkDbCon *GkDbConDef) GetUser(userName string) (*DbUserDef, *gkerr.GkErrDef) {
 	var stmt *sql.Stmt
 	var err error
+	var dbUser *DbUserDef = new(DbUserDef)
 
-	stmt, err = gkDbCon.sqlDb.Prepare("select password_hash, password_salt from users where user_name = $1")
+	stmt, err = gkDbCon.sqlDb.Prepare("select id, user_name, password_hash, password_salt, email, account_creation_date, last_login_date from users where user_name = $1")
 	if err != nil {
-		return "", "", gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
+		return nil, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
 	var rows *sql.Rows
 
 	rows, err = stmt.Query(userName)
 	if err != nil {
-		return "", "", gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
+		return nil, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
 	}
-
-	var passwordHash, passwordSalt string
 
 	if rows.Next() {
-		err = rows.Scan(&passwordHash, &passwordSalt)
+		err = rows.Scan(&dbUser.id, &dbUser.UserName, &dbUser.PasswordHash, &dbUser.PasswordSalt, &dbUser.Email, &dbUser.accountCreationDate, &dbUser.lastLoginDate)
 		if err != nil {
-			return "", "", gkerr.GenGkErr("rows.Scan"+getDatabaseErrorMessage(err), err, ERROR_ID_ROWS_SCAN)
+			return nil, gkerr.GenGkErr("rows.Scan"+getDatabaseErrorMessage(err), err, ERROR_ID_ROWS_SCAN)
 		}
 	} else {
-		return "", "", gkerr.GenGkErr("select users", nil, ERROR_ID_NO_ROWS_FOUND)
+		return nil, gkerr.GenGkErr("select users", nil, ERROR_ID_NO_ROWS_FOUND)
 	}
 
-	return passwordHash, passwordSalt, nil
-
+	return dbUser, nil
 }
 
 func (gkDbCon *GkDbConDef) AddNewUser(userName string, passwordHash string, passwordSalt string, email string) *gkerr.GkErrDef {
@@ -71,18 +80,63 @@ func (gkDbCon *GkDbConDef) AddNewUser(userName string, passwordHash string, pass
 		return gkErr
 	}
 
-	stmt, err = gkDbCon.sqlDb.Prepare("insert into users (id, user_name, password_hash, password_salt, email) values ($1, $2, $3, $4, $5)")
+	stmt, err = gkDbCon.sqlDb.Prepare("insert into users (id, user_name, password_hash, password_salt, email, account_creation_date, last_login_date) values ($1, $2, $3, $4, $5, $6, $7)")
 	if err != nil {
 		return gkerr.GenGkErr("stmt.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
 	gklog.LogTrace(fmt.Sprintf("%s %s", passwordHash, passwordSalt))
 
-	_, err = stmt.Exec(id, userName, passwordHash, passwordSalt, email)
+	var accountCreationDate time.Time = time.Now()
+	var lastLoginDate time.Time = time.Now()
+
+	_, err = stmt.Exec(id, userName, passwordHash, passwordSalt, email, accountCreationDate, lastLoginDate)
 	if err != nil {
 		if isUniqueViolation(err) {
 			return gkerr.GenGkErr("stmt.Exec unique violation", err, ERROR_ID_UNIQUE_VIOLATION)
 		}
+		return gkerr.GenGkErr("stmt.Exec"+getDatabaseErrorMessage(err), err, ERROR_ID_EXECUTE)
+	}
+
+	return nil
+}
+
+func (gkDbCon *GkDbConDef) UpdateUserLoginDate(userName string) *gkerr.GkErrDef {
+
+	var stmt *sql.Stmt
+	var err error
+
+	//var gkErr *gkerr.GkErrDef
+
+	stmt, err = gkDbCon.sqlDb.Prepare("update users set last_login_date = $1 where user_name = $2")
+	if err != nil {
+		return gkerr.GenGkErr("stmt.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
+	}
+
+	var lastLoginDate time.Time = time.Now()
+
+	_, err = stmt.Exec(lastLoginDate, userName)
+	if err != nil {
+		return gkerr.GenGkErr("stmt.Exec"+getDatabaseErrorMessage(err), err, ERROR_ID_EXECUTE)
+	}
+
+	return nil
+}
+
+func (gkDbCon *GkDbConDef) ChangePassword(userName string, passwordHash string, passwordSalt string) *gkerr.GkErrDef {
+
+	var stmt *sql.Stmt
+	var err error
+
+	//var gkErr *gkerr.GkErrDef
+
+	stmt, err = gkDbCon.sqlDb.Prepare("update users set password_hash = $1, password_salt = $2 where user_name = $3")
+	if err != nil {
+		return gkerr.GenGkErr("stmt.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
+	}
+
+	_, err = stmt.Exec(passwordHash, passwordSalt, userName)
+	if err != nil {
 		return gkerr.GenGkErr("stmt.Exec"+getDatabaseErrorMessage(err), err, ERROR_ID_EXECUTE)
 	}
 

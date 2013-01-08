@@ -1,0 +1,3 @@
+game.html
+head.html
+main.html

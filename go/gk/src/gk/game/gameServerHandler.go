@@ -46,6 +46,7 @@ const _passwordParam = "password"
 const _emailParam = "email"
 
 var _gameTemplate *gktmpl.TemplateDef
+var _gameTemplateName string = "game"
 
 type gameDataDef struct {
 	Title   string
@@ -65,10 +66,10 @@ func init() {
 func (gameConfig *gameConfigDef) gameInit() *gkerr.GkErrDef {
 	var gkErr *gkerr.GkErrDef
 
-	var fileNames []string
+//	var fileNames []string
 
-	fileNames = []string{"main", "head", "game"}
-	_gameTemplate, gkErr = gktmpl.NewTemplate(gameConfig.TemplateDir, fileNames)
+//	fileNames = []string{"main", "head", "game"}
+	_gameTemplate, gkErr = gktmpl.NewTemplate(gameConfig.TemplateDir, _gameTemplateName)
 	if gkErr != nil {
 		return gkErr
 	}

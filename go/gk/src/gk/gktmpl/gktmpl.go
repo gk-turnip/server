@@ -18,11 +18,14 @@
 package gktmpl
 
 import (
-	"bytes"
 	"fmt"
+	"bytes"
+	"strings"
+	"bufio"
+	"io"
+	"os"
 	"html/template"
 	"net/http"
-	"os"
 )
 
 import (
@@ -35,18 +38,53 @@ type TemplateDef struct {
 	dataBuffer *bytes.Buffer
 }
 
-func NewTemplate(templateDir string, fileNames []string) (*TemplateDef, *gkerr.GkErrDef) {
+func NewTemplate(templateDir string, templateName string) (*TemplateDef, *gkerr.GkErrDef) {
 	var gkTemplate *TemplateDef = new(TemplateDef)
 
-	gkTemplate.tmpl = template.New("name")
+	gkTemplate.tmpl = template.New(templateName)
 
-	var localFileNames []string
-	localFileNames = make([]string, len(fileNames), len(fileNames))
-	for i := 0; i < len(fileNames); i++ {
-		localFileNames[i] = templateDir + string(os.PathSeparator) + fileNames[i] + ".html"
+	var file *os.File
+	var templateListFileName string
+	var err error
+
+	templateListFileName = templateDir + string(os.PathSeparator) + templateName + ".txt"
+	file, err = os.Open(templateListFileName)
+	if err != nil {
+		return nil, gkerr.GenGkErr("os.Open", err, ERROR_ID_OPEN_TEMPLATE_LIST)
 	}
 
-	var err error
+	defer file.Close()
+
+	var br *bufio.Reader
+
+	localFileNames := make([]string,0,0)
+
+	br = bufio.NewReader(file)
+	for {
+		var line string
+
+		line, err = br.ReadString('\n')
+
+		line = strings.Trim(line, "\r\n\t ")
+
+		if line != "" {
+			localFileNames = append(localFileNames,templateDir + string(os.PathSeparator) + line)
+		}
+
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, gkerr.GenGkErr("br.ReadString", err, ERROR_ID_READ_TEMPLATE_LIST)
+		}
+	}
+
+//	localFileNames = make([]string, len(fileNames), len(fileNames))
+//	for i := 0; i < len(fileNames); i++ {
+//		localFileNames[i] = templateDir + string(os.PathSeparator) + fileNames[i] + ".html"
+//	}
+
+gklog.LogTrace(fmt.Sprintf("localFileNames: %+v",localFileNames))
 
 	_, err = gkTemplate.tmpl.ParseFiles(localFileNames...)
 	if err != nil {
@@ -60,7 +98,7 @@ func (gkTemplate *TemplateDef) Build(buildData interface{}) *gkerr.GkErrDef {
 	gkTemplate.dataBuffer = bytes.NewBuffer(make([]byte, 0, 0))
 	var err error
 
-	gklog.LogError(fmt.Sprintf("trace buildData: %+v", buildData))
+	gklog.LogTrace(fmt.Sprintf("buildData: %+v", buildData))
 
 	err = gkTemplate.tmpl.ExecuteTemplate(gkTemplate.dataBuffer, "main", buildData)
 	if err != nil {
@@ -91,3 +129,12 @@ func (gkTemplate *TemplateDef) Send(res http.ResponseWriter, req *http.Request) 
 
 	return nil
 }
+
+func (gkTemplate *TemplateDef) GetBytes() ([]byte, *gkerr.GkErrDef) {
+	if gkTemplate.dataBuffer == nil {
+		return nil, gkerr.GenGkErr("missing call to Build", nil, ERROR_ID_MISSING_BUILD)
+	}
+
+	return gkTemplate.dataBuffer.Bytes(), nil
+}
+

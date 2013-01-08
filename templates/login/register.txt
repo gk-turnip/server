@@ -1,3 +1,4 @@
 head.html
 main.html
 register.html
+error_list.html

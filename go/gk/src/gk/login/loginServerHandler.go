@@ -18,11 +18,12 @@
 package login
 
 import (
-	//	"fmt"
+	"fmt"
+	"strings"
+	"time"
 	"html/template"
 	"math/rand"
 	"net/http"
-	"time"
 )
 
 import (
@@ -31,25 +32,41 @@ import (
 	"gk/gklog"
 	"gk/gktmpl"
 	"gk/sec"
+	"gk/gknet"
 )
 
 const _methodGet = "GET"
 const _methodPost = "POST"
 const _loginRequest = "/gk/loginServer/"
+const _loginServer = "/gk/loginServer"
 const _gameServer = "/gk/gameServer"
 
 const _actParam = "act"
-const _submitParam = "submit"
+const _loginParam = "login"
 const _registerParam = "register"
+const _forgotPasswordParam = "forgot_password"
 const _userNameParam = "userName"
 const _passwordParam = "password"
 const _emailParam = "email"
+const _tokenParam = "token"
 
 var _loginTemplate *gktmpl.TemplateDef
+var _loginTemplateName string = "login"
 
 var _registerTemplate *gktmpl.TemplateDef
+var _registerTemplateName string = "register"
+
+var _forgotPasswordTemplate *gktmpl.TemplateDef
+var _forgotPasswordTemplateName string = "forgot_password"
+
+var _forgotPasswordEmailTemplate *gktmpl.TemplateDef
+var _forgotPasswordEmailTemplateName string = "forgot_password_email"
+
+var _resetPasswordTemplate *gktmpl.TemplateDef
+var _resetPasswordTemplateName string = "reset_password"
 
 var _errorTemplate *gktmpl.TemplateDef
+var _errorTemplateName string = "error"
 
 type loginDataDef struct {
 	Title            string
@@ -71,6 +88,28 @@ type registerDataDef struct {
 	WebAddressPrefix string
 }
 
+type forgotPasswordDataDef struct {
+	Title            string
+	ErrorList        []string
+	UserName         string
+	UserNameError    template.HTML
+	WebAddressPrefix string
+}
+
+type forgotPasswordEmailDataDef struct {
+	UserName         string
+	Token	string
+	WebAddressPrefix string
+}
+
+type resetPasswordDataDef struct {
+	Title	string
+	ErrorList        []string
+	UserName         string
+	Token	string
+	WebAddressPrefix string
+}
+
 type errorDataDef struct {
 	Title   string
 	Message string
@@ -83,22 +122,37 @@ func init() {
 func (loginConfig *loginConfigDef) loginInit() *gkerr.GkErrDef {
 	var gkErr *gkerr.GkErrDef
 
-	var fileNames []string
+//	var fileNames []string
 
-	fileNames = []string{"main", "head", "error_list", "login"}
-	_loginTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, fileNames)
+//	fileNames = []string{"main", "head", "error_list", "login"}
+	_loginTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, _loginTemplateName)
 	if gkErr != nil {
 		return gkErr
 	}
 
-	fileNames = []string{"main", "head", "error_list", "register"}
-	_registerTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, fileNames)
+//	fileNames = []string{"main", "head", "error_list", "register"}
+	_registerTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, _registerTemplateName)
 	if gkErr != nil {
 		return gkErr
 	}
 
-	fileNames = []string{"main", "head", "error_list", "error"}
-	_errorTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, fileNames)
+//	fileNames = []string{"main", "head", "error_list", "error"}
+	_errorTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, _errorTemplateName)
+	if gkErr != nil {
+		return gkErr
+	}
+
+	_forgotPasswordTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, _forgotPasswordTemplateName)
+	if gkErr != nil {
+		return gkErr
+	}
+
+	_forgotPasswordEmailTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, _forgotPasswordEmailTemplateName)
+	if gkErr != nil {
+		return gkErr
+	}
+
+	_resetPasswordTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, _resetPasswordTemplateName)
 	if gkErr != nil {
 		return gkErr
 	}
@@ -133,6 +187,7 @@ func handleLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req *http
 	var userName string
 	var password string
 	var email string
+	var token string
 
 	req.ParseForm()
 
@@ -140,6 +195,9 @@ func handleLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req *http
 	userName = req.Form.Get(_userNameParam)
 	password = req.Form.Get(_passwordParam)
 	email = req.Form.Get(_emailParam)
+	token = req.Form.Get(_tokenParam)
+
+	gklog.LogTrace("password: " + password)
 
 	// for security
 	// sleep between 10 and 19 milliseconds
@@ -148,27 +206,36 @@ func handleLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req *http
 
 	gklog.LogTrace("act: " + act)
 
-	var submit string
-	var register string
-
-	submit = req.Form.Get(_submitParam)
-	register = req.Form.Get(_registerParam)
-
-	if submit != "" {
-		handleLoginLogin(loginConfig, res, req, userName, password)
-		return
-	}
-
-	if register != "" {
-		handleLoginRegisterInitial(loginConfig, res, req)
-		return
-	}
-
 	switch act {
 	case "":
+		var login string
+
+		login = req.Form.Get(_loginParam)
+
+		if login != "" {
+			handleLoginLogin(loginConfig, res, req, userName, password)
+			return
+		}
+
 		handleLoginInitial(loginConfig, res, req)
 		return
 	case "login":
+		var register string
+		var forgotPassword string
+
+		register = req.Form.Get(_registerParam)
+		forgotPassword = req.Form.Get(_forgotPasswordParam)
+
+		if register != "" {
+			handleLoginRegisterInitial(loginConfig, res, req)
+			return
+		}
+
+		if forgotPassword != "" {
+			handleLoginForgotPasswordInitial(loginConfig, res, req)
+			return
+		}
+
 		if userName == "" {
 			handleLoginInitial(loginConfig, res, req)
 			return
@@ -177,6 +244,10 @@ func handleLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req *http
 		return
 	case "register":
 		handleLoginRegister(loginConfig, res, req, userName, password, email)
+	case "forgot_password":
+		handleLoginForgotPassword(loginConfig, res, req, userName)
+	case "reset_password":
+		handleLoginResetPassword(loginConfig, res, req, token, userName, password)
 	default:
 		gklog.LogError("unknown act")
 		redirectToError("unknown act", res, req)
@@ -226,26 +297,28 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 		gotError = true
 	}
 
-	var passwordHashFromDatabase string
 	var passwordHashFromUser []byte
-	var passwordSalt string
+
+	var dbUser *database.DbUserDef
+	var gkDbCon *database.GkDbConDef
 
 	if !gotError {
-		var gkDbCon *database.GkDbConDef
 
 		gkDbCon, gkErr = database.NewGkDbCon(loginConfig.DatabaseUserName, loginConfig.DatabasePassword, loginConfig.DatabaseHost, loginConfig.DatabasePort, loginConfig.DatabaseDatabase)
 		if gkErr != nil {
-			gklog.LogGkErr("_registerTemplate.Build", gkErr)
-			redirectToError("_registerTemplate.Build", res, req)
+			gklog.LogGkErr("database.NewGkDbCon", gkErr)
+			redirectToError("database.NewGkDbCon", res, req)
 			return
 		}
 
 		defer gkDbCon.Close()
 
-		passwordHashFromDatabase, passwordSalt, gkErr = gkDbCon.GetPasswordHashAndSalt(loginData.UserName)
+		dbUser, gkErr = gkDbCon.GetUser(loginData.UserName)
 
 		if gkErr != nil {
 			if gkErr.GetErrorId() == database.ERROR_ID_NO_ROWS_FOUND {
+				var passwordSalt string
+
 				password = "one two three"
 				passwordSalt = "abc123QWE."
 				// make it take the same amount of time
@@ -264,9 +337,10 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 	}
 
 	if !gotError {
-		passwordHashFromUser = sec.GenPasswordHashSlow([]byte(password), []byte(passwordSalt))
+		passwordHashFromUser = sec.GenPasswordHashSlow([]byte(password), []byte(dbUser.PasswordSalt))
 
-		if passwordHashFromDatabase != string(passwordHashFromUser) {
+gklog.LogTrace(fmt.Sprintf("dbUser: %v fromUser: %s",dbUser, passwordHashFromUser))
+		if dbUser.PasswordHash != string(passwordHashFromUser) {
 			loginData.ErrorList = append(loginData.ErrorList, "invalid username/password")
 			loginData.UserNameError = genErrorMarker()
 			loginData.PasswordError = genErrorMarker()
@@ -275,7 +349,7 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 	}
 
 	if gotError {
-		// for security
+		// for security, to slow down an attack that is guessing passwords,
 		// sleep between 100 and 190 milliseconds
 		randMilliseconds := int(rand.Int31n(10)) + 10
 		time.Sleep(time.Nanosecond * 10000000 * time.Duration(randMilliseconds))
@@ -293,6 +367,14 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 			return
 		}
 	} else {
+		gkErr = gkDbCon.UpdateUserLoginDate(dbUser.UserName)
+		if gkErr != nil {
+			// this error is going to be logged
+			// but the user is not going to be redirected to an error
+			// because they are going to be redirected to the game server
+			// and it is not critical that their login date be updated.
+			gklog.LogGkErr("_loginTemplate.Send", gkErr)
+		}
 		http.Redirect(res, req, loginConfig.WebAddressPrefix+_gameServer, http.StatusFound)
 	}
 }
@@ -335,6 +417,11 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 		registerData.UserNameError = genErrorMarker()
 		gotError = true
 	}
+	if !validUserNameCharacters(userName) {
+		registerData.ErrorList = append(registerData.ErrorList, "user has invalid characters")
+		registerData.UserNameError = genErrorMarker()
+		gotError = true
+	}
 	if password == "" {
 		registerData.ErrorList = append(registerData.ErrorList, "password cannot be blank")
 		registerData.PasswordError = genErrorMarker()
@@ -351,8 +438,8 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 
 		gkDbCon, gkErr = database.NewGkDbCon(loginConfig.DatabaseUserName, loginConfig.DatabasePassword, loginConfig.DatabaseHost, loginConfig.DatabasePort, loginConfig.DatabaseDatabase)
 		if gkErr != nil {
-			gklog.LogGkErr("_registerTemplate.Build", gkErr)
-			redirectToError("_registerTemplate.Build", res, req)
+			gklog.LogGkErr("database.NewGkDbCon", gkErr)
+			redirectToError("database.NewGkDbCon", res, req)
 			return
 		}
 
@@ -405,6 +492,210 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 	}
 }
 
+func handleLoginForgotPasswordInitial(loginConfig *loginConfigDef, res http.ResponseWriter, req *http.Request) {
+	var forgotPasswordData forgotPasswordDataDef
+	var gkErr *gkerr.GkErrDef
+
+	forgotPasswordData.Title = "forgotPassword"
+	forgotPasswordData.WebAddressPrefix = loginConfig.WebAddressPrefix
+
+	gkErr = _forgotPasswordTemplate.Build(forgotPasswordData)
+	if gkErr != nil {
+		gklog.LogGkErr("_forgotPasswordTemplate.Build", gkErr)
+		redirectToError("_forgotPasswordTemplate.Build", res, req)
+		return
+	}
+
+	gkErr = _forgotPasswordTemplate.Send(res, req)
+	if gkErr != nil {
+		gklog.LogGkErr("_forgotPasswordTemplate.send", gkErr)
+	}
+}
+
+func handleLoginForgotPassword(loginConfig *loginConfigDef, res http.ResponseWriter, req *http.Request, userName string) {
+	var forgotPasswordData forgotPasswordDataDef
+	var gkErr *gkerr.GkErrDef
+
+	forgotPasswordData.Title = "forgotPassword"
+	forgotPasswordData.WebAddressPrefix = loginConfig.WebAddressPrefix
+	forgotPasswordData.UserName = userName
+	forgotPasswordData.ErrorList = make([]string, 0, 0)
+
+	var gotError bool
+
+	if userName == "" {
+		forgotPasswordData.ErrorList = append(forgotPasswordData.ErrorList, "user name cannot be blank")
+		forgotPasswordData.UserNameError = genErrorMarker()
+		gotError = true
+	}
+
+	var dbUser *database.DbUserDef
+
+	if !gotError {
+		var gkDbCon *database.GkDbConDef
+
+		gkDbCon, gkErr = database.NewGkDbCon(loginConfig.DatabaseUserName, loginConfig.DatabasePassword, loginConfig.DatabaseHost, loginConfig.DatabasePort, loginConfig.DatabaseDatabase)
+		if gkErr != nil {
+			gklog.LogGkErr("database.NewGkDbCon", gkErr)
+			redirectToError("database.NewGkDbCon", res, req)
+			return
+		}
+
+		defer gkDbCon.Close()
+
+		dbUser, gkErr = gkDbCon.GetUser(
+			forgotPasswordData.UserName)
+
+		if gkErr != nil {
+			if gkErr.GetErrorId() == database.ERROR_ID_NO_ROWS_FOUND {
+				forgotPasswordData.ErrorList = append(forgotPasswordData.ErrorList, "no such user")
+				forgotPasswordData.UserNameError = genErrorMarker()
+				gotError = true
+			} else {
+				gklog.LogGkErr("gbDbCon.GetUser", gkErr)
+				redirectToError("gbDbCon.GetUser", res, req)
+				return
+			}
+		}
+	}
+
+	var err error
+
+	if !gotError {
+		// create temporary forgot password token
+
+		//var token []byte
+		var forgotPasswordEmailData forgotPasswordEmailDataDef
+
+		forgotPasswordEmailData.WebAddressPrefix = loginConfig.WebAddressPrefix
+		forgotPasswordEmailData.UserName = userName
+
+		var token []byte
+
+		token, err = sec.GenForgotPasswordToken()
+		if err != nil {
+			gkErr = gkerr.GenGkErr("GenForgotPasswordToken", err, ERROR_ID_GEN_TOKEN)
+			gklog.LogGkErr("GenForgotPasswordToken", gkErr)
+			redirectToError("GenForgotPasswordToken", res, req)
+			return
+		}
+
+		forgotPasswordEmailData.Token = string(token)
+
+		gkErr = _forgotPasswordEmailTemplate.Build(forgotPasswordEmailData)
+		if gkErr != nil {
+			gklog.LogGkErr("_forgotPasswordEmailTemplate.Build", gkErr)
+			redirectToError("_forgotPasswordEmailTemplate.Build", res, req)
+			return
+		}
+
+		var message []byte
+
+		message, gkErr = _forgotPasswordEmailTemplate.GetBytes()
+		if gkErr != nil {
+			gklog.LogGkErr("_forgotPasswordEmailTemplate.GetBytes", gkErr)
+			redirectToError("_forgotPasswordEmailTemplate.GetBytes", res, req)
+			return
+		}
+
+		toArray := make([]string, 1, 1)
+		toArray[0] = dbUser.Email
+		var sendId string
+
+		AddNewToken(string(token), userName)
+
+		sendId, gkErr = gknet.SendEmail(loginConfig.EmailServer, loginConfig.ServerFromEmail, toArray, "gourdian knot forgotten password", message)
+
+		if gkErr != nil {
+			gklog.LogGkErr("gknet.SendEmail", gkErr)
+		} else {
+			gklog.LogTrace("forgot email sent to: " + toArray[0] + " sendId: [" + sendId + "]")
+		}
+	}
+
+	if gotError {
+		gkErr = _forgotPasswordTemplate.Build(forgotPasswordData)
+		if gkErr != nil {
+			gklog.LogGkErr("_forgotPasswordTemplate.Build", gkErr)
+			redirectToError("_forgotPasswordTemplate.Build", res, req)
+			return
+		}
+
+		gkErr = _forgotPasswordTemplate.Send(res, req)
+		if gkErr != nil {
+			gklog.LogGkErr("_forgotPasswordTemplate.send", gkErr)
+		}
+	} else {
+		http.Redirect(res, req, loginConfig.WebAddressPrefix+_gameServer, http.StatusFound)
+	}
+}
+
+func handleLoginResetPassword(loginConfig *loginConfigDef, res http.ResponseWriter, req *http.Request, token string, userName string, password string) {
+	var resetPasswordData resetPasswordDataDef
+	var gkErr *gkerr.GkErrDef
+
+	resetPasswordData.Title = "resetPassword"
+	resetPasswordData.WebAddressPrefix = loginConfig.WebAddressPrefix
+	resetPasswordData.Token = token;
+	resetPasswordData.UserName = userName;
+
+	if !CheckToken(token, userName) {
+		redirectToError("token expired", res, req)
+		return
+	}
+
+	gklog.LogTrace("reset password: " + password)
+	if password == "" {
+	gklog.LogTrace("password blank")
+		gkErr = _resetPasswordTemplate.Build(resetPasswordData)
+		if gkErr != nil {
+			gklog.LogGkErr("_resetPasswordTemplate.Build", gkErr)
+			redirectToError("_resetPasswordTemplate.Build", res, req)
+			return
+		}
+
+		gkErr = _resetPasswordTemplate.Send(res, req)
+		if gkErr != nil {
+			gklog.LogGkErr("_resetPasswordTemplate.send", gkErr)
+		}
+		return
+	}
+
+	var gkDbCon *database.GkDbConDef
+
+	gkDbCon, gkErr = database.NewGkDbCon(loginConfig.DatabaseUserName, loginConfig.DatabasePassword, loginConfig.DatabaseHost, loginConfig.DatabasePort, loginConfig.DatabaseDatabase)
+	if gkErr != nil {
+		gklog.LogGkErr("database.NewGkDbCon", gkErr)
+		redirectToError("database.NewGkDbCon", res, req)
+		return
+	}
+
+	defer gkDbCon.Close()
+
+	var passwordHash, passwordSalt []byte
+	var err error
+
+	passwordSalt, err = sec.GenSalt()
+	if err != nil {
+		gkErr = gkerr.GenGkErr("sec.GenSalt", err, ERROR_ID_GEN_SALT)
+		gklog.LogGkErr("sec.GenSalt", gkErr)
+		redirectToError("sec.GenSalt", res, req)
+	}
+
+	passwordHash = sec.GenPasswordHashSlow([]byte(password), passwordSalt)
+
+	gklog.LogTrace("change password")
+	gkDbCon.ChangePassword(userName, string(passwordHash), string(passwordSalt))
+	if gkErr != nil {
+		gklog.LogGkErr("gkDbCon.ChangePassword", gkErr)
+		redirectToError("gbDbCon.ChangePassword", res, req)
+		return
+	}
+
+	gklog.LogTrace("redirect to login")
+	http.Redirect(res, req, loginConfig.WebAddressPrefix+_loginServer, http.StatusFound)
+}
+
 func genErrorMarker() template.HTML {
 	return template.HTML("<span class=\"errorMarker\">*</span>")
 }
@@ -437,3 +728,20 @@ func requestMatch(path string, request string) bool {
 
 	return false
 }
+
+func validUserNameCharacters(userName string) bool {
+	for _, c := range userName {
+		if c < 'a' || c > 'z' {
+			if c < 'A' || c > 'Z' {
+				if c < '0' || c > '9' {
+					if !strings.ContainsRune(" ~!@#$%^&*()-=_+;:',./<>?",rune(c)) {
+						return false
+					}
+				}
+			}
+		}
+	}
+
+	return true
+}
+

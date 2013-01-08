@@ -29,6 +29,7 @@ import (
 var passwordHashConstant = []byte("jvk56j3Bu") // this value must not change
 const _hashLoopCount = 5000                    // this value must not change
 const _saltLength = 10
+const _forgotPasswordTokenLength = 12
 
 var saltValues = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
@@ -83,9 +84,17 @@ func GenPasswordHashFast(password []byte, salt []byte) []byte {
 	return r
 }
 
-// geneate a new random salt
 func GenSalt() ([]byte, error) {
-	salt := make([]byte, _saltLength, _saltLength)
+	return genToken(_saltLength)
+}
+
+func GenForgotPasswordToken() ([]byte, error) {
+	return genToken(_forgotPasswordTokenLength)
+}
+
+// geneate a new random salt
+func genToken(tokenLen int) ([]byte, error) {
+	salt := make([]byte, tokenLen, tokenLen)
 
 	readCount, err := io.ReadFull(rand.Reader, salt)
 	if err != nil {
@@ -102,3 +111,4 @@ func GenSalt() ([]byte, error) {
 
 	return salt, nil
 }
+

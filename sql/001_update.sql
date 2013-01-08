@@ -2,16 +2,18 @@
 create sequence users_seq
 	increment by 1
 	minvalue 1
-	maxvalue 9223372036854775807
+	maxvalue 2147483647
 	start with 1;
 
 create table users
 	(
-	id bigint,
+	id int,
 	user_name varchar(20),
 	password_hash varchar(128),
 	password_salt varchar(10),
 	email varchar(80),
+	account_creation_date timestamp,
+	last_login_date timestamp,
 	primary key(id)
 	);
 
