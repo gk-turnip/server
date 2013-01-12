@@ -18,7 +18,6 @@
 package game
 
 import (
-	//	"fmt"
 	"html/template"
 	"math/rand"
 	"net/http"
@@ -26,17 +25,17 @@ import (
 )
 
 import (
-//	"gk/database"
 	"gk/gkerr"
 	"gk/gklog"
 	"gk/gktmpl"
-//	"gk/sec"
+	"gk/gknet"
 )
 
 const _methodGet = "GET"
 const _methodPost = "POST"
 
-const _gameRequest = "/gk/gameServer/"
+const _gameRequest = "/gk/gameServer"
+const _websocketRequest = "/ws"
 
 const _actParam = "act"
 const _submitParam = "submit"
@@ -63,13 +62,10 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func (gameConfig *gameConfigDef) gameInit() *gkerr.GkErrDef {
+func (httpContext *httpContextDef) gameInit() *gkerr.GkErrDef {
 	var gkErr *gkerr.GkErrDef
 
-//	var fileNames []string
-
-//	fileNames = []string{"main", "head", "game"}
-	_gameTemplate, gkErr = gktmpl.NewTemplate(gameConfig.TemplateDir, _gameTemplateName)
+	_gameTemplate, gkErr = gktmpl.NewTemplate(httpContext.gameConfig.TemplateDir, _gameTemplateName)
 	if gkErr != nil {
 		return gkErr
 	}
@@ -77,7 +73,7 @@ func (gameConfig *gameConfigDef) gameInit() *gkerr.GkErrDef {
 	return nil
 }
 
-func (gameConfig *gameConfigDef) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+func (httpContext *httpContextDef) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if _gameTemplate == nil {
 		gklog.LogError("missing call to gameInit")
 	}
@@ -88,22 +84,18 @@ func (gameConfig *gameConfigDef) ServeHTTP(res http.ResponseWriter, req *http.Re
 	gklog.LogTrace(path)
 
 	if req.Method == _methodGet || req.Method == _methodPost {
-		if requestMatch(path, _gameRequest) {
-			handleGame(gameConfig, res, req)
+		if gknet.RequestMatches(path, _gameRequest) {
+			httpContext.handleGameRequest(res, req)
 		} else {
 			http.NotFound(res, req)
 		}
 	} else {
 		http.NotFound(res, req)
 	}
-
 }
 
-func handleGame(gameConfig *gameConfigDef, res http.ResponseWriter, req *http.Request) {
+func (httpContext *httpContextDef) handleGameRequest(res http.ResponseWriter, req *http.Request) {
 	var act string
-//	var userName string
-//	var password string
-//	var email string
 
 	req.ParseForm()
 
@@ -111,7 +103,7 @@ func handleGame(gameConfig *gameConfigDef, res http.ResponseWriter, req *http.Re
 
 	switch act {
 	case "":
-		handleGameInitial(gameConfig, res, req)
+		httpContext.handleGameInitial(res, req)
 		return
 	default:
 		gklog.LogError("unknown act")
@@ -120,7 +112,7 @@ func handleGame(gameConfig *gameConfigDef, res http.ResponseWriter, req *http.Re
 	}
 }
 
-func handleGameInitial(gameConfig *gameConfigDef, res http.ResponseWriter, req *http.Request) {
+func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, req *http.Request) {
 	var gameData gameDataDef
 	var gkErr *gkerr.GkErrDef
 
@@ -161,16 +153,5 @@ func redirectToError(message string, res http.ResponseWriter, req *http.Request)
 	if gkErr != nil {
 		gklog.LogGkErr("_errorTemplate.Send", gkErr)
 	}
-}
-
-func requestMatch(path string, request string) bool {
-	if path == request {
-		return true
-	}
-	if (path + "/") == request {
-		return true
-	}
-
-	return false
 }
 

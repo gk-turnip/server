@@ -29,7 +29,8 @@ import (
 
 type gameConfigDef struct {
 	XMLName          xml.Name `xml:"config"`
-	Port             int      `xml:"port"`
+	HttpPort         int      `xml:"httpPort"`
+	WebsocketPort    int      `xml:"websocketPort"`
 	LogDir           string   `xml:"logDir"`
 	TemplateDir      string   `xml:"templateDir"`
 	WebAddressPrefix string   `xml:"webAddressPrefix"`

@@ -1,0 +1,21 @@
+package names:
+	all lower case, no underscore
+
+.go file names:
+	camel case
+
+testing .go file names:
+	camel case + "_test.go"
+
+variables:
+	camel case
+
+method names:
+	camel case
+
+function names:
+	camel case
+
+package global variables:
+	underscore + camel case
+

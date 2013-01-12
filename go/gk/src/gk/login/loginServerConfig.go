@@ -32,7 +32,8 @@ type loginConfigDef struct {
 	Port             int      `xml:"port"`
 	LogDir           string   `xml:"logDir"`
 	TemplateDir      string   `xml:"templateDir"`
-	WebAddressPrefix string   `xml:"webAddressPrefix"`
+	LoginWebAddressPrefix string   `xml:"loginWebAddressPrefix"`
+	GameWebAddressPrefix string   `xml:"gameWebAddressPrefix"`
 	DatabaseHost     string   `xml:"databaseHost"`
 	DatabasePort     int      `xml:"databasePort"`
 	DatabaseUserName string   `xml:"databaseUserName"`

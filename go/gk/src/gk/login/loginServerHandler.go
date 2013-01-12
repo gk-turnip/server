@@ -37,7 +37,6 @@ import (
 
 const _methodGet = "GET"
 const _methodPost = "POST"
-const _loginRequest = "/gk/loginServer/"
 const _loginServer = "/gk/loginServer"
 const _gameServer = "/gk/gameServer"
 
@@ -74,7 +73,7 @@ type loginDataDef struct {
 	UserName         string
 	UserNameError    template.HTML
 	PasswordError    template.HTML
-	WebAddressPrefix string
+	LoginWebAddressPrefix string
 }
 
 type registerDataDef struct {
@@ -85,7 +84,7 @@ type registerDataDef struct {
 	PasswordError    template.HTML
 	Email            string
 	EmailError       template.HTML
-	WebAddressPrefix string
+	LoginWebAddressPrefix string
 }
 
 type forgotPasswordDataDef struct {
@@ -93,13 +92,13 @@ type forgotPasswordDataDef struct {
 	ErrorList        []string
 	UserName         string
 	UserNameError    template.HTML
-	WebAddressPrefix string
+	LoginWebAddressPrefix string
 }
 
 type forgotPasswordEmailDataDef struct {
 	UserName         string
 	Token	string
-	WebAddressPrefix string
+	LoginWebAddressPrefix string
 }
 
 type resetPasswordDataDef struct {
@@ -107,7 +106,7 @@ type resetPasswordDataDef struct {
 	ErrorList        []string
 	UserName         string
 	Token	string
-	WebAddressPrefix string
+	LoginWebAddressPrefix string
 }
 
 type errorDataDef struct {
@@ -171,7 +170,7 @@ func (loginConfig *loginConfigDef) ServeHTTP(res http.ResponseWriter, req *http.
 	gklog.LogTrace(path)
 
 	if req.Method == _methodGet || req.Method == _methodPost {
-		if requestMatch(path, _loginRequest) {
+		if gknet.RequestMatches(path, _loginServer) {
 			handleLogin(loginConfig, res, req)
 		} else {
 			http.NotFound(res, req)
@@ -260,7 +259,7 @@ func handleLoginInitial(loginConfig *loginConfigDef, res http.ResponseWriter, re
 	var gkErr *gkerr.GkErrDef
 
 	loginData.Title = "login"
-	loginData.WebAddressPrefix = loginConfig.WebAddressPrefix
+	loginData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
 
 	gkErr = _loginTemplate.Build(loginData)
 	if gkErr != nil {
@@ -283,7 +282,7 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 
 	loginData.Title = "login"
 	loginData.UserName = userName
-	loginData.WebAddressPrefix = loginConfig.WebAddressPrefix
+	loginData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
 
 	if loginData.UserName == "" {
 		loginData.ErrorList = append(loginData.ErrorList, "user name cannot be blank")
@@ -375,7 +374,7 @@ gklog.LogTrace(fmt.Sprintf("dbUser: %v fromUser: %s",dbUser, passwordHashFromUse
 			// and it is not critical that their login date be updated.
 			gklog.LogGkErr("_loginTemplate.Send", gkErr)
 		}
-		http.Redirect(res, req, loginConfig.WebAddressPrefix+_gameServer, http.StatusFound)
+		http.Redirect(res, req, loginConfig.GameWebAddressPrefix+_gameServer, http.StatusFound)
 	}
 }
 
@@ -384,7 +383,7 @@ func handleLoginRegisterInitial(loginConfig *loginConfigDef, res http.ResponseWr
 	var gkErr *gkerr.GkErrDef
 
 	registerData.Title = "register"
-	registerData.WebAddressPrefix = loginConfig.WebAddressPrefix
+	registerData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
 
 	gkErr = _registerTemplate.Build(registerData)
 	if gkErr != nil {
@@ -405,7 +404,7 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 	var err error
 
 	registerData.Title = "register"
-	registerData.WebAddressPrefix = loginConfig.WebAddressPrefix
+	registerData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
 	registerData.UserName = userName
 	registerData.Email = email
 	registerData.ErrorList = make([]string, 0, 0)
@@ -488,7 +487,7 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 			gklog.LogGkErr("_registerTemplate.send", gkErr)
 		}
 	} else {
-		http.Redirect(res, req, loginConfig.WebAddressPrefix+_gameServer, http.StatusFound)
+		http.Redirect(res, req, loginConfig.GameWebAddressPrefix+_gameServer, http.StatusFound)
 	}
 }
 
@@ -497,7 +496,7 @@ func handleLoginForgotPasswordInitial(loginConfig *loginConfigDef, res http.Resp
 	var gkErr *gkerr.GkErrDef
 
 	forgotPasswordData.Title = "forgotPassword"
-	forgotPasswordData.WebAddressPrefix = loginConfig.WebAddressPrefix
+	forgotPasswordData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
 
 	gkErr = _forgotPasswordTemplate.Build(forgotPasswordData)
 	if gkErr != nil {
@@ -517,7 +516,7 @@ func handleLoginForgotPassword(loginConfig *loginConfigDef, res http.ResponseWri
 	var gkErr *gkerr.GkErrDef
 
 	forgotPasswordData.Title = "forgotPassword"
-	forgotPasswordData.WebAddressPrefix = loginConfig.WebAddressPrefix
+	forgotPasswordData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
 	forgotPasswordData.UserName = userName
 	forgotPasswordData.ErrorList = make([]string, 0, 0)
 
@@ -567,7 +566,7 @@ func handleLoginForgotPassword(loginConfig *loginConfigDef, res http.ResponseWri
 		//var token []byte
 		var forgotPasswordEmailData forgotPasswordEmailDataDef
 
-		forgotPasswordEmailData.WebAddressPrefix = loginConfig.WebAddressPrefix
+		forgotPasswordEmailData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
 		forgotPasswordEmailData.UserName = userName
 
 		var token []byte
@@ -626,7 +625,7 @@ func handleLoginForgotPassword(loginConfig *loginConfigDef, res http.ResponseWri
 			gklog.LogGkErr("_forgotPasswordTemplate.send", gkErr)
 		}
 	} else {
-		http.Redirect(res, req, loginConfig.WebAddressPrefix+_gameServer, http.StatusFound)
+		http.Redirect(res, req, loginConfig.GameWebAddressPrefix+_gameServer, http.StatusFound)
 	}
 }
 
@@ -635,7 +634,7 @@ func handleLoginResetPassword(loginConfig *loginConfigDef, res http.ResponseWrit
 	var gkErr *gkerr.GkErrDef
 
 	resetPasswordData.Title = "resetPassword"
-	resetPasswordData.WebAddressPrefix = loginConfig.WebAddressPrefix
+	resetPasswordData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
 	resetPasswordData.Token = token;
 	resetPasswordData.UserName = userName;
 
@@ -693,7 +692,7 @@ func handleLoginResetPassword(loginConfig *loginConfigDef, res http.ResponseWrit
 	}
 
 	gklog.LogTrace("redirect to login")
-	http.Redirect(res, req, loginConfig.WebAddressPrefix+_loginServer, http.StatusFound)
+	http.Redirect(res, req, loginConfig.LoginWebAddressPrefix+_loginServer, http.StatusFound)
 }
 
 func genErrorMarker() template.HTML {
@@ -716,17 +715,6 @@ func redirectToError(message string, res http.ResponseWriter, req *http.Request)
 	if gkErr != nil {
 		gklog.LogGkErr("_errorTemplate.Send", gkErr)
 	}
-}
-
-func requestMatch(path string, request string) bool {
-	if path == request {
-		return true
-	}
-	if (path + "/") == request {
-		return true
-	}
-
-	return false
 }
 
 func validUserNameCharacters(userName string) bool {

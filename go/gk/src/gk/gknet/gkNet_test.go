@@ -15,9 +15,45 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package game
+package gknet
 
-const (
-	ERROR_ID_OPEN_CONFIG = 0x40000000 + iota
-	ERROR_ID_DECODE_CONFIG
+import (
+	"testing"
 )
+
+func TestGkNet(t *testing.T) {
+	testRequestMatches(t)
+}
+
+func testRequestMatches(t *testing.T) {
+	if !RequestMatches("a","a") {
+		t.Logf("RequestMatches")
+		t.Fail()
+	}
+	if RequestMatches("a","b") {
+		t.Logf("RequestMatches")
+		t.Fail()
+	}
+	if !RequestMatches("/one","/one") {
+		t.Logf("RequestMatches")
+		t.Fail()
+	}
+	if !RequestMatches("/one","/one/") {
+		t.Logf("RequestMatches")
+		t.Fail()
+	}
+	if !RequestMatches("/one/","/one") {
+		t.Logf("RequestMatches")
+		t.Fail()
+	}
+	if RequestMatches("/one/","/two/") {
+		t.Logf("RequestMatches")
+		t.Fail()
+	}
+	if RequestMatches("/one","/two/") {
+		t.Logf("RequestMatches")
+		t.Fail()
+	}
+}
+
+

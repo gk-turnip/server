@@ -18,15 +18,25 @@
 package game
 
 import (
-	"flag"
 	"fmt"
+	"flag"
+	"time"
 	"net/http"
+	"code.google.com/p/go.net/websocket"
 )
 
 import (
 	"gk/gkerr"
 	"gk/gklog"
 )
+
+type httpContextDef struct {
+	gameConfig gameConfigDef
+}
+
+type websocketContextDef struct {
+	gameConfig gameConfigDef
+}
 
 func GameServerStart() {
 
@@ -47,14 +57,48 @@ func GameServerStart() {
 		return
 	}
 
+	var httpContext httpContextDef
+	httpContext.gameConfig = gameConfig
+
 	gklog.LogInit(gameConfig.LogDir)
-	gkErr = gameConfig.gameInit()
+	gkErr = httpContext.gameInit()
 	if gkErr != nil {
 		gklog.LogGkErr("gameConfig.gameInit", gkErr)
 		return
 	}
 
-	address := fmt.Sprintf(":%d", gameConfig.Port)
+	gklog.LogTrace("game server started")
 
-	http.ListenAndServe(address, &gameConfig)
+	httpAddress := fmt.Sprintf(":%d", gameConfig.HttpPort)
+
+	var err error
+
+	go func() {
+		err = http.ListenAndServe(httpAddress, &httpContext)
+		if err != nil {
+			gkErr = gkerr.GenGkErr("http.ListenAndServer http", err, ERROR_ID_HTTP_SERVER_START)
+			gklog.LogGkErr("http.ListenAndServer", gkErr)
+			return
+		}
+	}()
+
+	websocketAddress := fmt.Sprintf(":%d", gameConfig.WebsocketPort)
+	var websocketContext websocketContextDef
+	websocketContext.gameConfig = gameConfig
+
+	go func() {
+		gklog.LogTrace("starting web socket listener")
+		err = http.ListenAndServe(websocketAddress, websocket.Handler(websocketHandler))
+		if err != nil {
+			gkErr = gkerr.GenGkErr("http.ListenAndServer websocket", err, ERROR_ID_WEBSOCKET_SERVER_START)
+			gklog.LogGkErr("http.ListenAndServer", gkErr)
+			return
+		}
+	}()
+
+	// give it time for the servers to start
+	time.Sleep(time.Second * 60)
+	// wait for all go routines to finish
+	select {}
+	gklog.LogTrace("game server ended")
 }

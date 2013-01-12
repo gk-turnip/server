@@ -57,6 +57,7 @@ then
 	go install gk/database
 
 	go test gk/sec
+	go test gk/gknet
 
 	go build -o gk/bin/wfToJsMain gk/src/gk/main/wfToJsMain.go
 
