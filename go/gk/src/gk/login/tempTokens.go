@@ -17,11 +17,10 @@
 
 package login
 
-
 import (
 	"fmt"
-	"time"
 	"sync"
+	"time"
 )
 
 import (
@@ -31,7 +30,7 @@ import (
 var _tokenExpiry time.Duration = time.Second * 600 // ten minutes
 
 type tokenEntryDef struct {
-	userName string
+	userName    string
 	createdDate time.Time
 }
 
@@ -50,7 +49,7 @@ func AddNewToken(token string, userName string) {
 	tokenEntry.userName = userName
 	tokenEntry.createdDate = time.Now()
 	_tokenMap[token] = tokenEntry
-gklog.LogTrace(fmt.Sprintf("add map entry k: %+v v: %+v",token,tokenEntry))
+	gklog.LogTrace(fmt.Sprintf("add map entry k: %+v v: %+v", token, tokenEntry))
 }
 
 // check if the token / userName is valid
@@ -64,9 +63,9 @@ func CheckToken(token string, userName string) bool {
 	var ok bool
 
 	tokenEntry, ok = _tokenMap[token]
-gklog.LogTrace(fmt.Sprintf("check map entry k: %+v v: %+v",token,ok))
+	gklog.LogTrace(fmt.Sprintf("check map entry k: %+v v: %+v", token, ok))
 	if ok {
-gklog.LogTrace(fmt.Sprintf("check map entry k: %+v v: %+v",token,tokenEntry))
+		gklog.LogTrace(fmt.Sprintf("check map entry k: %+v v: %+v", token, tokenEntry))
 		if tokenEntry.userName == userName {
 			return true
 		}
@@ -79,11 +78,10 @@ gklog.LogTrace(fmt.Sprintf("check map entry k: %+v v: %+v",token,tokenEntry))
 func checkTokenExpire() {
 	expireTime := time.Now().Add(time.Duration(-1) * _tokenExpiry)
 
-	for k,v := range _tokenMap {
+	for k, v := range _tokenMap {
 		if expireTime.After(v.createdDate) {
-gklog.LogTrace(fmt.Sprintf("removing map entry (timeout) k: %+v v: %+v",k,v))
-			delete(_tokenMap,k)
+			gklog.LogTrace(fmt.Sprintf("removing map entry (timeout) k: %+v v: %+v", k, v))
+			delete(_tokenMap, k)
 		}
 	}
 }
-

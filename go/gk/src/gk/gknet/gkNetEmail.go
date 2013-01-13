@@ -19,11 +19,11 @@
 package gknet
 
 import (
+	"bytes"
 	"fmt"
 	"io"
-	"bytes"
-	"strings"
 	"net/smtp"
+	"strings"
 )
 
 import (
@@ -73,13 +73,13 @@ func SendEmail(address string, from string, toArray []string, subject string, me
 
 	err = conn.Quit()
 	if err != nil {
-		localError := fmt.Sprintf("%v",err)
-		if strings.Index(localError,"Ok") != -1 &&
-			strings.Index(localError,"queued as") != -1 {
+		localError := fmt.Sprintf("%v", err)
+		if strings.Index(localError, "Ok") != -1 &&
+			strings.Index(localError, "queued as") != -1 {
 			sendId = localError
 		} else {
 			gkErr = gkerr.GenGkErr("conn.Quit", err, ERROR_ID_SMTP_QUIT)
-//gklog.LogTrace(fmt.Sprintf("smtp quit %T [%v] %v",err, err, gkErr))
+			//gklog.LogTrace(fmt.Sprintf("smtp quit %T [%v] %v",err, err, gkErr))
 			return "", gkErr
 		}
 	}

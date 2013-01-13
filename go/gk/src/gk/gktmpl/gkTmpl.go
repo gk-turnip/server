@@ -18,14 +18,14 @@
 package gktmpl
 
 import (
-	"fmt"
-	"bytes"
-	"strings"
 	"bufio"
-	"io"
-	"os"
+	"bytes"
+	"fmt"
 	"html/template"
+	"io"
 	"net/http"
+	"os"
+	"strings"
 )
 
 import (
@@ -57,7 +57,7 @@ func NewTemplate(templateDir string, templateName string) (*TemplateDef, *gkerr.
 
 	var br *bufio.Reader
 
-	localFileNames := make([]string,0,0)
+	localFileNames := make([]string, 0, 0)
 
 	br = bufio.NewReader(file)
 	for {
@@ -68,7 +68,7 @@ func NewTemplate(templateDir string, templateName string) (*TemplateDef, *gkerr.
 		line = strings.Trim(line, "\r\n\t ")
 
 		if line != "" {
-			localFileNames = append(localFileNames,templateDir + string(os.PathSeparator) + line)
+			localFileNames = append(localFileNames, templateDir+string(os.PathSeparator)+line)
 		}
 
 		if err != nil {
@@ -79,12 +79,12 @@ func NewTemplate(templateDir string, templateName string) (*TemplateDef, *gkerr.
 		}
 	}
 
-//	localFileNames = make([]string, len(fileNames), len(fileNames))
-//	for i := 0; i < len(fileNames); i++ {
-//		localFileNames[i] = templateDir + string(os.PathSeparator) + fileNames[i] + ".html"
-//	}
+	//	localFileNames = make([]string, len(fileNames), len(fileNames))
+	//	for i := 0; i < len(fileNames); i++ {
+	//		localFileNames[i] = templateDir + string(os.PathSeparator) + fileNames[i] + ".html"
+	//	}
 
-gklog.LogTrace(fmt.Sprintf("localFileNames: %+v",localFileNames))
+	gklog.LogTrace(fmt.Sprintf("localFileNames: %+v", localFileNames))
 
 	_, err = gkTemplate.tmpl.ParseFiles(localFileNames...)
 	if err != nil {
@@ -137,4 +137,3 @@ func (gkTemplate *TemplateDef) GetBytes() ([]byte, *gkerr.GkErrDef) {
 
 	return gkTemplate.dataBuffer.Bytes(), nil
 }
-

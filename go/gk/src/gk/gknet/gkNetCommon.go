@@ -27,28 +27,27 @@ func RequestMatches(request string, path string) bool {
 		return false
 	}
 
-	if request[len(request) - 1:] == "/" &&
-		path[len(path) - 1:] == "/" {
+	if request[len(request)-1:] == "/" &&
+		path[len(path)-1:] == "/" {
 		return false
 	}
 
-	if request[len(request) - 1:] != "/" &&
-		path[len(path) - 1:] != "/" {
+	if request[len(request)-1:] != "/" &&
+		path[len(path)-1:] != "/" {
 		return false
 	}
 
-	if path[len(path) - 1:] != "/" {
-		if request[:len(request) - 1] == path {
+	if path[len(path)-1:] != "/" {
+		if request[:len(request)-1] == path {
 			return true
 		}
 	}
 
-	if request[len(request) - 1:] != "/" {
-		if path[:len(path) - 1] == request {
+	if request[len(request)-1:] != "/" {
+		if path[:len(path)-1] == request {
 			return true
 		}
 	}
 
 	return false
 }
-

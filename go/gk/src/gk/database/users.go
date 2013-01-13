@@ -18,9 +18,9 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
-	"database/sql"
 )
 
 import (
@@ -29,13 +29,13 @@ import (
 )
 
 type DbUserDef struct {
-	id int64
-	UserName string
-	PasswordHash string
-	PasswordSalt string
-	Email string
+	id                  int64
+	UserName            string
+	PasswordHash        string
+	PasswordSalt        string
+	Email               string
 	accountCreationDate time.Time
-	lastLoginDate time.Time
+	lastLoginDate       time.Time
 }
 
 func (gkDbCon *GkDbConDef) GetUser(userName string) (*DbUserDef, *gkerr.GkErrDef) {

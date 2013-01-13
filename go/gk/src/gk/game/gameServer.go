@@ -18,11 +18,11 @@
 package game
 
 import (
-	"fmt"
-	"flag"
-	"time"
-	"net/http"
 	"code.google.com/p/go.net/websocket"
+	"flag"
+	"fmt"
+	"net/http"
+	"time"
 )
 
 import (

@@ -19,20 +19,20 @@ package login
 
 import (
 	"fmt"
-	"strings"
-	"time"
 	"html/template"
 	"math/rand"
 	"net/http"
+	"strings"
+	"time"
 )
 
 import (
 	"gk/database"
 	"gk/gkerr"
 	"gk/gklog"
+	"gk/gknet"
 	"gk/gktmpl"
 	"gk/sec"
-	"gk/gknet"
 )
 
 const _methodGet = "GET"
@@ -68,44 +68,44 @@ var _errorTemplate *gktmpl.TemplateDef
 var _errorTemplateName string = "error"
 
 type loginDataDef struct {
-	Title            string
-	ErrorList        []string
-	UserName         string
-	UserNameError    template.HTML
-	PasswordError    template.HTML
+	Title                 string
+	ErrorList             []string
+	UserName              string
+	UserNameError         template.HTML
+	PasswordError         template.HTML
 	LoginWebAddressPrefix string
 }
 
 type registerDataDef struct {
-	Title            string
-	ErrorList        []string
-	UserName         string
-	UserNameError    template.HTML
-	PasswordError    template.HTML
-	Email            string
-	EmailError       template.HTML
+	Title                 string
+	ErrorList             []string
+	UserName              string
+	UserNameError         template.HTML
+	PasswordError         template.HTML
+	Email                 string
+	EmailError            template.HTML
 	LoginWebAddressPrefix string
 }
 
 type forgotPasswordDataDef struct {
-	Title            string
-	ErrorList        []string
-	UserName         string
-	UserNameError    template.HTML
+	Title                 string
+	ErrorList             []string
+	UserName              string
+	UserNameError         template.HTML
 	LoginWebAddressPrefix string
 }
 
 type forgotPasswordEmailDataDef struct {
-	UserName         string
-	Token	string
+	UserName              string
+	Token                 string
 	LoginWebAddressPrefix string
 }
 
 type resetPasswordDataDef struct {
-	Title	string
-	ErrorList        []string
-	UserName         string
-	Token	string
+	Title                 string
+	ErrorList             []string
+	UserName              string
+	Token                 string
 	LoginWebAddressPrefix string
 }
 
@@ -121,21 +121,21 @@ func init() {
 func (loginConfig *loginConfigDef) loginInit() *gkerr.GkErrDef {
 	var gkErr *gkerr.GkErrDef
 
-//	var fileNames []string
+	//	var fileNames []string
 
-//	fileNames = []string{"main", "head", "error_list", "login"}
+	//	fileNames = []string{"main", "head", "error_list", "login"}
 	_loginTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, _loginTemplateName)
 	if gkErr != nil {
 		return gkErr
 	}
 
-//	fileNames = []string{"main", "head", "error_list", "register"}
+	//	fileNames = []string{"main", "head", "error_list", "register"}
 	_registerTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, _registerTemplateName)
 	if gkErr != nil {
 		return gkErr
 	}
 
-//	fileNames = []string{"main", "head", "error_list", "error"}
+	//	fileNames = []string{"main", "head", "error_list", "error"}
 	_errorTemplate, gkErr = gktmpl.NewTemplate(loginConfig.TemplateDir, _errorTemplateName)
 	if gkErr != nil {
 		return gkErr
@@ -338,7 +338,7 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 	if !gotError {
 		passwordHashFromUser = sec.GenPasswordHashSlow([]byte(password), []byte(dbUser.PasswordSalt))
 
-gklog.LogTrace(fmt.Sprintf("dbUser: %v fromUser: %s",dbUser, passwordHashFromUser))
+		gklog.LogTrace(fmt.Sprintf("dbUser: %v fromUser: %s", dbUser, passwordHashFromUser))
 		if dbUser.PasswordHash != string(passwordHashFromUser) {
 			loginData.ErrorList = append(loginData.ErrorList, "invalid username/password")
 			loginData.UserNameError = genErrorMarker()
@@ -635,8 +635,8 @@ func handleLoginResetPassword(loginConfig *loginConfigDef, res http.ResponseWrit
 
 	resetPasswordData.Title = "resetPassword"
 	resetPasswordData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
-	resetPasswordData.Token = token;
-	resetPasswordData.UserName = userName;
+	resetPasswordData.Token = token
+	resetPasswordData.UserName = userName
 
 	if !CheckToken(token, userName) {
 		redirectToError("token expired", res, req)
@@ -645,7 +645,7 @@ func handleLoginResetPassword(loginConfig *loginConfigDef, res http.ResponseWrit
 
 	gklog.LogTrace("reset password: " + password)
 	if password == "" {
-	gklog.LogTrace("password blank")
+		gklog.LogTrace("password blank")
 		gkErr = _resetPasswordTemplate.Build(resetPasswordData)
 		if gkErr != nil {
 			gklog.LogGkErr("_resetPasswordTemplate.Build", gkErr)
@@ -722,7 +722,7 @@ func validUserNameCharacters(userName string) bool {
 		if c < 'a' || c > 'z' {
 			if c < 'A' || c > 'Z' {
 				if c < '0' || c > '9' {
-					if !strings.ContainsRune(" ~!@#$%^&*()-=_+;:',./<>?",rune(c)) {
+					if !strings.ContainsRune(" ~!@#$%^&*()-=_+;:',./<>?", rune(c)) {
 						return false
 					}
 				}
@@ -732,4 +732,3 @@ func validUserNameCharacters(userName string) bool {
 
 	return true
 }
-

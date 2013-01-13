@@ -1,16 +1,9 @@
 {{define "body"}}
-<body onload="init();">
-<h1>Game</h1>
-<h2 onclick="doClick();">Click</h2>
-you are now actually in the game!<br/>
-I know, it does not look like much, but it is actually running a different server process (the gameServer), the other server was the loginServer.<br/>
-This is one standard fern:
-<embed src="http://www.gourdianknot.com/assets/fern.svg" type="image/svg+xml" /><br/>
-and here is the wee ghostie:
-<embed src="http://www.gourdianknot.com/assets/ghostie.svg" type="image/svg+xml" /><br/>
-and the dandelion<br/>
-<embed src="http://www.gourdianknot.com/assets/dandelion.svg" type="image/svg+xml" /><br/>
-now if only I could make them move :)<br/>
+<body style="margin:5px" onload="init();">
+<span onclick="doClick(event);">
+	<svg id="field" width="500" height="250" xmlns="http://www.w3.org/2000/svg"></svg>
+</span>
+<h4>click within grid to move cube</h4>
 </body>
 {{end}}
 

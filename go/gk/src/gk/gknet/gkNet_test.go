@@ -26,34 +26,32 @@ func TestGkNet(t *testing.T) {
 }
 
 func testRequestMatches(t *testing.T) {
-	if !RequestMatches("a","a") {
+	if !RequestMatches("a", "a") {
 		t.Logf("RequestMatches")
 		t.Fail()
 	}
-	if RequestMatches("a","b") {
+	if RequestMatches("a", "b") {
 		t.Logf("RequestMatches")
 		t.Fail()
 	}
-	if !RequestMatches("/one","/one") {
+	if !RequestMatches("/one", "/one") {
 		t.Logf("RequestMatches")
 		t.Fail()
 	}
-	if !RequestMatches("/one","/one/") {
+	if !RequestMatches("/one", "/one/") {
 		t.Logf("RequestMatches")
 		t.Fail()
 	}
-	if !RequestMatches("/one/","/one") {
+	if !RequestMatches("/one/", "/one") {
 		t.Logf("RequestMatches")
 		t.Fail()
 	}
-	if RequestMatches("/one/","/two/") {
+	if RequestMatches("/one/", "/two/") {
 		t.Logf("RequestMatches")
 		t.Fail()
 	}
-	if RequestMatches("/one","/two/") {
+	if RequestMatches("/one", "/two/") {
 		t.Logf("RequestMatches")
 		t.Fail()
 	}
 }
-
-

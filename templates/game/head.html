@@ -18,6 +18,9 @@
 
 	<script type="text/javascript">
 		var ws
+		var svgData
+		var boxX = 100;
+		var boxY = 100;
 
 		function init() {
 			console.log("calling init");
@@ -27,32 +30,154 @@
 				ws = null;
 			}
 
-			ws = new WebSocket("ws://www.gourdianknot.com:14003/ws/test");
-			console.log("new ws");
-			ws.onopen = doWsOpen();
+			ws = new WebSocket("ws://www.gourdianknot.com:14003/ws/svg");
+			ws.onopen = function() { doWsOpen(); };
 			ws.onmessage = function(evt) { doWsMessage(evt); };
-			ws.onclose = doWsOnClose();
+			ws.onclose = function() { doWsOnClose(); };
+
+			drawGrid();
 		}
 
 		function doWsOpen() {
 			console.log("doWsOpen");
+			ws.send("getSvg babyWhatKnot.svg\n");
 		}
 
 		function doWsMessage(e) {
 			console.log("doWsMessage");
-			console.log(e.data);
+
+			var nlIndex = -1
+
+			for (i = 0;i < e.data.length;i++) {
+				if (e.data[i] == '\n') {
+					nlIndex = i
+					break;
+				}
+			}
+
+			if (nlIndex != -1) {
+				command = e.data.substring(0,nlIndex);
+				switch (command) {
+				case "svg":
+					svgData = e.data.substring(nlIndex + 1);
+					var svgString = "";
+
+					for (i = (nlIndex + 1);i < e.data.length;i++) {
+						svgString += e.data[i];
+					}
+
+					field = document.getElementById("field");
+					var r1 = new DOMParser().parseFromString(svgString, 'text/xml');
+					field.appendChild(document.importNode(r1.documentElement.firstChild,true));
+					box = field.getElementById("box");
+					box.setAttribute("transform","translate(" + boxY + "," + boxX + ")");
+					
+					break;
+				default:
+					console.log("did not understand command from game server " + command);
+				}
+			} else {
+				console.log("did not understand input from game server");
+			}
 		}
 
 		function doWsOnClose() {
 			console.log("doWsOnClose");
 		}
 
-		function doClick() {
-			console.log("doClick");
 
-			ws.send("message from game client head.html");
+		var NS = "http://www.w3.org/2000/svg";
+		var MAR = 5;
+		var GRID_COLOUR = "#afafaf";
+
+		function drawGrid() {
+			var line;
+
+			field = document.getElementById("field");
+
+			for (i = 0;i < 51;i += 10) {
+				line = document.createElementNS(NS,"line");
+				line.setAttribute("x1",250 + (i * 5));
+				line.setAttribute("y1",0 + (i * 2.5));
+				line.setAttribute("x2",0 + (i * 5));
+				line.setAttribute("y2",125 + (i * 2.5));
+				line.setAttribute("stroke", GRID_COLOUR);
+				line.setAttribute('stroke-width', 1);
+				field.appendChild(line)
+			}
+
+			for (i = 0;i < 51;i += 10) {
+				line = document.createElementNS(NS,"line");
+				line.setAttribute("x1",0 + (i * 5));
+				line.setAttribute("y1",125 - (i * 2.5));
+				line.setAttribute("x2",250 + (i * 5));
+				line.setAttribute("y2",250 - (i * 2.5));
+				line.setAttribute('stroke', GRID_COLOUR);
+				line.setAttribute('stroke-width', 1);
+				field.appendChild(line)
+			}
 		}
-		
+
+		function drawSingleDiamond(x,y) {
+			field = document.getElementById("field");
+			var xx
+			var yy
+
+			xx = x - y
+			yy = x + y
+			diamond = document.createElementNS(NS,"polygon");
+			x1 = 250 + (xx * 5);
+			y1 = 0 + (yy * 2.5);
+			x2 = 245 + (xx * 5);
+			y2 = 2.5 + (yy * 2.5);
+			x3 = 250 + (xx * 5);
+			y3 = 5 + (yy * 2.5);
+			x4 = 255 + (xx * 5);
+			y4 = 2.5 + (yy * 2.5);
+
+			diamond.setAttribute("points", x1 + "," + y1 + " " + x2 + "," + y2 + " " + x3 + "," + y3 + " " + x4 + "," + y4);
+
+			diamond.setAttribute("fill", '#8f8fff');
+			diamond.setAttribute("stroke", "#8f8fff");
+
+			field.appendChild(diamond)
+
+		}
+
+		function doClick(e) {
+			var xx
+			var yy
+
+			xx = e.pageX - MAR;
+			yy = e.pageY - MAR;
+
+			x = Math.floor(((yy * 2) + xx - 250) / 10);
+			y = Math.floor((yy - (xx - 250) / 2) / 5);
+
+			drawSingleDiamond(x,y);
+
+			var box
+
+			if (xx > boxX) {
+				boxX += 5;
+			}
+			if (yy > boxY) {
+				boxY += 5;
+			}
+
+			if (xx < boxX) {
+				boxX -= 5;
+			}
+			if (yy < boxY) {
+				boxY -= 5;
+			}
+
+			field = document.getElementById("field");
+
+			box = field.getElementById("box");
+			box.setAttribute("transform","translate(" + boxX + "," + boxY + ")");
+		}
+	
 	</script>
 </head>
 {{end}}

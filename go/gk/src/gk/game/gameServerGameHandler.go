@@ -27,8 +27,8 @@ import (
 import (
 	"gk/gkerr"
 	"gk/gklog"
-	"gk/gktmpl"
 	"gk/gknet"
+	"gk/gktmpl"
 )
 
 const _methodGet = "GET"
@@ -48,7 +48,7 @@ var _gameTemplate *gktmpl.TemplateDef
 var _gameTemplateName string = "game"
 
 type gameDataDef struct {
-	Title   string
+	Title string
 }
 
 var _errorTemplate *gktmpl.TemplateDef
@@ -154,4 +154,3 @@ func redirectToError(message string, res http.ResponseWriter, req *http.Request)
 		gklog.LogGkErr("_errorTemplate.Send", gkErr)
 	}
 }
-

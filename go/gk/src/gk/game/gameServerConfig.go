@@ -33,6 +33,7 @@ type gameConfigDef struct {
 	WebsocketPort    int      `xml:"websocketPort"`
 	LogDir           string   `xml:"logDir"`
 	TemplateDir      string   `xml:"templateDir"`
+	SvgDir           string   `xml:"svgDir"`
 	WebAddressPrefix string   `xml:"webAddressPrefix"`
 	DatabaseHost     string   `xml:"databaseHost"`
 	DatabasePort     int      `xml:"databasePort"`

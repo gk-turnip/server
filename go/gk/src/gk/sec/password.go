@@ -111,4 +111,3 @@ func genToken(tokenLen int) ([]byte, error) {
 
 	return salt, nil
 }
-
