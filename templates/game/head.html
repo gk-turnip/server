@@ -40,7 +40,7 @@
 
 		function doWsOpen() {
 			console.log("doWsOpen");
-			ws.send("getSvg babyWhatKnot.svg\n");
+			ws.send("getSvg\ntest.svg\n");
 		}
 
 		function doWsMessage(e) {
@@ -57,6 +57,7 @@
 
 			if (nlIndex != -1) {
 				command = e.data.substring(0,nlIndex);
+				console.log("command from gameServer: " + command);
 				switch (command) {
 				case "svg":
 					svgData = e.data.substring(nlIndex + 1);
@@ -65,6 +66,8 @@
 					for (i = (nlIndex + 1);i < e.data.length;i++) {
 						svgString += e.data[i];
 					}
+
+					console.log("svgString: " + svgString);
 
 					field = document.getElementById("field");
 					var r1 = new DOMParser().parseFromString(svgString, 'text/xml');
