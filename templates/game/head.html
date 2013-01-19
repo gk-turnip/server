@@ -22,6 +22,20 @@
 		var boxX = 100;
 		var boxY = 100;
 
+		var needJump = false;
+		var needLand = false;
+		var jumpCount = 0;
+
+		var canPlayOgg = false;
+		var canPlayMp3 = false;
+		var canPlayWave = false;
+
+		var drops = new Array();
+		var dropsRequired = 0;
+		var dropsWidth = 500;
+		var dropsHeight = 300;
+		var dropsStateCount = 0;
+
 		function init() {
 			console.log("calling init");
 			if (ws != null) {
@@ -36,6 +50,11 @@
 			ws.onclose = function() { doWsOnClose(); };
 
 			drawGrid();
+			setUpAudio();
+			startRain();
+
+			setInterval(doAnimateLoop,100);
+
 		}
 
 		function doWsOpen() {
@@ -74,7 +93,7 @@
 					field.appendChild(document.importNode(r1.documentElement.firstChild,true));
 					box = field.getElementById("box");
 					box.setAttribute("transform","translate(" + boxY + "," + boxX + ")");
-					
+
 					break;
 				default:
 					console.log("did not understand command from game server " + command);
@@ -148,6 +167,8 @@
 		}
 
 		function doClick(e) {
+			needJump = true;
+			jumpCount = 1;
 			var xx
 			var yy
 
@@ -164,14 +185,14 @@
 			if (xx > boxX) {
 				boxX += 5;
 			}
-			if (yy > boxY) {
+			if (yy > (boxY + 50)) {
 				boxY += 5;
 			}
 
 			if (xx < boxX) {
 				boxX -= 5;
 			}
-			if (yy < boxY) {
+			if (yy < (boxY + 50)) {
 				boxY -= 5;
 			}
 
@@ -179,8 +200,210 @@
 
 			box = field.getElementById("box");
 			box.setAttribute("transform","translate(" + boxX + "," + boxY + ")");
+
+			clickSound();
 		}
-	
+
+		function doAnimateLoop() {
+        var field;
+        var box;
+
+		field = document.getElementById("field");
+		box = field.getElementById("box");
+
+		if (needLand) {
+			if (jumpCount > 0) {
+				jumpCount -= 1;
+			} else {
+				field = document.getElementById("field");
+				box = field.getElementById("box");
+
+				g30 = field.getElementById("g30");
+				g112 = field.getElementById("g112");
+				g202 = field.getElementById("g202");
+
+				box.setAttribute("transform","translate(" + boxX + "," + boxY + ")");
+
+				g112.setAttribute("transform","translate(" + 0 + "," + 0 + ")");
+				g30.setAttribute("transform","translate(" + 0 + "," + 0 + ")");
+				g202.setAttribute("transform","translate(" + 0 + "," + 0 + ")");
+				needLand = false;
+			}
+		}
+
+		if (needJump) {
+			if (jumpCount > 0) {
+				jumpCount -= 1;
+			} else {
+				field = document.getElementById("field");
+				box = field.getElementById("box");
+
+				g30 = field.getElementById("g30");
+				g112 = field.getElementById("g112");
+				g202 = field.getElementById("g202");
+
+				box.setAttribute("transform","translate(" + boxX + "," + (boxY - 40) + ")");
+
+				g112.setAttribute("transform","translate(" + 0 + "," + 11 + ")");
+				g30.setAttribute("transform","translate(" + 0 + "," + 22 + ")");
+				g202.setAttribute("transform","translate(" + 0 + "," + 33 + ")");
+
+				jump_count = 4;
+				needJump = false;
+				needLand = true;
+			}
+		}
+		}
+
+		function setUpAudio() {
+			console.log("init called");
+			var audio1 = document.getElementById("audio1")
+			var canPlay = document.getElementById("canPlay");
+			canPlay.innerHTML="can play:";
+			var source = document.createElement('source');
+			if (audio1.canPlayType('audio/mpeg;')) {
+				canPlay.innerHTML += " mpeg";
+				canPlayMp3 = true
+			}
+			if (audio1.canPlayType('audio/ogg;')) {
+				canPlay.innerHTML += " ogg";
+				canPlayOgg = true
+			}
+			if (audio1.canPlayType('audio/wav;')) {
+				canPlay.innerHTML += " wav";
+				canPlayWave = true
+			}
+
+			var source = document.createElement("source");
+			if (canPlayOgg) {
+				source.type = "audio/ogg";
+				source.src = "/assets/gk/audio/Devildance.ogg";
+				audio1.appendChild(source);
+				audio1.play();
+				} else {
+				if (canPlayMp3) {
+					source.type = "audio/mpeg";
+					source.src = "/assets/gk/audio/Devildance.mp3";
+					audio1.appendChild(source);
+					audio1.play();
+				}
+			}
+		}
+
+		function clickSound() {
+				var audio2 = document.getElementById("audio2");
+
+				for (i = (audio2.children.length - 1); i >= 0; i-- ) {
+					audio2.removeChild(audio2.children[i]);
+				}
+
+				console.log("len: " + (audio2.children.length));
+
+				var source = document.createElement("source");
+				if (canPlayOgg) {
+					source.type = "audio/ogg";
+					source.src = "/assets/gk/audio/duck.ogg";
+					audio2.appendChild(source);
+					audio2.play();
+					} else {
+					if (canPlayMp3) {
+						source.type = "audio/mpeg";
+						source.src = "/assets/gk/audio/duck.mp3";
+						audio2.appendChild(source);
+						audio2.play();
+					}
+				}
+
+		}
+
+		function volumeChange(audioSelect) {
+			var volume;
+			console.log("volume select: " + audioSelect);
+			var audio = document.getElementById("audio" + audioSelect)
+
+			volume = document.getElementById("volume" + audioSelect);
+			console.log(volume.value);
+			audio.volume = volume.value;
+		}
+
+			function startRain() {
+					setInterval(rainLoop,100);
+			}
+
+			function rainLoop() {
+				var field;
+
+				dropsStateCount += 1;
+
+				if ((dropsStateCount > 100) && (dropsStateCount < 130)){
+					dropsRequired += 1;
+				}
+
+				if (dropsStateCount > 500) {
+					dropsRequired = 0;
+				}
+
+				if (dropsStateCount > 1000) {
+					dropsStateCount = 0;
+				}
+
+//				console.log("drops.length: " + drops.length);
+
+				field = document.getElementById("field");
+				var undefinedIndex = -1;
+				var dropsCounted = 0;
+				for (i = 0;i < drops.length;i++) {
+					if (drops[i] == undefined) {
+//						console.log("undefined found at: " + i);
+						undefinedIndex = i;
+					} else {
+						if (drops[i].y > dropsHeight) {
+							drops[i].svgGroup.parentNode.removeChild(drops[i].svgGroup);
+							delete drops[i];
+						} else {
+							drops[i].fallOne();
+							dropsCounted += 1;
+						}
+					}
+				}
+				if (dropsCounted < dropsRequired) {
+					if (undefinedIndex != -1) {
+						drops[undefinedIndex] = new Drop();
+						field.appendChild(drops[undefinedIndex].svgGroup);
+					} else {
+						drops.push(new Drop());
+						field.appendChild(drops[drops.length - 1].svgGroup);
+					}
+				}
+			}
+
+			function Drop() {
+				this.x = Math.floor(Math.random() * dropsWidth) + 4;
+				this.y = 0 - Math.floor(Math.random() * 200);
+				this.speed = Math.floor(Math.random() * 4);
+				this.scale = 0.1 + (Math.floor(Math.random() * 3) / 20);
+
+				this.svgGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
+				this.path = document.createElementNS("http://www.w3.org/2000/svg","path");
+				this.path.setAttributeNS(null,"d","m-17.42583,43.18433c6.46532,13.97175 58.40341,-23.50802 56.67932,-27.05641c-1.72409,-3.54838 -63.14463,13.08466 -56.67932,27.05641z");
+				this.path.setAttributeNS(null,"stroke","#000000");
+				this.path.setAttributeNS(null,"fill-opacity","0.4");
+				this.path.setAttributeNS(null,"transform","rotate(-65.2283 10.6965 30.967)");
+				this.path.setAttributeNS(null,"stroke-width","0");
+				this.path.setAttributeNS(null,"fill","#1e49bf");
+				this.svgGroup.appendChild(this.path);
+
+				Drop.prototype.setTranslate = function() {
+					this.svgGroup.setAttribute("transform","translate(" + this.x + "," + this.y + ") scale(" + this.scale + ")");
+				}
+
+				Drop.prototype.fallOne = function() {
+					this.y += (this.speed / 3) + 6;
+					this.setTranslate();
+				}
+
+				this.setTranslate();
+			}
 	</script>
 </head>
 {{end}}
