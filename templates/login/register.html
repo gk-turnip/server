@@ -3,11 +3,23 @@
 <h1>Register</h1>
 {{template "error_list" .}}
 <form action="{{.LoginWebAddressPrefix}}/gk/loginServer" method="post">
-User: <input name="userName"/>{{.UserNameError}}<br/>
+User: <input name="userName" value="{{.UserName}}"/>{{.UserNameError}}<br/>
 Password: <input type="password" name="password"/>{{.PasswordError}}<br/>
-Email: <input name="email"/>{{.EmailError}}<br/>
+Email: <input name="email" value="{{.Email}}"/>{{.EmailError}}<br/>
 <input type="submit" name="register" value="Register"/>
 <input type="hidden" name="act" value="register"/>
 </form>
+note:
+<ul>
+<li>user name must be between 3 and 20 characters</li>
+<li>user name must can only contain 0-9, a-z, A-Z, dash '-', underscore '_', dot '.', plus '+', and space ' '</li>
+<li>user name cannot start or end with space</li>
+<li>user name cannot match any other user name (case insesitive)</li>
+<li>password must be between 6 and 60 characters</li>
+<li>password cannot start or end with space</li>
+<li>password must contain at least one a-z or A-Z</li>
+<li>password must contain at last one digit or special character !@#$%^&amp;*()-=_+[]{}\|;':",./&lt;&gt;?</li>
+</ul>
+
 </body>
 {{end}}

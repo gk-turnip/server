@@ -22,7 +22,6 @@ import (
 	"html/template"
 	"math/rand"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -226,7 +225,7 @@ func handleLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req *http
 		forgotPassword = req.Form.Get(_forgotPasswordParam)
 
 		if register != "" {
-			handleLoginRegisterInitial(loginConfig, res, req)
+			handleLoginRegisterInitial(loginConfig, res, req, userName)
 			return
 		}
 
@@ -285,13 +284,13 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 	loginData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
 
 	if loginData.UserName == "" {
-		loginData.ErrorList = append(loginData.ErrorList, "user name cannot be blank")
+		loginData.ErrorList = append(loginData.ErrorList, "invalid user name")
 		loginData.UserNameError = genErrorMarker()
 		gotError = true
 	}
 
 	if password == "" {
-		loginData.ErrorList = append(loginData.ErrorList, "password cannot be blank")
+		loginData.ErrorList = append(loginData.ErrorList, "invalid password")
 		loginData.PasswordError = genErrorMarker()
 		gotError = true
 	}
@@ -378,12 +377,13 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 	}
 }
 
-func handleLoginRegisterInitial(loginConfig *loginConfigDef, res http.ResponseWriter, req *http.Request) {
+func handleLoginRegisterInitial(loginConfig *loginConfigDef, res http.ResponseWriter, req *http.Request, userName string) {
 	var registerData registerDataDef
 	var gkErr *gkerr.GkErrDef
 
 	registerData.Title = "register"
 	registerData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
+	registerData.UserName = userName;
 
 	gkErr = _registerTemplate.Build(registerData)
 	if gkErr != nil {
@@ -411,23 +411,18 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 
 	var gotError bool
 
-	if userName == "" {
-		registerData.ErrorList = append(registerData.ErrorList, "user name cannot be blank")
+	if !isNewUserNameValid(userName) {
+		registerData.ErrorList = append(registerData.ErrorList, "invalid user name")
 		registerData.UserNameError = genErrorMarker()
 		gotError = true
 	}
-	if !validUserNameCharacters(userName) {
-		registerData.ErrorList = append(registerData.ErrorList, "user has invalid characters")
-		registerData.UserNameError = genErrorMarker()
-		gotError = true
-	}
-	if password == "" {
-		registerData.ErrorList = append(registerData.ErrorList, "password cannot be blank")
+	if !isPasswordValid(password) {
+		registerData.ErrorList = append(registerData.ErrorList, "invalid password")
 		registerData.PasswordError = genErrorMarker()
 		gotError = true
 	}
-	if email == "" {
-		registerData.ErrorList = append(registerData.ErrorList, "email cannot be blank")
+	if !isEmailValid(email) {
+		registerData.ErrorList = append(registerData.ErrorList, "invalid email")
 		registerData.EmailError = genErrorMarker()
 		gotError = true
 	}
@@ -717,18 +712,3 @@ func redirectToError(message string, res http.ResponseWriter, req *http.Request)
 	}
 }
 
-func validUserNameCharacters(userName string) bool {
-	for _, c := range userName {
-		if c < 'a' || c > 'z' {
-			if c < 'A' || c > 'Z' {
-				if c < '0' || c > '9' {
-					if !strings.ContainsRune(" ~!@#$%^&*()-=_+;:',./<>?", rune(c)) {
-						return false
-					}
-				}
-			}
-		}
-	}
-
-	return true
-}

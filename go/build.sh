@@ -59,6 +59,7 @@ then
 	go test gk/sec
 	go test gk/gknet
 	go test gk/game
+	go test gk/login
 
 	go build -o gk/bin/wfToJsMain gk/src/gk/main/wfToJsMain.go
 
