@@ -137,6 +137,7 @@ func sendGetSvgResponse(ws *websocket.Conn, websocketData []byte) *gkerr.GkErrDe
 	return nil
 }
 
+/*
 func sendResponse(ws *websocket.Conn) *gkerr.GkErrDef {
 	var svgResponse []byte = []byte(`svg
 <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><g id="box"><title>Layer 1</title><path fill="#ffffff" stroke="#000000" d="m0,25l50,-25l50,25l-50,25l-50,-25z" id="diam" fill-opacity="0.04"/><path fill="#ffffff" stroke="#000000" d="m0,75l50,-25l50,25l-50,25l-50,-25z" fill-opacity="0.04" id="svg_1"/><line id="svg_3" y2="75" x2="0" y1="25" x1="0" fill-opacity="0.04" stroke="#000000" fill="none"/><line id="svg_4" y2="100" x2="50" y1="50" x1="50" fill-opacity="0.04" stroke="#000000" fill="none"/><line id="svg_6" y2="75" x2="100" y1="25" x1="100" fill-opacity="0.04" stroke="#000000" fill="none"/><line id="svg_7" y2="50" x2="50" y1="0" x1="50" fill-opacity="0.04" stroke="#000000" fill="none"/></g></svg>`)
@@ -159,6 +160,7 @@ func sendResponse(ws *websocket.Conn) *gkerr.GkErrDef {
 
 	return nil
 }
+*/
 
 func getCommandAndData(rawWebsocketData []byte) (string, []byte, *gkerr.GkErrDef) {
 	var command []byte
