@@ -17,11 +17,21 @@
 </svg>
 </span>
 <h4>click within grid to move baby whatknot</h4>
+		<br/>
+	<select id="selectAvatar" onchange="changeAvatar();">
+		<option value="-- select avatar --">-- select avatar --</value>
+		<option value="babyWhatKnot1">babyWhatKnot1</value>
+		<option value="babyWhatKnot2">babyWhatKnot2</value>
+		<option value="babyWhatKnot3">babyWhatKnot3</value>
+		<option value="fern">fern</value>
+		<option value="ghostie">ghostie</value>
+	</select>
+		<br/>
 		<span id="canPlay">can play unknown</span><br/>
 		background music volume:
 		<select id="volume1" onchange="volumeChange(1);">
 			<option value="0.00">off</value>
-			<option value="0.33">low</value>
+			<option value="0.33" selected="selected">low</value>
 			<option value="0.66">medium</value>
 			<option value="0.99">high</value>
 		</select>
@@ -30,10 +40,11 @@
 		sound clip volume:
 		<select id="volume2" onchange="volumeChange(2);">
 			<option value="0.00">off</value>
-			<option value="0.33">low</value>
+			<option value="0.33" selected="selected">low</value>
 			<option value="0.66">medium</value>
 			<option value="0.99">high</value>
 		</select>
+
 
 		<audio id="audio1">Audio One</audio>
 		<audio id="audio2">Audio Two</audio>

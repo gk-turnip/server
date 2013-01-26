@@ -19,8 +19,8 @@
 	<script type="text/javascript">
 		var ws
 		var svgData
-		var boxX = 100;
-		var boxY = 100;
+		var avatarX = 100;
+		var avatarY = 100;
 
 		var needJump = false;
 		var needLand = false;
@@ -59,7 +59,6 @@
 
 		function doWsOpen() {
 			console.log("doWsOpen");
-			ws.send("getSvgReq~{\"SvgName\":\"test\"}~");
 		}
 
 		function doWsMessage(e) {
@@ -86,6 +85,13 @@
 				console.log("command from gameServer: " + command);
 				switch (command) {
 				case "getSvgRes":
+					var avatar
+					field = document.getElementById("field");
+					avatar = field.getElementById("avatar");
+					if (avatar != null) {
+						avatar.parentNode.removeChild(avatar);
+					}
+
 					jsonData = e.data.substring(nlIndex1 + 1, nlIndex2);
 					svgMetaData = JSON.parse(jsonData, null);
 					console.log("svgMetaData x,y: " + svgMetaData.origin_x + "," + svgMetaData.origin_y);
@@ -98,11 +104,10 @@
 
 					console.log("svgString: " + svgString);
 
-					field = document.getElementById("field");
 					var r1 = new DOMParser().parseFromString(svgString, 'text/xml');
 					field.appendChild(document.importNode(r1.documentElement.firstChild,true));
-					box = field.getElementById("box");
-					box.setAttribute("transform","translate(" + boxY + "," + boxX + ")");
+					avatar = field.getElementById("avatar");
+					avatar.setAttribute("transform","translate(" + avatarY + "," + avatarX + ")");
 
 					break;
 				default:
@@ -190,49 +195,49 @@
 
 			drawSingleDiamond(x,y);
 
-			var box
+			var avatar
 
-			if (xx > boxX) {
-				boxX += 5;
+			if (xx > avatarX) {
+				avatarX += 5;
 			}
-			if (yy > (boxY + 50)) {
-				boxY += 5;
+			if (yy > (avatarY + 50)) {
+				avatarY += 5;
 			}
 
-			if (xx < boxX) {
-				boxX -= 5;
+			if (xx < avatarX) {
+				avatarX -= 5;
 			}
-			if (yy < (boxY + 50)) {
-				boxY -= 5;
+			if (yy < (avatarY + 50)) {
+				avatarY -= 5;
 			}
 
 			field = document.getElementById("field");
 
-			box = field.getElementById("box");
-			box.setAttribute("transform","translate(" + boxX + "," + boxY + ")");
+			avatar = field.getElementById("avatar");
+			avatar.setAttribute("transform","translate(" + avatarX + "," + avatarY + ")");
 
 			clickSound();
 		}
 
 		function doAnimateLoop() {
         var field;
-        var box;
+        var avatar;
 
 		field = document.getElementById("field");
-		box = field.getElementById("box");
+		avatar = field.getElementById("avatar");
 
 		if (needLand) {
 			if (jumpCount > 0) {
 				jumpCount -= 1;
 			} else {
 				field = document.getElementById("field");
-				box = field.getElementById("box");
+				avatar = field.getElementById("avatar");
 
 				g30 = field.getElementById("g30");
 				g112 = field.getElementById("g112");
 				g202 = field.getElementById("g202");
 
-				box.setAttribute("transform","translate(" + boxX + "," + boxY + ")");
+				avatar.setAttribute("transform","translate(" + avatarX + "," + avatarY + ")");
 
 				g112.setAttribute("transform","translate(" + 0 + "," + 0 + ")");
 				g30.setAttribute("transform","translate(" + 0 + "," + 0 + ")");
@@ -246,13 +251,13 @@
 				jumpCount -= 1;
 			} else {
 				field = document.getElementById("field");
-				box = field.getElementById("box");
+				avatar = field.getElementById("avatar");
 
 				g30 = field.getElementById("g30");
 				g112 = field.getElementById("g112");
 				g202 = field.getElementById("g202");
 
-				box.setAttribute("transform","translate(" + boxX + "," + (boxY - 40) + ")");
+				avatar.setAttribute("transform","translate(" + avatarX + "," + (avatarY - 40) + ")");
 
 				g112.setAttribute("transform","translate(" + 0 + "," + 11 + ")");
 				g30.setAttribute("transform","translate(" + 0 + "," + 22 + ")");
@@ -283,6 +288,9 @@
 				canPlay.innerHTML += " wav";
 				canPlayWave = true
 			}
+			audio1.volume = 0.3;
+			var audio2 = document.getElementById("audio2")
+			audio2.volume = 0.3;
 
 			var source = document.createElement("source");
 			if (canPlayOgg) {
@@ -324,6 +332,12 @@
 					}
 				}
 
+		}
+
+		function changeAvatar() {
+			avatarName = document.getElementById("selectAvatar").value;
+			console.log("avatarName: " + avatarName)
+			ws.send("getSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
 		}
 
 		function volumeChange(audioSelect) {
