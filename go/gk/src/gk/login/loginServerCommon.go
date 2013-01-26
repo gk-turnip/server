@@ -74,7 +74,7 @@ func isPasswordValid(password string) bool {
 		if (password[i] < '0' || password[i] > '9') &&
 			(password[i] < 'a' || password[i] > 'z') &&
 			(password[i] < 'A' || password[i] > 'Z') {
-			if strings.IndexRune("`~!@#$%^&*()-=_+[]{};':\",./<>?\\|",rune(password[i])) == -1 {
+			if strings.IndexRune("`~!@ #$%^&*()-=_+[]{};':\",./<>?\\|",rune(password[i])) == -1 {
 				return false
 			}
 		}

@@ -144,6 +144,11 @@ func testValidPasswords(t *testing.T) {
 		t.Logf("valid password: %s", password)
 		t.Fail()
 	}
+	password = "a cD2f"
+	if !isPasswordValid(password) {
+		t.Logf("valid password: %s", password)
+		t.Fail()
+	}
 
 }
 

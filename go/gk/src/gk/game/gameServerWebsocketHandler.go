@@ -24,8 +24,9 @@ import (
 	"bytes"
 	"code.google.com/p/go.net/websocket"
 	"fmt"
-	"io"
-	"os"
+	"sync"
+	"net"
+	"net/url"
 )
 
 import (
@@ -33,183 +34,117 @@ import (
 	"gk/gklog"
 )
 
+// some ugly global variables
+// but websocket does not seem to have a way around it
+var _websocketGameConfig gameConfigDef
+var _nextConnectionId int32 = 1
+var _nextConnectionMutex sync.Mutex
+
+type websocketReqDef struct {
+	gameConfig *gameConfigDef
+	connectionId int32
+	remoteAddr	net.Addr
+	requestPath string
+	requestQuery string
+	command string
+	jsonData []byte
+	data []byte
+}
+
+type websocketResDef struct {
+	command string
+	jsonData []byte
+	data []byte
+}
+
+func websocketSetConfig(gameConfig gameConfigDef) {
+	_websocketGameConfig = gameConfig
+}
+
 func websocketHandler(ws *websocket.Conn) {
 
+	var websocketReq websocketReqDef
+
+	var url *url.URL = ws.Request().URL
+	var connectionId int32
+	var gkErr *gkerr.GkErrDef
 	var err error
-	var gkErr *gkerr.GkErrDef
 
-	gklog.LogTrace("handleWebSocket start")
-	defer gklog.LogTrace("handleWebSocket finished")
-
-	buf := make([]byte, 1024, 1024)
-	rawWebsocketData := make([]byte, 0, 0)
-
-	//	for {
-	var readCount int
-
-	readCount, err = ws.Read(buf)
-
-	if readCount > 0 {
-		rawWebsocketData = append(rawWebsocketData, buf[0:readCount]...)
-	}
-	if err != nil {
-		//			if err == io.EOF {
-		//				break
-		//			}
-		gkErr = gkerr.GenGkErr("ws.Read", err, ERROR_ID_WEBSOCKET_READ)
-		gklog.LogGkErr("ws.Read", gkErr)
-		return
-	}
-	//	}
-	var command string
-	var websocketData []byte
-
-	gklog.LogTrace(fmt.Sprintf("rawWebsocketData: <%s>\n", rawWebsocketData))
-
-	command, websocketData, gkErr = getCommandAndData(rawWebsocketData)
-	if gkErr != nil {
-		gklog.LogGkErr("getCommandAndData", gkErr)
-		return
-	}
-
-	gklog.LogTrace(fmt.Sprintf("command: <%s> data: <%s>\n", command, websocketData))
-
-	switch command {
-	case "getSvg":
-		sendGetSvgResponse(ws, websocketData)
-		//	gkErr = sendResponse(ws)
-		//	if gkErr != nil {
-		//		return
-		//	}
-	default:
-		gkErr = gkerr.GenGkErr("unknown websocket command: "+command, err, ERROR_ID_INVALID_WEBSOCKET_COMMAND)
-		gklog.LogGkErr("unknown websocket command", gkErr)
-	}
-	//	gkErr = sendResponse(ws)
-	//	if gkErr != nil {
-	//		return
-	//	}
-}
-
-func sendGetSvgResponse(ws *websocket.Conn, websocketData []byte) *gkerr.GkErrDef {
-	var gkErr *gkerr.GkErrDef
-
-	if websocketData[len(websocketData)-1] != '\n' {
-		gkErr = gkerr.GenGkErr("invalid getSvg", nil, ERROR_ID_INVALID_WEBSOCKET_GET_SVG)
-		gklog.LogGkErr("invalid getSvg", gkErr)
-	}
-
-	var svgData []byte
-
-	svgData, gkErr = getSvgData("/home/diver2/gameServer/svg", string(websocketData[0:len(websocketData)-1]))
-	if gkErr != nil {
-		gklog.LogGkErr("getSvgData", gkErr)
-		return gkErr
-	}
-
-	gklog.LogTrace("svgData: " + string(svgData))
-
-	svgData = fixSvgData(svgData)
-
-	gklog.LogTrace("fixed svgData: " + string(svgData))
-
-	//	var writeCount int
-	//	var err error
-
-	svgResponse := []byte("svg\n")
-	svgResponse = append(svgResponse, svgData...)
-
-	websocket.Message.Send(ws, string(svgResponse))
-	/*
-		writeCount, err = ws.Write(svgResponse)
-		if err != nil {
-			gkErr = gkerr.GenGkErr("ws.Write", err, ERROR_ID_WEBSOCKET_WRITE)
-			gklog.LogGkErr("ws.Read", gkErr)
-			return gkErr
-		}
-		if writeCount != len(svgResponse) {
-			gkErr = gkerr.GenGkErr("write count short len", err, ERROR_ID_WEBSOCKET_SHORT_WRITE)
-			gklog.LogGkErr("ws.Read", gkErr)
-			return gkErr
-		}
-	*/
-
-	return nil
-}
-
-/*
-func sendResponse(ws *websocket.Conn) *gkerr.GkErrDef {
-	var svgResponse []byte = []byte(`svg
-<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><g id="box"><title>Layer 1</title><path fill="#ffffff" stroke="#000000" d="m0,25l50,-25l50,25l-50,25l-50,-25z" id="diam" fill-opacity="0.04"/><path fill="#ffffff" stroke="#000000" d="m0,75l50,-25l50,25l-50,25l-50,-25z" fill-opacity="0.04" id="svg_1"/><line id="svg_3" y2="75" x2="0" y1="25" x1="0" fill-opacity="0.04" stroke="#000000" fill="none"/><line id="svg_4" y2="100" x2="50" y1="50" x1="50" fill-opacity="0.04" stroke="#000000" fill="none"/><line id="svg_6" y2="75" x2="100" y1="25" x1="100" fill-opacity="0.04" stroke="#000000" fill="none"/><line id="svg_7" y2="50" x2="50" y1="0" x1="50" fill-opacity="0.04" stroke="#000000" fill="none"/></g></svg>`)
-
-	var writeCount int
-	var err error
-	var gkErr *gkerr.GkErrDef
-
-	writeCount, err = ws.Write([]byte(svgResponse))
-	if err != nil {
-		gkErr = gkerr.GenGkErr("ws.Write", err, ERROR_ID_WEBSOCKET_WRITE)
-		gklog.LogGkErr("ws.Read", gkErr)
-		return gkErr
-	}
-	if writeCount != len(svgResponse) {
-		gkErr = gkerr.GenGkErr("write count short len", err, ERROR_ID_WEBSOCKET_SHORT_WRITE)
-		gklog.LogGkErr("ws.Read", gkErr)
-		return gkErr
-	}
-
-	return nil
-}
-*/
-
-func getCommandAndData(rawWebsocketData []byte) (string, []byte, *gkerr.GkErrDef) {
-	var command []byte
-	var websocketData []byte
-	var gkErr *gkerr.GkErrDef
-
-	index := bytes.IndexByte(rawWebsocketData, '\n')
-	if index == -1 {
-		gkErr = gkerr.GenGkErr("getCommandAndData", nil, ERROR_ID_INVALID_WEBSOCKET_DATA)
-		return "", nil, gkErr
-	}
-	command = rawWebsocketData[:index]
-	if (index + 1) < len(rawWebsocketData) {
-		websocketData = rawWebsocketData[index+1:]
-	}
-
-	return string(command), websocketData, nil
-}
-
-func getSvgData(svgDir string, svgFile string) ([]byte, *gkerr.GkErrDef) {
-	var file *os.File
-	var err error
-	var gkErr *gkerr.GkErrDef
-	var svgData []byte = make([]byte, 0, 0)
-
-	file, err = os.Open(svgDir + string(os.PathSeparator) + svgFile)
-	if err != nil {
-		gkErr = gkerr.GenGkErr("os.Open", err, ERROR_ID_OPEN_SVG_FILE)
-		return nil, gkErr
-	}
-
-	defer file.Close()
-
-	buf := make([]byte, 1024, 1024)
-	var readCount int
+	connectionId = getNextConnectionId()
 
 	for {
-		readCount, err = file.Read(buf)
-		if readCount > 0 {
-			svgData = append(svgData, buf[0:readCount]...)
+		var message []byte
+
+		websocket.Message.Receive(ws, &message)
+
+gklog.LogTrace("got websocket message: " + string(message))
+
+		websocketReq.gameConfig = &_websocketGameConfig
+		websocketReq.connectionId = connectionId
+		websocketReq.remoteAddr = ws.RemoteAddr()
+		websocketReq.requestPath = url.Path
+		websocketReq.requestQuery = url.RawQuery
+		websocketReq.command, websocketReq.jsonData, websocketReq.data, gkErr =
+			getCommandJsonData(message)
+gklog.LogTrace("got websocket command: " + websocketReq.command + " json: " + string(websocketReq.jsonData) + " data: " + string(websocketReq.data))
+
+		var websocketRes *websocketResDef
+
+		websocketRes, gkErr = dispatchWebsocketRequest(&websocketReq)
+		if gkErr != nil {
+			gklog.LogGkErr("websocketReq.doRequest", gkErr)
+			return
 		}
+
+gklog.LogTrace("sending websocket response: " + fmt.Sprintf("c: %s j: %s d: %s",websocketRes.command, websocketRes.jsonData, websocketRes.data))
+
+		var websocketResponse []byte
+
+		websocketResponse = make([]byte,0,0)
+		websocketResponse = append(websocketResponse,[]byte(websocketRes.command)...)
+		websocketResponse = append(websocketResponse,'~')
+		websocketResponse = append(websocketResponse,websocketRes.jsonData...)
+		websocketResponse = append(websocketResponse,'~')
+		websocketResponse = append(websocketResponse,websocketRes.data...)
+
+		err = websocket.Message.Send(ws, string(websocketResponse))
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			gkErr = gkerr.GenGkErr("file.Read", err, ERROR_ID_READ_SVG_FILE)
-			return nil, gkErr
+			gklog.LogGkErr("websocket.Message.Send", gkerr.GenGkErr("websocket.Message.Send",err, ERROR_ID_WEBSOCKET_SEND))
+			return
 		}
 	}
-
-	return svgData, nil
 }
+
+func getNextConnectionId() int32 {
+
+	var connectionId int32
+
+	_nextConnectionMutex.Lock()
+	defer _nextConnectionMutex.Unlock()
+
+	connectionId = _nextConnectionId
+	_nextConnectionId += 1
+
+	return connectionId
+}
+
+func getCommandJsonData(message []byte) (string, []byte, []byte, *gkerr.GkErrDef) {
+	var index1, index2 int
+
+	index1 = bytes.IndexByte(message, '~')
+	if index1 == -1 {
+		return "", nil, nil, gkerr.GenGkErr("missing ~ from websocket message", nil, ERROR_ID_UNKNOWN_WEBSOCKET_INPUT)
+	}
+
+	index2 = bytes.IndexByte(message[index1 + 1:], '~')
+	if index2 == -1 {
+		return "", nil, nil, gkerr.GenGkErr("missing second ~ from websocketMessage", nil, ERROR_ID_UNKNOWN_WEBSOCKET_INPUT)
+	}
+
+	index2 += index1 + 1
+
+gklog.LogTrace(fmt.Sprintf("i1: %d i2: %d len: %d",index1, index2, len(message)))
+
+	return string(message[:index1]), message[index1 + 1: index2], message[index2 + 1:], nil
+}
+

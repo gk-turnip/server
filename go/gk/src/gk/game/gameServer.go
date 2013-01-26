@@ -86,6 +86,8 @@ func GameServerStart() {
 	var websocketContext websocketContextDef
 	websocketContext.gameConfig = gameConfig
 
+	websocketSetConfig(gameConfig)
+
 	go func() {
 		gklog.LogTrace("starting web socket listener")
 		err = http.ListenAndServe(websocketAddress, websocket.Handler(websocketHandler))

@@ -59,30 +59,40 @@
 
 		function doWsOpen() {
 			console.log("doWsOpen");
-			ws.send("getSvg\ntest.svg\n");
+			ws.send("getSvgReq~{\"SvgName\":\"test\"}~");
 		}
 
 		function doWsMessage(e) {
 			console.log("doWsMessage");
 
-			var nlIndex = -1
+			var nlIndex1 = -1;
+			var nlIndex2 = -1;
 
 			for (i = 0;i < e.data.length;i++) {
-				if (e.data[i] == '\n') {
-					nlIndex = i
+				if (e.data[i] == '~') {
+					nlIndex1 = i
+					break;
+				}
+			}
+			for (i = (nlIndex1 + 1);i < e.data.length;i++) {
+				if (e.data[i] == '~') {
+					nlIndex2 = i
 					break;
 				}
 			}
 
-			if (nlIndex != -1) {
-				command = e.data.substring(0,nlIndex);
+			if ((nlIndex1 != -1) && (nlIndex2 != -1)) {
+				command = e.data.substring(0,nlIndex1);
 				console.log("command from gameServer: " + command);
 				switch (command) {
-				case "svg":
-					svgData = e.data.substring(nlIndex + 1);
-					var svgString = "";
+				case "getSvgRes":
+					jsonData = e.data.substring(nlIndex1 + 1, nlIndex2);
+					svgMetaData = JSON.parse(jsonData, null);
+					console.log("svgMetaData x,y: " + svgMetaData.origin_x + "," + svgMetaData.origin_y);
 
-					for (i = (nlIndex + 1);i < e.data.length;i++) {
+					svgData = e.data.substring(nlIndex2 + 1);
+					var svgString = "";
+					for (i = (nlIndex2 + 1);i < e.data.length;i++) {
 						svgString += e.data[i];
 					}
 

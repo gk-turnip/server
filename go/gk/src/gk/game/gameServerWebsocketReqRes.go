@@ -17,13 +17,29 @@
 
 package game
 
-const (
-	ERROR_ID_OPEN_CONFIG = 0x40000000 + iota
-	ERROR_ID_DECODE_CONFIG
-	ERROR_ID_HTTP_SERVER_START
-	ERROR_ID_WEBSOCKET_SERVER_START
-	ERROR_ID_WEBSOCKET_SEND
-	ERROR_ID_UNKNOWN_WEBSOCKET_INPUT
-	ERROR_ID_UNKNOWN_WEBSOCKET_COMMAND
-	ERROR_ID_JSON_UNMARSHAL
+import (
+	"gk/gkerr"
 )
+
+const _getSvgReq = "getSvgReq"
+const _getSvgRes = "getSvgRes"
+
+func dispatchWebsocketRequest(websocketReq *websocketReqDef) (*websocketResDef, *gkerr.GkErrDef) {
+
+	var websocketRes *websocketResDef
+	var gkErr *gkerr.GkErrDef
+
+	switch websocketReq.command {
+	case _getSvgReq:
+		websocketRes, gkErr =  doGetSvgReq(websocketReq)
+		if gkErr != nil {
+			return nil, gkErr
+		}
+	default:
+		gkErr = gkerr.GenGkErr("unknonwn websocket request", nil, ERROR_ID_UNKNOWN_WEBSOCKET_COMMAND)
+		return nil, gkErr
+	}
+
+	return websocketRes, nil
+}
+
