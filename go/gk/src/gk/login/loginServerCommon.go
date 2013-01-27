@@ -34,14 +34,14 @@ func isNewUserNameValid(userName string) bool {
 	if userName[0] == ' ' {
 		return false
 	}
-	if userName[len(userName) - 1] == ' ' {
+	if userName[len(userName)-1] == ' ' {
 		return false
 	}
-	if strings.Index(userName,"  ") != -1 {
+	if strings.Index(userName, "  ") != -1 {
 		return false
 	}
 
-	for i := 0;i < len(userName); i++ {
+	for i := 0; i < len(userName); i++ {
 		if (userName[i] < '0' || userName[i] > '9') &&
 			(userName[i] < 'a' || userName[i] > 'z') &&
 			(userName[i] < 'A' || userName[i] > 'Z') &&
@@ -54,7 +54,7 @@ func isNewUserNameValid(userName string) bool {
 		}
 	}
 
-	return true;
+	return true
 }
 
 func isPasswordValid(password string) bool {
@@ -67,14 +67,14 @@ func isPasswordValid(password string) bool {
 	if password[0] == ' ' {
 		return false
 	}
-	if password[len(password) - 1] == ' ' {
+	if password[len(password)-1] == ' ' {
 		return false
 	}
-	for i := 0;i < len(password); i++ {
+	for i := 0; i < len(password); i++ {
 		if (password[i] < '0' || password[i] > '9') &&
 			(password[i] < 'a' || password[i] > 'z') &&
 			(password[i] < 'A' || password[i] > 'Z') {
-			if strings.IndexRune("`~!@ #$%^&*()-=_+[]{};':\",./<>?\\|",rune(password[i])) == -1 {
+			if strings.IndexRune("`~!@ #$%^&*()-=_+[]{};':\",./<>?\\|", rune(password[i])) == -1 {
 				return false
 			}
 		}
@@ -84,8 +84,8 @@ func isPasswordValid(password string) bool {
 	var lowerCount int = 0
 	var upperCount int = 0
 	var specialCount int = 0
-	
-	for i := 0;i < len(password); i++ {
+
+	for i := 0; i < len(password); i++ {
 		if password[i] >= '0' && password[i] <= '0' {
 			digitsCount += 1
 		} else {
@@ -123,15 +123,15 @@ func isEmailValid(email string) bool {
 	if email[0] == '.' {
 		return false
 	}
-	if email[len(email) - 1] == ' ' {
+	if email[len(email)-1] == ' ' {
 		return false
 	}
-	if email[len(email) - 1] == '-' {
+	if email[len(email)-1] == '-' {
 		return false
 	}
 
 	var atIndex int
-	atIndex = strings.Index(email,"@")
+	atIndex = strings.Index(email, "@")
 
 	if atIndex == -1 {
 		return false
@@ -141,23 +141,23 @@ func isEmailValid(email string) bool {
 		return false
 	}
 
-	if strings.Index(email[atIndex + 1:],"@") != -1 {
+	if strings.Index(email[atIndex+1:], "@") != -1 {
 		return false
 	}
 
-	if strings.Index(email[atIndex + 1:],".") == -1 {
+	if strings.Index(email[atIndex+1:], ".") == -1 {
 		return false
 	}
 
-	if strings.Index(email,"..") != -1 {
+	if strings.Index(email, "..") != -1 {
 		return false
 	}
 
-	if strings.Index(email,".@") != -1 {
+	if strings.Index(email, ".@") != -1 {
 		return false
 	}
 
-	for i := 0;i < len(email); i++ {
+	for i := 0; i < len(email); i++ {
 		if i > atIndex {
 			if (email[i] < '0' || email[i] > '9') &&
 				(email[i] < 'a' || email[i] > 'z') &&
@@ -195,6 +195,5 @@ func isEmailValid(email string) bool {
 		}
 	}
 
-	return true;
+	return true
 }
-

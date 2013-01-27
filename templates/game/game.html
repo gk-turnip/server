@@ -2,22 +2,22 @@
 <body style="margin:5px" onload="init();">
 <span onclick="doClick(event);">
 <svg 
-	id="field" 
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   version="1.1"
-   inkscape:version="0.48.2 r9819"
-   sodipodi:docname="baby whatnot slice setup.svg"
-   x="0px"
-   y="0px"
-   width="500"
-   height="300"
-   xml:space="preserve">
+	id="gkField" 
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+	xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+	version="1.1"
+	inkscape:version="0.48.2 r9819"
+	sodipodi:docname="baby whatnot slice setup.svg"
+	x="0px"
+	y="0px"
+	width="500"
+	height="300"
+	xml:space="preserve">
 </svg>
 </span>
 <h4>click within grid to move baby whatknot</h4>
-		<br/>
+	<br/>
 	<select id="selectAvatar" onchange="changeAvatar();">
 		<option value="-- select avatar --">-- select avatar --</value>
 		<option value="babyWhatKnot1">babyWhatKnot1</value>
@@ -26,28 +26,28 @@
 		<option value="fern">fern</value>
 		<option value="ghostie">ghostie</value>
 	</select>
-		<br/>
-		<span id="canPlay">can play unknown</span><br/>
-		background music volume:
-		<select id="volume1" onchange="volumeChange(1);">
-			<option value="0.00">off</value>
-			<option value="0.33" selected="selected">low</value>
-			<option value="0.66">medium</value>
-			<option value="0.99">high</value>
-		</select>
 
-		<br/>
-		sound clip volume:
-		<select id="volume2" onchange="volumeChange(2);">
-			<option value="0.00">off</value>
-			<option value="0.33" selected="selected">low</value>
-			<option value="0.66">medium</value>
-			<option value="0.99">high</value>
-		</select>
+	<br/>
+	<span id="canPlay">can play unknown</span><br/>
+	background music volume:
+	<select id="volume1" onchange="volumeChange(1);">
+		<option value="0.00">off</value>
+		<option value="0.33" selected="selected">low</value>
+		<option value="0.66">medium</value>
+		<option value="0.99">high</value>
+	</select>
 
+	<br/>
+	sound clip volume:
+	<select id="volume2" onchange="volumeChange(2);">
+		<option value="0.00">off</value>
+		<option value="0.33" selected="selected">low</value>
+		<option value="0.66">medium</value>
+		<option value="0.99">high</value>
+	</select>
 
-		<audio id="audio1">Audio One</audio>
-		<audio id="audio2">Audio Two</audio>
+	<audio id="audio1">Audio One</audio>
+	<audio id="audio2">Audio Two</audio>
 </body>
 {{end}}
 

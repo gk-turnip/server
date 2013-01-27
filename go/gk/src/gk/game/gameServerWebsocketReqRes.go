@@ -24,6 +24,9 @@ import (
 const _getSvgReq = "getSvgReq"
 const _getSvgRes = "getSvgRes"
 
+const _turnOnRainReq = "turnOnRainReq"
+const _turnOffRainReq = "turnOffRainReq"
+
 func dispatchWebsocketRequest(websocketReq *websocketReqDef) (*websocketResDef, *gkerr.GkErrDef) {
 
 	var websocketRes *websocketResDef
@@ -31,7 +34,7 @@ func dispatchWebsocketRequest(websocketReq *websocketReqDef) (*websocketResDef, 
 
 	switch websocketReq.command {
 	case _getSvgReq:
-		websocketRes, gkErr =  doGetSvgReq(websocketReq)
+		websocketRes, gkErr = doGetSvgReq(websocketReq)
 		if gkErr != nil {
 			return nil, gkErr
 		}
@@ -42,4 +45,3 @@ func dispatchWebsocketRequest(websocketReq *websocketReqDef) (*websocketResDef, 
 
 	return websocketRes, nil
 }
-

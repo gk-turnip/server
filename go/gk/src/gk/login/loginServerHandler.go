@@ -383,7 +383,7 @@ func handleLoginRegisterInitial(loginConfig *loginConfigDef, res http.ResponseWr
 
 	registerData.Title = "register"
 	registerData.LoginWebAddressPrefix = loginConfig.LoginWebAddressPrefix
-	registerData.UserName = userName;
+	registerData.UserName = userName
 
 	gkErr = _registerTemplate.Build(registerData)
 	if gkErr != nil {
@@ -711,4 +711,3 @@ func redirectToError(message string, res http.ResponseWriter, req *http.Request)
 		gklog.LogGkErr("_errorTemplate.Send", gkErr)
 	}
 }
-

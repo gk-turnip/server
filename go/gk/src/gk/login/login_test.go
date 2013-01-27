@@ -241,26 +241,26 @@ func testValidEmail(t *testing.T) {
 		t.Logf("valid email: %s", email)
 		t.Fail()
 	}
-//	email = "one@[IPv6:0001:0002:0003:0004:0005:0006:0007:0008]"
-//	if !isEmailValid(email) {
-//		t.Logf("valid email: %s", email)
-//		t.Fail()
-//	}
-//	email = "\"one two\"@three.com"
-//	if !isEmailValid(email) {
-//		t.Logf("valid email: %s", email)
-//		t.Fail()
-//	}
-//	email = "\"\"@three.com"
-//	if !isEmailValid(email) {
-//		t.Logf("valid email: %s", email)
-//		t.Fail()
-//	}
-//	email = "\"()<>[]:,\\@\"@one.net"
-//	if !isEmailValid(email) {
-//		t.Logf("valid email: %s", email)
-//		t.Fail()
-//	}
+	//	email = "one@[IPv6:0001:0002:0003:0004:0005:0006:0007:0008]"
+	//	if !isEmailValid(email) {
+	//		t.Logf("valid email: %s", email)
+	//		t.Fail()
+	//	}
+	//	email = "\"one two\"@three.com"
+	//	if !isEmailValid(email) {
+	//		t.Logf("valid email: %s", email)
+	//		t.Fail()
+	//	}
+	//	email = "\"\"@three.com"
+	//	if !isEmailValid(email) {
+	//		t.Logf("valid email: %s", email)
+	//		t.Fail()
+	//	}
+	//	email = "\"()<>[]:,\\@\"@one.net"
+	//	if !isEmailValid(email) {
+	//		t.Logf("valid email: %s", email)
+	//		t.Fail()
+	//	}
 	email = "!#$%&'*+-/=?^_`{}~@one.com"
 	if !isEmailValid(email) {
 		t.Logf("valid email: %s", email)
@@ -272,4 +272,3 @@ func testValidEmail(t *testing.T) {
 		t.Fail()
 	}
 }
-

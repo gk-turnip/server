@@ -18,13 +18,13 @@
 package game
 
 import (
-	"os"
 	"encoding/json"
+	"os"
 )
 
 import (
-	"gk/gkerr"
 	"gk/gkcommon"
+	"gk/gkerr"
 )
 
 type getSvgDef struct {
@@ -59,4 +59,3 @@ func doGetSvgReq(websocketReq *websocketReqDef) (*websocketResDef, *gkerr.GkErrD
 
 	return &websocketRes, nil
 }
-

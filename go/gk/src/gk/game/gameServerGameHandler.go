@@ -52,6 +52,7 @@ type gameDataDef struct {
 }
 
 var _errorTemplate *gktmpl.TemplateDef
+var _errorTemplateName string = "error"
 
 type errorDataDef struct {
 	Title   string
@@ -66,6 +67,11 @@ func (httpContext *httpContextDef) gameInit() *gkerr.GkErrDef {
 	var gkErr *gkerr.GkErrDef
 
 	_gameTemplate, gkErr = gktmpl.NewTemplate(httpContext.gameConfig.TemplateDir, _gameTemplateName)
+	if gkErr != nil {
+		return gkErr
+	}
+
+	_errorTemplate, gkErr = gktmpl.NewTemplate(httpContext.gameConfig.TemplateDir, _errorTemplateName)
 	if gkErr != nil {
 		return gkErr
 	}

@@ -21,9 +21,14 @@ import (
 	"testing"
 )
 
+import (
+	"gk/gkerr"
+)
+
 func TestGameServer(t *testing.T) {
 	testTrimBetweenMarkers(t)
 	testTrimCrLf(t)
+	testGetCommandJsonData(t)
 }
 
 func testTrimBetweenMarkers(t *testing.T) {
@@ -150,3 +155,81 @@ func testTrimCrLf(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func testGetCommandJsonData(t *testing.T) {
+	var command string
+	var jsonData []byte
+	var data []byte
+	var gkErr *gkerr.GkErrDef
+	var message []byte
+
+	message = []byte("com~{\"name\":\"value\"}~data")
+	command, jsonData, data, gkErr = getCommandJsonData(message)
+	if gkErr != nil {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	if command != "com" {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	if string(jsonData) != "{\"name\":\"value\"}" {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	if string(data) != "data" {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	message = []byte("com~{\"name\":\"value\"}~")
+	command, jsonData, data, gkErr = getCommandJsonData(message)
+	if gkErr != nil {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	if command != "com" {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	if string(jsonData) != "{\"name\":\"value\"}" {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	if string(data) != "" {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	message = []byte("commandOnly~~")
+	command, jsonData, data, gkErr = getCommandJsonData(message)
+	if gkErr != nil {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	if command != "commandOnly" {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	if string(jsonData) != "" {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+	if string(data) != "" {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data) + " gkErr: " + gkErr.String())
+		t.Fail()
+	}
+
+	message = []byte("com~{\"name\":\"value\"}data")
+	command, jsonData, data, gkErr = getCommandJsonData(message)
+	if gkErr == nil {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data))
+		t.Fail()
+	}
+	message = []byte("com{\"name\":\"value\"}data")
+	command, jsonData, data, gkErr = getCommandJsonData(message)
+	if gkErr == nil {
+		t.Logf("getCommandJsonData message: " + string(message) + " jsonData: " + string(jsonData) + " data: " + string(data))
+		t.Fail()
+	}
+
+}
+

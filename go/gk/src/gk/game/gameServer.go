@@ -73,6 +73,8 @@ func GameServerStart() {
 
 	var err error
 
+	go goRuntimeContextLoop(&gameConfig)
+
 	go func() {
 		err = http.ListenAndServe(httpAddress, &httpContext)
 		if err != nil {
