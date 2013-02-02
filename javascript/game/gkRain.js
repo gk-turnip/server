@@ -24,53 +24,60 @@ function gkRainOff() {
 function gkRainLoop() {
 	var field;
 
-//	gkRainContext.dropsStateCount += 1;
-//
-//	if ((gkRainContext.dropsStateCount > 100) && (gkRainContext.dropsStateCount < 130)){
-//		gkRainContext.dropsRequired += 1;
-//	}
-//
-//	if (gkRainContext.dropsStateCount > 500) {
-//		gkRainContext.dropsRequired = 0;
-//	}
-//
-//	if (gkRainContext.dropsStateCount > 1000) {
-//		gkRainContext.dropsStateCount = 0;
-//	}
-
-//				console.log("drops.length: " + drops.length);
-
 	field = document.getElementById("gkField");
 	var undefinedIndex = -1;
 	var dropsCounted = 0;
-	for (i = 0;i < drops.length;i++) {
-		if (drops[i] == undefined) {
-//						console.log("undefined found at: " + i);
+	for (i = 0;i < gkDrops.length;i++) {
+		if (gkDrops[i] == undefined) {
 			undefinedIndex = i;
 		} else {
-			if (drops[i].y > gkRainContext.dropsHeight) {
-				drops[i].svgGroup.parentNode.removeChild(drops[i].svgGroup);
-				delete drops[i];
+			if (gkDrops[i].isoXYZ.z < 3) {
+						gkDrops[i].fallOne();
+				if (gkDrops[i].isoXYZ.z < -20) {
+						gkDrops[i].fallOne();
+					gkDrops[i].diamond.parentNode.removeChild(gkDrops[i].diamond);
+					delete gkDrops[i];
+				} else {
+					if (gkDrops[i].diamond == undefined) {
+						gkDrops[i].isoXYZ.z = 0;
+						var diamond;
+						diamond = gkIsoCreateSingleDiamond(gkDrops[i].isoXYZ, "#1e49bf");
+						field.appendChild(diamond);
+						gkDrops[i].diamond = diamond;
+						gkDrops[i].svgGroup.parentNode.removeChild(gkDrops[i].svgGroup);
+					}
+					gkDrops[i].fallOne();
+					dropsCounted += 1;
+				}
 			} else {
-				drops[i].fallOne();
+				gkDrops[i].fallOne();
 				dropsCounted += 1;
 			}
 		}
 	}
 	if (dropsCounted < gkRainContext.dropsRequired) {
 		if (undefinedIndex != -1) {
-			drops[undefinedIndex] = new GkDropDef();
-			field.appendChild(drops[undefinedIndex].svgGroup);
+			gkDrops[undefinedIndex] = new GkDropDef();
+			field.appendChild(gkDrops[undefinedIndex].svgGroup);
 		} else {
-			drops.push(new GkDropDef());
-			field.appendChild(drops[drops.length - 1].svgGroup);
+			gkDrops.push(new GkDropDef());
+			field.appendChild(gkDrops[gkDrops.length - 1].svgGroup);
 		}
 	}
 }
 
 function GkDropDef() {
-	this.x = Math.floor(Math.random() * gkRainContext.dropsWidth) + 4;
-	this.y = 0 - Math.floor(Math.random() * 200);
+	var x, y, z;
+
+	x = Math.floor(Math.random() * GK_SVG_WIDTH)
+	y = Math.floor(Math.random() * GK_SVG_HEIGHT)
+	z = GK_SVG_HEIGHT / 10;
+
+	var tempWinXY;
+	tempWinXY = new GkWinXYDef(x,y);
+	this.isoXYZ = tempWinXY.convertToIso(z);
+	//this.diamond = null;
+
 	this.speed = Math.floor(Math.random() * 4);
 	this.scale = 0.1 + (Math.floor(Math.random() * 3) / 20);
 
@@ -85,11 +92,14 @@ function GkDropDef() {
 	this.svgGroup.appendChild(this.path);
 
 	GkDropDef.prototype.setTranslate = function() {
-		this.svgGroup.setAttribute("transform","translate(" + this.x + "," + this.y + ") scale(" + this.scale + ")");
+		var winXY
+		winXY = this.isoXYZ.convertToWin();
+
+		this.svgGroup.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ") scale(" + this.scale + ")");
 	}
 
 	GkDropDef.prototype.fallOne = function() {
-		this.y += (this.speed / 3) + 6;
+		this.isoXYZ.z -= 3;
 		this.setTranslate();
 	}
 
