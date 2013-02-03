@@ -17,12 +17,13 @@
 	<script src="/assets/gk/javascript/dynamiclayout.js" type="text/javascript"></script>
 	<script src="/assets/gk/javascript/game/gkRain.js" type="text/javascript"></script>
 	<script src="/assets/gk/javascript/game/gkIso.js" type="text/javascript"></script>
+	<script src="/assets/gk/javascript/game/gkWs.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
-		var ws
-		var svgData
-		var avatarIsoXYZCurrent = new GkIsoXYZDef(10, 20, 0);
-		var avatarIsoXYZDestination = new GkIsoXYZDef(10, 20, 0);
+		var svgData;
+		var avatarIsoXYZCurrent = new GkIsoXYZDef(20, 20, 0);
+		var avatarIsoXYZDestination = new GkIsoXYZDef(20, 20, 0);
+		var avatarMeta;
 
 		var canPlayOgg = false;
 		var canPlayMp3 = false;
@@ -30,16 +31,8 @@
 
 		function init() {
 			console.log("calling init");
-			if (ws != null) {
-				console.log("closing extra ws")
-				ws.close();
-				ws = null;
-			}
 
-			ws = new WebSocket("ws://www.gourdianknot.com:14003/ws/svg");
-			ws.onopen = function() { doWsOpen(); };
-			ws.onmessage = function(evt) { doWsMessage(evt); };
-			ws.onclose = function() { doWsOnClose(); };
+			gkWsInit(dispatchWsMessage);
 
 			gkIsoDrawGridDiamond();
 			setUpAudio();
@@ -48,76 +41,52 @@
 			setInterval(doAnimateLoop,100);
 		}
 
-		function doWsOpen() {
-			console.log("doWsOpen");
-		}
+		function dispatchWsMessage(command, jsonData, data) {
 
-		function doWsMessage(e) {
-			console.log("doWsMessage");
-
-			var nlIndex1 = -1;
-			var nlIndex2 = -1;
-
-			for (i = 0;i < e.data.length;i++) {
-				if (e.data[i] == '~') {
-					nlIndex1 = i
-					break;
+			switch (command) {
+			case "turnOnRainReq":
+				gkRainOn();
+				break;
+			case "turnOffRainReq":
+				gkRainOff();
+				break;
+			case "getSvgRes":
+				var avatar
+				field = document.getElementById("gkField");
+				avatar = field.getElementById("avatar");
+				if (avatar != null) {
+					avatar.parentNode.removeChild(avatar);
 				}
-			}
-			for (i = (nlIndex1 + 1);i < e.data.length;i++) {
-				if (e.data[i] == '~') {
-					nlIndex2 = i
-					break;
+
+				avatarMeta = jsonData;
+				console.log("avatarMeta x,y: " + avatarMeta.origin_x + "," + avatarMeta.origin_y);
+
+				var svgString = "";
+				for (i = 0;i < data.length;i++) {
+					svgString += data[i];
 				}
-			}
 
-			if ((nlIndex1 != -1) && (nlIndex2 != -1)) {
-				command = e.data.substring(0,nlIndex1);
-				console.log("command from gameServer: " + command);
-				switch (command) {
-				case "turnOnRainReq":
-					gkRainOn();
-					break;
-				case "turnOffRainReq":
-					gkRainOff();
-					break;
-				case "getSvgRes":
-					var avatar
-					field = document.getElementById("gkField");
-					avatar = field.getElementById("avatar");
-					if (avatar != null) {
-						avatar.parentNode.removeChild(avatar);
-					}
+				//console.log("svgString: " + svgString);
 
-					jsonData = e.data.substring(nlIndex1 + 1, nlIndex2);
-					svgMetaData = JSON.parse(jsonData, null);
-					console.log("svgMetaData x,y: " + svgMetaData.origin_x + "," + svgMetaData.origin_y);
+				var r1 = new DOMParser().parseFromString(svgString, 'text/xml');
 
-					svgData = e.data.substring(nlIndex2 + 1);
-					var svgString = "";
-					for (i = (nlIndex2 + 1);i < e.data.length;i++) {
-						svgString += e.data[i];
-					}
+				field.appendChild(document.importNode(r1.documentElement.firstChild,true));
+				moveAvatar();
 
-					console.log("svgString: " + svgString);
-
-					var r1 = new DOMParser().parseFromString(svgString, 'text/xml');
-					field.appendChild(document.importNode(r1.documentElement.firstChild,true));
-					avatar = field.getElementById("avatar");
-					avatarWinXY = avatarIsoXYZCurrent.convertToWin()
-					avatar.setAttribute("transform","translate(" + avatarWinXY.x + "," + avatarWinXY.y + ")");
-
-					break;
-				default:
-					console.log("did not understand command from game server " + command);
-				}
-			} else {
-				console.log("did not understand input from game server");
+				break;
+			default:
+				console.log("did not understand command from game server " + command);
 			}
 		}
 
-		function doWsOnClose() {
-			console.log("doWsOnClose");
+		function moveAvatar() {
+			field = document.getElementById("gkField");
+			avatar = field.getElementById("avatar");
+
+			var avatarWinXY;
+
+			avatarWinXY = avatarIsoXYZCurrent.convertToWin()
+			avatar.setAttribute("transform","translate(" + (avatarWinXY.x - avatarMeta.origin_x) + "," + (avatarWinXY.y - avatarMeta.origin_y) + ")");
 		}
 
 		function doClick(e) {
@@ -168,12 +137,7 @@
 			}
 
 			if (needMove) {
-				avatar = field.getElementById("avatar");
-
-				var avatarWinXY;
-
-				avatarWinXY = avatarIsoXYZCurrent.convertToWin();
-				avatar.setAttribute("transform","translate(" + avatarWinXY.x + "," + avatarWinXY.y + ")");
+				moveAvatar();
 			}
 		}
 
@@ -243,7 +207,8 @@
 		function changeAvatar() {
 			avatarName = document.getElementById("selectAvatar").value;
 			console.log("avatarName: " + avatarName)
-			ws.send("getSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
+			gkWsSendMessage("getSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
+			//ws.send("getSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
 		}
 
 		function volumeChange(audioSelect) {
