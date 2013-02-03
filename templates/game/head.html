@@ -18,27 +18,33 @@
 	<script src="/assets/gk/javascript/game/gkRain.js" type="text/javascript"></script>
 	<script src="/assets/gk/javascript/game/gkIso.js" type="text/javascript"></script>
 	<script src="/assets/gk/javascript/game/gkWs.js" type="text/javascript"></script>
+	<script src="/assets/gk/javascript/game/gkAudio.js" type="text/javascript"></script>
+	<script src="/assets/gk/javascript/game/gkAvatar.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
-		var svgData;
-		var avatarIsoXYZCurrent = new GkIsoXYZDef(20, 20, 0);
-		var avatarIsoXYZDestination = new GkIsoXYZDef(20, 20, 0);
-		var avatarMeta;
-
-		var canPlayOgg = false;
-		var canPlayMp3 = false;
-		var canPlayWave = false;
-
 		function init() {
 			console.log("calling init");
 
 			gkWsInit(dispatchWsMessage);
 
 			gkIsoDrawGridDiamond();
-			setUpAudio();
 			gkRainStart();
 
-			setInterval(doAnimateLoop,100);
+			gkAudioInit("/assets/gk/audio");
+			var canPlay = document.getElementById("canPlay");
+			if (gkAudioContext.canPlayWav) {
+				canPlay.innerHTML += " .wav";
+			}
+			if (gkAudioContext.canPlayMp3) {
+				canPlay.innerHTML += " .mp3";
+			}
+			if (gkAudioContext.canPlayOgg) {
+				canPlay.innerHTML += " .ogg";
+			}
+			gkAudioStartAudio(1, "Devildance");
+
+			gkAvatarInit();
+
 		}
 
 		function dispatchWsMessage(command, jsonData, data) {
@@ -53,40 +59,21 @@
 			case "getSvgRes":
 				var avatar
 				field = document.getElementById("gkField");
-				avatar = field.getElementById("avatar");
-				if (avatar != null) {
-					avatar.parentNode.removeChild(avatar);
-				}
+				gkAvatarRemoveCurrentAvatar();
 
-				avatarMeta = jsonData;
-				console.log("avatarMeta x,y: " + avatarMeta.origin_x + "," + avatarMeta.origin_y);
+				console.log("avatarMeta x,y: " + jsonData.origin_x + "," + jsonData.origin_y);
 
 				var svgString = "";
 				for (i = 0;i < data.length;i++) {
 					svgString += data[i];
 				}
 
-				//console.log("svgString: " + svgString);
-
-				var r1 = new DOMParser().parseFromString(svgString, 'text/xml');
-
-				field.appendChild(document.importNode(r1.documentElement.firstChild,true));
-				moveAvatar();
+				gkAvatarAddNewAvatar(jsonData, svgString);
 
 				break;
 			default:
 				console.log("did not understand command from game server " + command);
 			}
-		}
-
-		function moveAvatar() {
-			field = document.getElementById("gkField");
-			avatar = field.getElementById("avatar");
-
-			var avatarWinXY;
-
-			avatarWinXY = avatarIsoXYZCurrent.convertToWin()
-			avatar.setAttribute("transform","translate(" + (avatarWinXY.x - avatarMeta.origin_x) + "," + (avatarWinXY.y - avatarMeta.origin_y) + ")");
 		}
 
 		function doClick(e) {
@@ -98,128 +85,18 @@
 			var winXY;
 
 			winXY = new GkWinXYDef(x,y);
-			avatarIsoXYZDestination = winXY.convertToIso(0);
+			gkAvatarSetNewDestination(winXY.convertToIso(0));
 
-			var field
-			field = document.getElementById("gkField");
-
-			var diamond
-			diamond = gkIsoCreateSingleDiamond(avatarIsoXYZDestination, "#8f8fff");
-			field.appendChild(diamond);
-
-			clickSound();
-		}
-
-		function doAnimateLoop() {
-	        var field;
-			var avatar;
-			var needMove = false;
-
-			field = document.getElementById("gkField");
-			avatar = field.getElementById("avatar");
-
-			if (avatarIsoXYZDestination.x > avatarIsoXYZCurrent.x) {
-				needMove = true;
-				avatarIsoXYZCurrent.x += 5;
-			}
-			if (avatarIsoXYZDestination.y > (avatarIsoXYZCurrent.y + 0)) {
-				needMove = true;
-				avatarIsoXYZCurrent.y += 5;
-			}
-
-			if (avatarIsoXYZDestination.x < avatarIsoXYZCurrent.x) {
-				needMove = true;
-				avatarIsoXYZCurrent.x -= 5;
-			}
-			if (avatarIsoXYZDestination.y < (avatarIsoXYZCurrent.y + 0)) {
-				needMove = true;
-				avatarIsoXYZCurrent.y -= 5;
-			}
-
-			if (needMove) {
-				moveAvatar();
-			}
-		}
-
-		function setUpAudio() {
-			console.log("init called");
-			var audio1 = document.getElementById("audio1")
-			var canPlay = document.getElementById("canPlay");
-			canPlay.innerHTML="can play:";
-			var source = document.createElement('source');
-			if (audio1.canPlayType('audio/mpeg;')) {
-				canPlay.innerHTML += " mpeg";
-				canPlayMp3 = true
-			}
-			if (audio1.canPlayType('audio/ogg;')) {
-				canPlay.innerHTML += " ogg";
-				canPlayOgg = true
-			}
-			if (audio1.canPlayType('audio/wav;')) {
-				canPlay.innerHTML += " wav";
-				canPlayWave = true
-			}
-			audio1.volume = 0.3;
-			var audio2 = document.getElementById("audio2")
-			audio2.volume = 0.3;
-
-			var source = document.createElement("source");
-			if (canPlayOgg) {
-				source.type = "audio/ogg";
-				source.src = "/assets/gk/audio/Devildance.ogg";
-				audio1.appendChild(source);
-				audio1.play();
-				} else {
-				if (canPlayMp3) {
-					source.type = "audio/mpeg";
-					source.src = "/assets/gk/audio/Devildance.mp3";
-					audio1.appendChild(source);
-					audio1.play();
-				}
-			}
-		}
-
-		function clickSound() {
-			var audio2 = document.getElementById("audio2");
-
-			for (i = (audio2.children.length - 1); i >= 0; i-- ) {
-				audio2.removeChild(audio2.children[i]);
-			}
-
-			console.log("len: " + (audio2.children.length));
-
-			var source = document.createElement("source");
-			if (canPlayOgg) {
-				source.type = "audio/ogg";
-				source.src = "/assets/gk/audio/duck.ogg";
-				audio2.appendChild(source);
-				audio2.play();
-				} else {
-				if (canPlayMp3) {
-					source.type = "audio/mpeg";
-					source.src = "/assets/gk/audio/duck.mp3";
-					audio2.appendChild(source);
-					audio2.play();
-				}
-			}
+			gkAudioStartAudio(2, "duck");
 		}
 
 		function changeAvatar() {
 			avatarName = document.getElementById("selectAvatar").value;
 			console.log("avatarName: " + avatarName)
-			gkWsSendMessage("getSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
-			//ws.send("getSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
+			//gkWsSendMessage("getSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
+			gkAvatarLoadNewAvatar(avatarName);
 		}
 
-		function volumeChange(audioSelect) {
-			var volume;
-			console.log("volume select: " + audioSelect);
-			var audio = document.getElementById("audio" + audioSelect)
-
-			volume = document.getElementById("volume" + audioSelect);
-			console.log(volume.value);
-			audio.volume = volume.value;
-		}
 	</script>
 </head>
 {{end}}
