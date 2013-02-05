@@ -39,7 +39,7 @@ func dispatchWebsocketRequest(websocketReq *websocketReqDef) (*websocketResDef, 
 			return nil, gkErr
 		}
 	default:
-		gkErr = gkerr.GenGkErr("unknonwn websocket request", nil, ERROR_ID_UNKNOWN_WEBSOCKET_COMMAND)
+		gkErr = gkerr.GenGkErr("unknonwn websocket request: " + websocketReq.command, nil, ERROR_ID_UNKNOWN_WEBSOCKET_COMMAND)
 		return nil, gkErr
 	}
 

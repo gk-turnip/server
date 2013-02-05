@@ -25,6 +25,14 @@
 		function init() {
 			console.log("calling init");
 
+			var s1
+			s1 = document.getElementById("selectAvatar");
+			s1.selectedIndex = 0;
+			s1 = document.getElementById("volume1");
+			s1.selectedIndex = 1;
+			s1 = document.getElementById("volume2");
+			s1.selectedIndex = 1;
+
 			gkWsInit(dispatchWsMessage);
 
 			gkIsoDrawGridDiamond();
@@ -95,6 +103,12 @@
 			console.log("avatarName: " + avatarName)
 			//gkWsSendMessage("getSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
 			gkAvatarLoadNewAvatar(avatarName);
+		}
+
+		function volumeChange(volumeId) {
+			volumeSelect = document.getElementById("volume" + volumeId);
+			value = volumeSelect.options[volumeSelect.selectedIndex].value
+			gkAudioVolumeChange(volumeId, value);
 		}
 
 	</script>

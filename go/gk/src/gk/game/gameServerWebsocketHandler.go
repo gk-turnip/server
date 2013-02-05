@@ -23,6 +23,7 @@ package game
 import (
 	"fmt"
 	"bytes"
+	"io"
 	"code.google.com/p/go.net/websocket"
 	"net"
 	"net/url"
@@ -93,15 +94,6 @@ func websocketHandler(ws *websocket.Conn) {
 	go goGetMessage(ws, receiveWebsocketChan)
 
 	for {
-//		var message []byte
-//
-//		err = websocket.Message.Receive(ws, &message)
-//		if err != nil {
-//			gkErr = gkerr.GenGkErr("websocket.Message.Receive", err, ERROR_ID_WEBSOCKET_RECEIVE)
-//			gklog.LogGkErr("websocket.Message.Receive", gkErr)
-//			return
-//		}
-
 		var runtimeWebsocketReq runtimeWebsocketReqDef
 		var receiveWebsocket *receiveWebsocketDef
 
@@ -109,27 +101,41 @@ func websocketHandler(ws *websocket.Conn) {
 		case receiveWebsocket = <- receiveWebsocketChan:
 			gklog.LogTrace("got websocket message from client: " + string(receiveWebsocket.message))
 
-			websocketReq.gameConfig = &_websocketGameConfig
-			websocketReq.connectionId = connectionId
-			websocketReq.remoteAddr = ws.RemoteAddr()
-			websocketReq.requestPath = url.Path
-			websocketReq.requestQuery = url.RawQuery
-			websocketReq.command, websocketReq.jsonData, websocketReq.data, gkErr =
-				getCommandJsonData(receiveWebsocket.message)
-			gklog.LogTrace("got websocket command: " + websocketReq.command + " json: " + string(websocketReq.jsonData) + " data: " + string(websocketReq.data))
-
-			var websocketRes *websocketResDef
-
-			websocketRes, gkErr = dispatchWebsocketRequest(&websocketReq)
-			if gkErr != nil {
-				gklog.LogGkErr("websocketReq.doRequest", gkErr)
+			if receiveWebsocket.err != nil {
+				if receiveWebsocket.err == io.EOF {
+					go goRemoveWebsocketLink(connectionId)
+					gklog.LogTrace(fmt.Sprintf("closing websocket got eof connectionId: %d",connectionId))
+					break
+				}
+				go goRemoveWebsocketLink(connectionId)
+				gkErr = gkerr.GenGkErr(fmt.Sprintf("got websocket input error connectionId: %d",connectionId), receiveWebsocket.err, ERROR_ID_WEBSOCKET_RECEIVE)
+				gklog.LogGkErr("websocket error", gkErr)
 				return
-			}
+			} else {
+				websocketReq.gameConfig = &_websocketGameConfig
+				websocketReq.connectionId = connectionId
+				websocketReq.remoteAddr = ws.RemoteAddr()
+				websocketReq.requestPath = url.Path
+				websocketReq.requestQuery = url.RawQuery
+				websocketReq.command, websocketReq.jsonData, websocketReq.data, gkErr =
+					getCommandJsonData(receiveWebsocket.message)
+				gklog.LogTrace("got websocket command: " + websocketReq.command + " json: " + string(websocketReq.jsonData) + " data: " + string(websocketReq.data))
 
-			gkErr = sendWebsocketRes(ws, websocketRes.command, websocketRes.jsonData, websocketRes.data)
-			if gkErr != nil {
-				gklog.LogGkErr("sendWebsocketRes", gkErr)
-				return
+				var websocketRes *websocketResDef
+
+				websocketRes, gkErr = dispatchWebsocketRequest(&websocketReq)
+				if gkErr != nil {
+					go goRemoveWebsocketLink(connectionId)
+					gklog.LogGkErr(fmt.Sprintf("websocketReq.doRequest connectionId: %d",connectionId), gkErr)
+					return
+				}
+
+				gkErr = sendWebsocketRes(ws, websocketRes.command, websocketRes.jsonData, websocketRes.data)
+				if gkErr != nil {
+					go goRemoveWebsocketLink(connectionId)
+					gklog.LogGkErr(fmt.Sprintf("sendWebsocketRes connectionId: %d",connectionId), gkErr)
+					return
+				}
 			}
 
 		case runtimeWebsocketReq = <- runtimeChan:
@@ -137,27 +143,11 @@ func websocketHandler(ws *websocket.Conn) {
 
 			gkErr = sendWebsocketRes(ws, runtimeWebsocketReq.command, runtimeWebsocketReq.jsonData, runtimeWebsocketReq.data)
 			if gkErr != nil {
-				gklog.LogGkErr("sendWebsocketRes", gkErr)
+				go goRemoveWebsocketLink(connectionId)
+				gklog.LogGkErr(fmt.Sprintf("sendWebsocketRes connectionId: %d",connectionId), gkErr)
 				return
 			}
 		}
-
-//		gklog.LogTrace("sending websocket response: " + fmt.Sprintf("c: %s j: %s d: %s", websocketRes.command, websocketRes.jsonData, websocketRes.data))
-//
-//		var websocketResponse []byte
-//
-//		websocketResponse = make([]byte, 0, 0)
-//		websocketResponse = append(websocketResponse, []byte(websocketRes.command)...)
-//		websocketResponse = append(websocketResponse, '~')
-//		websocketResponse = append(websocketResponse, websocketRes.jsonData...)
-//		websocketResponse = append(websocketResponse, '~')
-//		websocketResponse = append(websocketResponse, websocketRes.data...)
-//
-//		err = websocket.Message.Send(ws, string(websocketResponse))
-//		if err != nil {
-//			gklog.LogGkErr("websocket.Message.Send", gkerr.GenGkErr("websocket.Message.Send", err, ERROR_ID_WEBSOCKET_SEND))
-//			return
-//		}
 	}
 }
 

@@ -63,6 +63,13 @@ func addNewWebsocketLink (connectionId int32) (chan runtimeWebsocketReqDef, *gke
 	return websocketEntry.websocketChan, nil
 }
 
+func goRemoveWebsocketLink(connectionId int32) {
+	_websocketMutex.Lock()
+	defer _websocketMutex.Unlock()
+
+	delete(_websocketMap,connectionId)
+}
+
 func goRuntimeContextLoop(gameConfig *gameConfigDef) {
 	for {
 		time.Sleep(time.Second * 10)
@@ -81,7 +88,12 @@ func turnOnRain(on bool) {
 		} else {
 			runtimeWebsocketReq.command = _turnOffRainReq
 		}
-		websocketEntry.websocketChan <- runtimeWebsocketReq
+		go goSendRain(websocketEntry.websocketChan, runtimeWebsocketReq);
+		//websocketEntry.websocketChan <- runtimeWebsocketReq
 	}
+}
+
+func goSendRain(websocketChan chan runtimeWebsocketReqDef, runtimeWebsocketReq runtimeWebsocketReqDef) {
+	websocketChan <- runtimeWebsocketReq
 }
 
