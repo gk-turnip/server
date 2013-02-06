@@ -81,6 +81,7 @@ function gkTraverseAll (size) {
 	}
 }
 
+/* This under development too
 function gkRenderTexelsAll (texel,size) {
 //	This will render a texture for all iso squares.
 	var a = 0;
@@ -91,7 +92,15 @@ function gkRenderTexelsAll (texel,size) {
 	for (; a<=size; a++) {
 		for (var b=1; b<=size; b++) {
 			winx, winy = GkIsoXYZDef(a, b, c)
-			<div style="position: absolute; top: -250px; left: -250px;">
+			
 		}
 	}
+}
+*/
+
+function gkPutShrub (x,y,z,location) {
+	var putLocationX;
+	var putLocationY;
+	putLocationX, putLocationY = GkIsoXYZDef(x, y, z);
+	field.innerHTML += '\x3Cdiv id\x3Dshrub' + location + ' style\x3D\x22position\x3A absolute\x3B top\x3A ' + putLocationY + 'px\x3B left\x3A ' + putLocationX + 'px\x3B\x22\x3E\x3Cimg src\x3D\x22' + location + '\x3D\x3E\x3C\x2Fdiv\x3E';
 }
