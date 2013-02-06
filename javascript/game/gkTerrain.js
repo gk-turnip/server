@@ -81,4 +81,17 @@ function gkTraverseAll (size) {
 	}
 }
 
-			
+function gkRenderTexelsAll (texel,size) {
+//	This will render a texture for all iso squares.
+	var a = 0;
+	var b = 0;
+	var c = 0;
+	var x = 0;
+	var isoXYZ = new GkIsoXYZDef(a, b, c);
+	for (; a<=size; a++) {
+		for (var b=1; b<=size; b++) {
+			winx, winy = GkIsoXYZDef(a, b, c)
+			<div style="position: absolute; top: -250px; left: -250px;">
+		}
+	}
+}
