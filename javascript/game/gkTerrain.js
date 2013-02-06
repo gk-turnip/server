@@ -5,6 +5,7 @@ var MapData=new Array("PapayaWhip","IndianRed","LightSalmon","Wheat","Salmon","P
 var Rendered=new Array();
 
 function gkRenderMap (mapId,size) {
+	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
 	var isoXYZ;
 	var k = 1;
 	var map = MapIndex[mapId];
