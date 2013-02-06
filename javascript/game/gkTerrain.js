@@ -28,7 +28,8 @@ function gkRenderMap (mapId,size) {
 }
 
 function gkRestorePixel (xv,yv,size) {
-	var pos.isoXYZ.x = xv;
+	var pos;
+	pos.isoXYZ.x = xv;
 	pos.isoXYZ.y = yv;
 	pos.isoXYZ.z = 0;
 	gkIsoCreateSingleDiamond(pos.isoXYZ, map[k]);
