@@ -5,7 +5,7 @@ var MapData=new Array("PapayaWhip","IndianRed","LightSalmon","Wheat","Salmon","P
 var Rendered=new Array();
 
 function gkRenderMap (mapId,size) {
-	var pos;
+	var isoXYZ;
 	var k = 1;
 	var map = MapIndex[mapId];
 	var l = map.length
@@ -26,10 +26,9 @@ function gkRenderMap (mapId,size) {
 	}
 	for (var i=1; i<=size; i++) {
 		for (var j=1; j<=size; j++) {
-			pos.isoXYZ.z = 0
-			pos.isoXYZ.x = i
-			pos.isoXYZ.y = j
-			gkIsoCreateSingleDiamond(pos.isoXYZ, MapData[k]);
+			isoXYZ = new GkIsoXYZDef(i, j, 0);
+			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[k]);
+			field.appendChild(diamond);
 			Rendered[k] = MapData[k];
 			k++;
 		}
@@ -37,26 +36,28 @@ function gkRenderMap (mapId,size) {
 }
 
 function gkRestorePixel (xv,yv,size) {
-	var pos;
-	pos.isoXYZ.x = xv;
-	pos.isoXYZ.y = yv;
-	pos.isoXYZ.z = 0;
-	gkIsoCreateSingleDiamond(pos.isoXYZ, map[k]);
+	isoXYZ = new GkIsoXYZDef(xv, yv, 0);
+	diamond = gkIsoCreateSingleDiamond(isoXYZ, map[k]);
+	field.appendChild(diamond);
 }
 
-function gkGetBgPixelColor (xv,yv,size) {
-	var i = xv * size + yv;
-	var out = MapData[i];
-	return out;
-}
-
+//This has been delayed due to the me needing to talk to Turnip about some dine details here.
+/*
 function gkLoadSpecialMap (location,size) {
-	for (var j=1; j<=size; j++) {
-		pos.isoXYZ.z = 0
-		pos.isoXYZ.x = i
-		pos.isoXYZ.y = j
-		gkIsoCreateSingleDiamond(pos.isoXYZ, MapData[k]);
-		Rendered[k] = MapData[k];
-		k++;
+	var pos;
+	var k;
+	var mapRequest = makeHttpObject();
+	mapRequest.open("GET", "assets/gk/javascript/game/gkAudio.js", false);
+	mapRequest.send(null);
+	print(request.responseText);
+	for (var i=1; i<=size; i++) {
+		for (var j=1; j<=size; j++) {
+			isoXYZ = new GkIsoXYZDef(i, j, 0);
+			diamond = gkIsoCreateSingleDiamond(isoXYZ, SpecialMap[k]);
+			field.appendChild(diamond);
+			Rendered[k] = SpecialMap[k];
+			k++;
+		}
 	}
 }
+*/
