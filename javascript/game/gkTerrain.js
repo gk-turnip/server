@@ -8,11 +8,12 @@ var TraverseY=new Array();
 
 function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
+	var field = document.getElementById("gkField");
 	var a;
 	var isoXYZ;
 	var k = 0;
-	var map = MapIndex[mapId];
-	var l = map.length
+	var map = MapData[mapId];
+//	var l = map.length
 	if (mapId=0) {
 		a = Math.floor((Math.random()*22)); 
 	}

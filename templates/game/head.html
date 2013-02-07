@@ -20,6 +20,7 @@
 	<script src="/assets/gk/javascript/game/gkWs.js" type="text/javascript"></script>
 	<script src="/assets/gk/javascript/game/gkAudio.js" type="text/javascript"></script>
 	<script src="/assets/gk/javascript/game/gkAvatar.js" type="text/javascript"></script>
+	<script src="/assets/gk/javascript/game/gkTerrain.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
 		function init() {
@@ -35,7 +36,9 @@
 
 			gkWsInit(dispatchWsMessage);
 
-			gkIsoDrawGridDiamond();
+			//gkIsoDrawGridDiamond();
+			gkRenderMap(Math.floor(Math.random * 5),55);
+
 			gkRainStart();
 
 			gkAudioInit("/assets/gk/audio");

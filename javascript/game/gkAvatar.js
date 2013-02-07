@@ -1,12 +1,12 @@
 
 var gkAvatarContext = new gkAvatarContextDef();
-var gkDiamondItem;
 
 function gkAvatarContextDef() {
 	this.currentAvatar = null;
 	this.isoXYZCurrent = new GkIsoXYZDef(20, 20, 0);
 	this.isoXYZDestination = new GkIsoXYZDef(20, 20, 0);
 	this.avatarMeta = null;
+	this.lastMovePoint = null;
 }
 
 function gkAvatarInit() {
@@ -71,11 +71,12 @@ function gkAvatarSetNewDestination(isoXYZ) {
 	avatar = field.getElementById("avatar");
 
 	gkAvatarContext.isoXYZDestination = isoXYZ;
-	field.removeChild(gkDiamondItem);
-	var gkDiamondItem;
-	var diamond;
-	diamond = gkIsoCreateSingleDiamond(gkAvatarContext.isoXYZDestination, "#8f8fff");
-	gkDiamondItem = field.appendChild(diamond);
+
+	if (gkAvatarContext.lastMovePoint != undefined) {
+		field.removeChild(gkAvatarContext.lastMovePoint);
+	}
+	gkAvatarContext.lastMovePoint = gkIsoCreateSingleDiamond(gkAvatarContext.isoXYZDestination, "#8f8fff");
+	field.appendChild(gkAvatarContext.lastMovePoint);
 }
 
 function gkAvatarSetCurrentTransform() {
