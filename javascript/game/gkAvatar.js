@@ -1,5 +1,6 @@
 
 var gkAvatarContext = new gkAvatarContextDef();
+var gkDiamondItem;
 
 function gkAvatarContextDef() {
 	this.currentAvatar = null;
@@ -70,10 +71,11 @@ function gkAvatarSetNewDestination(isoXYZ) {
 	avatar = field.getElementById("avatar");
 
 	gkAvatarContext.isoXYZDestination = isoXYZ;
-
+	field.removeChild(gkDiamondItem);
+	var gkDiamondItem;
 	var diamond;
 	diamond = gkIsoCreateSingleDiamond(gkAvatarContext.isoXYZDestination, "#8f8fff");
-	field.appendChild(diamond);
+	gkDiamondItem = field.appendChild(diamond);
 }
 
 function gkAvatarSetCurrentTransform() {
