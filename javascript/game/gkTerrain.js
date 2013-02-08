@@ -6,10 +6,6 @@ var Rendered=new Array();
 var TraverseX=new Array();
 var TraverseY=new Array();
 
-function gkCheckLoadTerrain() {
-	return 7;
-}
-
 function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
 	var field = document.getElementById("gkField");
@@ -18,20 +14,6 @@ function gkRenderMap (mapId,size) {
 	var k = 0;
 	var map = MapData[mapId];
 //	var l = map.length
-	a = gkDetermineTerrainDiamondColor(mapId);
-	for (var i=1; i<=size; i++) {
-		for (var j=0; j<=size; j++) {
-
-			isoXYZ = new GkIsoXYZDef(i, j, 0);
-			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[a]);
-			field.appendChild(diamond);
-			Rendered[k] = MapData[a];
-			k++;
-		}
-	}
-}
-
-function gkDetermineTerrainDiamondColor (mapId) {
 	if (mapId=0) {
 		a = Math.floor((Math.random()*22)); 
 	}
@@ -46,6 +28,15 @@ function gkDetermineTerrainDiamondColor (mapId) {
 	}
 	else if (mapId=4) {
 		a = Math.floor((Math.random()*9)+63); 
+	}
+	for (var i=1; i<=size; i++) {
+		for (var j=1; j<=size; j++) {
+			isoXYZ = new GkIsoXYZDef(i, j, 0);
+			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[a]);
+			field.appendChild(diamond);
+			Rendered[k] = MapData[a];
+			k++;
+		}
 	}
 }
 
