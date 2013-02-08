@@ -5,10 +5,6 @@ var GK_SVG_MARGIN_Y = 5;
 var GK_SVG_WIDTH = 600;
 var GK_SVG_HEIGHT = 300;
 
-function gkCheckLoadIso() {
-	return 2;
-}
-
 function gkIsoDrawGridDiamond() {
 	var line;
 	var gridColour = "#afafaf";
