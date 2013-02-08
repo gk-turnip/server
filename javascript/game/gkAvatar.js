@@ -9,6 +9,10 @@ function gkAvatarContextDef() {
 	this.lastMovePoint = null;
 }
 
+function gkCheckLoadAvatar() {
+	return 5;
+}
+
 function gkAvatarInit() {
 	setInterval(gkAvatarAnimateLoop,50);
 }

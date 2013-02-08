@@ -6,6 +6,10 @@ var Rendered=new Array();
 var TraverseX=new Array();
 var TraverseY=new Array();
 
+function gkCheckLoadTerrain() {
+	return 7;
+}
+
 function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
 	var field = document.getElementById("gkField");

@@ -10,6 +10,10 @@ function gkAudioContextDef() {
 	this.sourceDir = "unknown";
 }
 
+function gkCheckLoadAudio() {
+	return 3;
+}
+
 function gkAudioInit(sourceDir) {
 	gkAudioContext.sourceDir = sourceDir;
 	var audio1 = document.getElementById("audio1")

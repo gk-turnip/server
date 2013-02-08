@@ -6,6 +6,10 @@ function gkWsContextDef() {
 	this.dispatchFunction = null;
 }
 
+function gkCheckLoadWs() {
+	return 11;
+}
+
 function gkWsInit(dispatchFunction) {
 	gkWsContext.dispatchFunction = dispatchFunction
 	if (gkWsContext.ws != null) {

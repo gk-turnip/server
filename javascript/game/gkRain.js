@@ -9,6 +9,10 @@ function gkRainContextDef () {
 	this.dropsStateCount = 0;
 }
 
+function gkCheckLoadRain() {
+	return 13;
+}
+
 function gkRainStart() {
 	setInterval(gkRainLoop,100);
 }
