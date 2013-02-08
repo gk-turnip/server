@@ -1,36 +1,41 @@
 
 //This is still experimental
 //Begin map data
-var MapData=new Array("PapayaWhip","IndianRed","LightSalmon","Wheat","Salmon","PaleGoldenRod","LightSalmon","Moccasin","NavajoWhite","SaddleBrown","Peru","Tan","Wheat","Moccasin","IndianRed","SandyBrown","PeachPuff","Bisque","Brown","BlanchedAlmond","Chocolate","Coral","DarkSalmon","NEXT_SECTION","AliceBlue","Aquamarine","Aqua","Blue","CornflowerBlue","CadetBlue","Cyan","DarkSlateBLue","DarkSeaGreen","LightSeaGreen","MediumSeaGreen","MediumSpringGreen","SeaGreen","Teal","NEXT_SECTION","Salmon","Red","Orange","OrangeRed","Tomato","Yellow","DimGrey","NEXT_SECTION","Yellow","YellowGreen","SpringGreen","MediumSeaGreen","MediumSpringGreen","LimeGreen","LightGreen","LawnGreen","Green","GreenYellow","ForestGreen","DarkSeaGreen","DarkGreen","Chartreuse","OliveDrab","NEXT_SECTION","DarkGoldenRod","DarkGray","DarkKhaki","DarkOliveGreen","Olive","OliveDrab","Peru","SaddleBrown","Sienna");
 var Rendered=new Array();
 var TraverseX=new Array();
 var TraverseY=new Array();
 
 function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
+	var MapData=new Array();
 	var field = document.getElementById("gkField");
 	var a;
 	var isoXYZ;
 	var k = 0;
 	var map = MapData[mapId];
 //	var l = map.length
-	if (mapId=0) {
-		a = Math.floor((Math.random()*22)); 
-	}
-	else if (mapId=1) {
-		a = Math.floor((Math.random()*14)+24); 
-	}
-	else if (mapId=2) {
-		a = Math.floor((Math.random()*7)+39); 
-	}
-	else if (mapId=3) {
-		a = Math.floor((Math.random()*15)+47); 
-	}
-	else if (mapId=4) {
-		a = Math.floor((Math.random()*9)+63); 
-	}
 	for (var i=1; i<=size; i++) {
-		for (var j=1; j<=size; j++) {
+		for (var j=0; j<=size; j++) {
+			if (mapId=0) {
+				MapData=["PapayaWhip","IndianRed","LightSalmon","Wheat","Salmon","PaleGoldenRod","LightSalmon","Moccasin","NavajoWhite","SaddleBrown","Peru","Tan","Wheat","Moccasin","IndianRed","SandyBrown","PeachPuff","Bisque","Brown","BlanchedAlmond","Chocolate","Coral","DarkSalmon"];
+				a = Math.floor((Math.random()*23)); 
+			}
+			else if (mapId=1) {
+				MapData=["AliceBlue","Aquamarine","Aqua","Blue","CornflowerBlue","CadetBlue","Cyan","DarkSlateBLue","DarkSeaGreen","LightSeaGreen","MediumSeaGreen","MediumSpringGreen","SeaGreen","Teal"];
+				a = Math.floor((Math.random()*14)); 
+			}
+			else if (mapId=2) {
+				MapData=["Salmon","Red","Orange","OrangeRed","Tomato","Yellow","DimGrey"];
+				a = Math.floor((Math.random()*7)); 
+			}
+			else if (mapId=3) {
+				MapData=["Yellow","YellowGreen","SpringGreen","MediumSeaGreen","MediumSpringGreen","LimeGreen","LightGreen","LawnGreen","Green","GreenYellow","ForestGreen","DarkSeaGreen","DarkGreen","Chartreuse","OliveDrab"];
+				a = Math.floor((Math.random()*15)); 
+			}		
+			else if (mapId=4) {
+				MapData=["DarkGoldenRod","DarkGray","DarkKhaki","DarkOliveGreen","Olive","OliveDrab","Peru","SaddleBrown","Sienna"];
+				a = Math.floor((Math.random()*9)); 
+			}
 			isoXYZ = new GkIsoXYZDef(i, j, 0);
 			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[a]);
 			field.appendChild(diamond);
@@ -38,6 +43,10 @@ function gkRenderMap (mapId,size) {
 			k++;
 		}
 	}
+}
+
+function gkDetermineTerrainDiamondColor (mapId) {
+
 }
 
 function gkRestorePixel (xv,yv,size) {
