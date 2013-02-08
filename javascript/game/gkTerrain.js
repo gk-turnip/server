@@ -14,24 +14,10 @@ function gkRenderMap (mapId,size) {
 	var k = 0;
 	var map = MapData[mapId];
 //	var l = map.length
-
+	a = gkDetermineTerrainDiamondColor(mapId);
 	for (var i=1; i<=size; i++) {
 		for (var j=0; j<=size; j++) {
-			if (mapId=0) {
-				a = Math.floor((Math.random()*22)); 
-			}
-			else if (mapId=1) {
-				a = Math.floor((Math.random()*14)+24); 
-			}
-			else if (mapId=2) {
-				a = Math.floor((Math.random()*7)+39); 
-			}
-			else if (mapId=3) {
-				a = Math.floor((Math.random()*15)+47); 
-			}
-			else if (mapId=4) {
-				a = Math.floor((Math.random()*9)+63); 
-			}
+
 			isoXYZ = new GkIsoXYZDef(i, j, 0);
 			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[a]);
 			field.appendChild(diamond);
@@ -41,6 +27,23 @@ function gkRenderMap (mapId,size) {
 	}
 }
 
+function gkDetermineTerrainDiamondColor (mapId) {
+	if (mapId=0) {
+		a = Math.floor((Math.random()*22)); 
+	}
+	else if (mapId=1) {
+		a = Math.floor((Math.random()*14)+24); 
+	}
+	else if (mapId=2) {
+		a = Math.floor((Math.random()*7)+39); 
+	}
+	else if (mapId=3) {
+		a = Math.floor((Math.random()*15)+47); 
+	}
+	else if (mapId=4) {
+		a = Math.floor((Math.random()*9)+63); 
+	}
+}
 
 function gkRestorePixel (xv,yv,size) {
 	isoXYZ = new GkIsoXYZDef(xv, yv, 0);
