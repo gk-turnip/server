@@ -35,6 +35,7 @@ type gameConfigDef struct {
 	TemplateDir      string   `xml:"templateDir"`
 	SvgDir           string   `xml:"svgDir"`
 	WebAddressPrefix string   `xml:"webAddressPrefix"`
+	WebsocketAddressPrefix string   `xml:"websocketAddressPrefix"`
 	DatabaseHost     string   `xml:"databaseHost"`
 	DatabasePort     int      `xml:"databasePort"`
 	DatabaseUserName string   `xml:"databaseUserName"`

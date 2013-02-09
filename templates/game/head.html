@@ -34,10 +34,10 @@
 			s1 = document.getElementById("volume2");
 			s1.selectedIndex = 1;
 
-			gkWsInit(dispatchWsMessage);
+			gkWsInit(dispatchWsMessage, "{{.WebsocketAddressPrefix}}");
 
 			//gkIsoDrawGridDiamond();
-			gkRenderMap(Math.floor(Math.random * 5),55);
+			gkRenderMap(Math.floor(Math.random() * 5), 55);
 
 			gkRainStart();
 

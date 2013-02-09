@@ -16,23 +16,23 @@ function gkRenderMap (mapId,size) {
 //	var l = map.length
 	for (var i=1; i<=size; i++) {
 		for (var j=0; j<=size; j++) {
-			if (mapId=0) {
+			if (mapId==0) {
 				MapData=["PapayaWhip","IndianRed","LightSalmon","Wheat","Salmon","PaleGoldenRod","LightSalmon","Moccasin","NavajoWhite","SaddleBrown","Peru","Tan","Wheat","Moccasin","IndianRed","SandyBrown","PeachPuff","Bisque","Brown","BlanchedAlmond","Chocolate","Coral","DarkSalmon"];
 				a = Math.floor((Math.random()*23)); 
 			}
-			else if (mapId=1) {
+			else if (mapId==1) {
 				MapData=["AliceBlue","Aquamarine","Aqua","Blue","CornflowerBlue","CadetBlue","Cyan","DarkSlateBLue","DarkSeaGreen","LightSeaGreen","MediumSeaGreen","MediumSpringGreen","SeaGreen","Teal"];
 				a = Math.floor((Math.random()*14)); 
 			}
-			else if (mapId=2) {
+			else if (mapId==2) {
 				MapData=["Salmon","Red","Orange","OrangeRed","Tomato","Yellow","DimGrey"];
 				a = Math.floor((Math.random()*7)); 
 			}
-			else if (mapId=3) {
+			else if (mapId==3) {
 				MapData=["Yellow","YellowGreen","SpringGreen","MediumSeaGreen","MediumSpringGreen","LimeGreen","LightGreen","LawnGreen","Green","GreenYellow","ForestGreen","DarkSeaGreen","DarkGreen","Chartreuse","OliveDrab"];
 				a = Math.floor((Math.random()*15)); 
 			}		
-			else if (mapId=4) {
+			else if (mapId==4) {
 				MapData=["DarkGoldenRod","DarkGray","DarkKhaki","DarkOliveGreen","Olive","OliveDrab","Peru","SaddleBrown","Sienna"];
 				a = Math.floor((Math.random()*9)); 
 			}

@@ -4,17 +4,19 @@ var gkWsContext = new gkWsContextDef();
 function gkWsContextDef() {
 	this.ws = null;
 	this.dispatchFunction = null;
+	this.websocketAddressPrefix = null;
 }
 
-function gkWsInit(dispatchFunction) {
+function gkWsInit(dispatchFunction, websocketAddressPrefix) {
 	gkWsContext.dispatchFunction = dispatchFunction
+	gkWsContext.websocketAddressPrefix = websocketAddressPrefix
 	if (gkWsContext.ws != null) {
 		console.log("closing extra ws")
 		gkWsContext.ws.close();
 		gkWsContext.ws = null;
 	}
 
-	gkWsContext.ws = new WebSocket("ws://www.gourdianknot.com:14003/ws/svg");
+	gkWsContext.ws = new WebSocket(gkWsContext.websocketAddressPrefix + "/ws/svg");
 	gkWsContext.ws.onopen = function() { gkWsDoOpen(); };
 	gkWsContext.ws.onmessage = function(evt) { gkWsDoMessage(evt); };
 	gkWsContext.ws.onclose = function() { gkWsDoOnClose(); };

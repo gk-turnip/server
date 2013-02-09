@@ -50,6 +50,7 @@ var _gameTemplateName string = "game"
 type gameDataDef struct {
 	Title string
 	WebAddressPrefix string
+	WebsocketAddressPrefix string
 }
 
 var _errorTemplate *gktmpl.TemplateDef
@@ -125,6 +126,7 @@ func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, re
 
 	gameData.Title = "game"
 	gameData.WebAddressPrefix = httpContext.gameConfig.WebAddressPrefix
+	gameData.WebsocketAddressPrefix = httpContext.gameConfig.WebsocketAddressPrefix
 
 	gkErr = _gameTemplate.Build(gameData)
 	if gkErr != nil {
