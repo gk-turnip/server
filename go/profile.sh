@@ -1,5 +1,4 @@
 
-
-export GOBASE=/home/diver2/server/go
-export GOPATH="/home/diver2/server/go/gk:/home/diver2/server/go/pq"
+export GOBASE=$HOME/server/go
+export GOPATH="$HOME/server/go/gk:$HOME/server/go/pq"
 

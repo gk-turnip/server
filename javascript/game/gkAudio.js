@@ -42,7 +42,7 @@ function gkAudioStartAudio(audioSelect, sourceFile) {
 	}
 
 	source.type = gkAudioContext.preferredType;
-	source.src = gkAudioContext.sourceDir + "/" + sourceFile + gkAudioContext.preferredSuffix;
+	source.src = gkAudioContext.sourceDir + "/assets/gk/audio/" + sourceFile + gkAudioContext.preferredSuffix;
 	audio.appendChild(source);
 	audio.play();
 }

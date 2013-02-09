@@ -41,7 +41,7 @@
 
 			gkRainStart();
 
-			gkAudioInit("/assets/gk/audio");
+			gkAudioInit("{{.AudioAddressPrefix}}");
 			var canPlay = document.getElementById("canPlay");
 			if (gkAudioContext.canPlayWav) {
 				canPlay.innerHTML += " .wav";
