@@ -4,17 +4,18 @@
 var Rendered=new Array();
 var TraverseX=new Array();
 var TraverseY=new Array();
-var Features;
+var FeaturesA;
+var FeaturesB;
 var MapData=new Array();
 var OverlayData=new Array();
 
 function gkTerrainInit (size) {
-	Features = new Array(size);
+	FeaturesA = new Array(size);
 
 	for (var i = 0; i < size; i++) {
-		Features[i] = new Array(size);
+		FeaturesA[i] = new Array(size);
 		for (var j = 0; j < size; j++) {
-			Features[i][j] = '';
+			FeaturesA[i][j] = '';
 		}
 	}
 }
@@ -23,7 +24,6 @@ function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
 	var field = document.getElementById("gkField");
 	var a;
-	var isoXYZ;
 	var k = 0;
 //	var l = map.length
 	for (var i=1; i<=size; i++) {
@@ -35,7 +35,7 @@ function gkRenderMap (mapId,size) {
 				MapData=["AliceBlue","Aquamarine","Aqua","Blue","CornflowerBlue","CadetBlue","Cyan","DarkSlateBLue","DarkSeaGreen","LightSeaGreen","MediumSeaGreen","MediumSpringGreen","SeaGreen","Teal"];
 			}
 			else if (mapId==2) {
-				MapData=["Salmon","Red","Orange","OrangeRed","Tomato","Yellow","DimGrey"];
+				MapData=["Salmon","Red","Orange","OrangeRed","Tomato","Yellow","DimGrey","Salmon","Red","Orange","OrangeRed","Tomato","Yellow","DimGrey","Black"];
 			}
 			else if (mapId==3) {
 				MapData=["Yellow","YellowGreen","SpringGreen","MediumSeaGreen","MediumSpringGreen","LimeGreen","LightGreen","LawnGreen","Green","GreenYellow","ForestGreen","DarkSeaGreen","DarkGreen","Chartreuse","OliveDrab"];
@@ -44,12 +44,45 @@ function gkRenderMap (mapId,size) {
 				MapData=["DarkGoldenRod","DarkGray","DarkKhaki","DarkOliveGreen","Olive","OliveDrab","Peru","SaddleBrown","Sienna"];
 			}
 			a = Math.floor((Math.random()*MapData.length));
-			isoXYZ = new GkIsoXYZDef(i, j, 0);
+			var isoXYZ = new GkIsoXYZDef(i, j, 0);
+			var iso1 = new GkIsoXYZDef(i+1, j, 0);
+			var iso2 = new GkIsoXYZDef(i+1, j+1, 0);
+			var iso3 = new GkIsoXYZDef(i+1, j-1, 0);
+			var iso4 = new GkIsoXYZDef(i-1, j, 0);
+			var iso5 = new GkIsoXYZDef(i-1, j+1, 0);
+			var iso6 = new GkIsoXYZDef(i-1, j-1, 0);
+			var iso7 = new GkIsoXYZDef(i, j+1, 0);
+			var iso8 = new GkIsoXYZDef(i, j-1, 0);
+
 			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[a], 1.0);
 			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso1, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso2, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso3, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso4, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso5, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso6, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso7, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso8, MapData[a], 0.4);
+			field.appendChild(diamond);
+
 			Rendered[k] = MapData[a];
 			k++;
-			if 
+			terrain = FeaturesA[i][j];
+			var q = 0;
+			while (terrain != FeaturesB[q][0]) {
+			q++;
+			}
+			fillFactor = FeaturesB[q][1];
+			if (Math.random()<fillFactor) {
+//			Put in the figure specified
 		}
 	}
 }
@@ -59,12 +92,19 @@ function gkTerrainSetDiamond(jsonObject) {
 		var terrain = jsonObject[i].terrain;
 		var x = jsonObject[i].x;
 		var y = jsonObject[i].y;
-		Features[x][y] = terrain;
+		FeaturesA[x][y] = terrain;
 	}
 }
 
 function gkTerrainLoad(jsonObject, rawSvgData) {
-
+	for (var i=0; i<(jsonObject.length/2); i++) {
+		var terrain = jsonObject[i].terrain;
+		var fillFactor = jsonObject[i+1].fillFactor;
+		FeaturesB = new Array();
+		FeaturesB[i] = new Array();
+		FeaturesB[i][0] = terrain;
+		FeaturesB[i][1] = fillFactor;
+	}
 }
 
 function gkRestorePixel (xv,yv,size) {
