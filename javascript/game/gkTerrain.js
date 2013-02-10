@@ -1,13 +1,14 @@
 
-//This is still experimental
+//Terrngine version 0.1
 //Begin map data
 var Rendered=new Array();
 var TraverseX=new Array();
 var TraverseY=new Array();
+var MapData=new Array();
+var OverlayData=new Array();
 
 function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
-	var MapData=new Array();
 	var field = document.getElementById("gkField");
 	var a;
 	var isoXYZ;
@@ -32,7 +33,7 @@ function gkRenderMap (mapId,size) {
 			}
 			a = Math.floor((Math.random()*MapData.length));
 			isoXYZ = new GkIsoXYZDef(i, j, 0);
-			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[a]);
+			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[a], 1.0);
 			field.appendChild(diamond);
 			Rendered[k] = MapData[a];
 			k++;
@@ -46,7 +47,7 @@ function gkDetermineTerrainDiamondColor (mapId) {
 
 function gkRestorePixel (xv,yv,size) {
 	isoXYZ = new GkIsoXYZDef(xv, yv, 0);
-	diamond = gkIsoCreateSingleDiamond(isoXYZ, Rendered[k]);
+	diamond = gkIsoCreateSingleDiamond(isoXYZ, Rendered[k], 1.0);
 	field.appendChild(diamond);
 }
 
@@ -62,7 +63,7 @@ function gkLoadSpecialMap (location,size) {
 	for (var i=1; i<=size; i++) {
 		for (var j=1; j<=size; j++) {
 			isoXYZ = new GkIsoXYZDef(i, j, 0);
-			diamond = gkIsoCreateSingleDiamond(isoXYZ, SpecialMap[k]);
+			diamond = gkIsoCreateSingleDiamond(isoXYZ, SpecialMap[k], 1.0);
 			field.appendChild(diamond);
 			Rendered[k] = SpecialMap[k];
 			k++;
@@ -108,4 +109,31 @@ function gkPutShrub (x,y,z,location) {
 	var putLocationY;
 	putLocationX, putLocationY = GkIsoXYZDef(x, y, z);
 	field.innerHTML += '\x3Cdiv id\x3Dshrub' + location + ' style\x3D\x22position\x3A absolute\x3B top\x3A ' + putLocationY + 'px\x3B left\x3A ' + putLocationX + 'px\x3B\x22\x3E\x3Cimg src\x3D\x22' + location + '\x3D\x3E\x3C\x2Fdiv\x3E';
+}
+
+function gkCreateOverlay (method,size,param3,opacity) {
+//	method 0 uses solid color given in param3.
+//	method 1 uses palatte in variable OverlayData
+	var a;
+	var isoXYZ;
+	var diamond;
+	if (method==0) {
+		for (var i=1; i<=size; i++) {
+			for (var j=0; j<=size; j++) {
+				isoXYZ = new GkIsoXYZDef(i, j, 0);
+				diamond = gkIsoCreateSingleDiamond(isoXYZ, param3, opacity);
+				field.appendChild(diamond);
+			}
+		}
+	}
+	if (method==1) {
+		for (var i=1; i<=size; i++) {
+			for (var j=0; j<=size; j++) {
+				a = Math.floor((Math.random()*OverlayData.length));
+				isoXYZ = new GkIsoXYZDef(i, j, 0);
+				diamond = gkIsoCreateSingleDiamond(isoXYZ, OverlayData[a], opacity);
+				field.appendChild(diamond);
+			}
+		}
+	}
 }
