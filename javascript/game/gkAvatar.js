@@ -75,7 +75,7 @@ function gkAvatarSetNewDestination(isoXYZ) {
 	if (gkAvatarContext.lastMovePoint != undefined) {
 		field.removeChild(gkAvatarContext.lastMovePoint);
 	}
-	gkAvatarContext.lastMovePoint = gkIsoCreateSingleDiamond(gkAvatarContext.isoXYZDestination, "#8f8fff");
+	gkAvatarContext.lastMovePoint = gkIsoCreateSingleDiamond(gkAvatarContext.isoXYZDestination, "#8f8fff", 1.0);
 	field.appendChild(gkAvatarContext.lastMovePoint);
 }
 

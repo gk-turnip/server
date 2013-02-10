@@ -71,7 +71,7 @@ function gkIsoDrawGridFull() {
 	}
 }
 
-function gkIsoCreateSingleDiamond(isoXYZ, colour) {
+function gkIsoCreateSingleDiamond(isoXYZ, colour, opacity) {
 	winXY = isoXYZ.convertToWin();
 
 	diamond = document.createElementNS(GK_SVG_NAMESPACE,"polygon");
@@ -95,6 +95,7 @@ function gkIsoCreateSingleDiamond(isoXYZ, colour) {
 
 	diamond.setAttribute("fill", colour);
 	diamond.setAttribute("stroke", colour);
+	diamond.setAttribute("opacity", opacity);
 
 	return diamond;
 }
