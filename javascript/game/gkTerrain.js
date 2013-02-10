@@ -4,8 +4,20 @@
 var Rendered=new Array();
 var TraverseX=new Array();
 var TraverseY=new Array();
+var Features;
 var MapData=new Array();
 var OverlayData=new Array();
+
+function gkTerrainInit (size) {
+	Features = new Array(size);
+
+	for (var i = 0; i < size; i++) {
+		Features[i] = new Array(size);
+		for (var j = 0; j < size; j++) {
+			Features[i][j] = '';
+		}
+	}
+}
 
 function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
@@ -37,11 +49,21 @@ function gkRenderMap (mapId,size) {
 			field.appendChild(diamond);
 			Rendered[k] = MapData[a];
 			k++;
+			if 
 		}
 	}
 }
 
-function gkDetermineTerrainDiamondColor (mapId) {
+function gkTerrainSetDiamond(jsonObject) {
+	for (var i=0; i<jsonObject.length; i++) {
+		var terrain = jsonObject[i].terrain;
+		var x = jsonObject[i].x;
+		var y = jsonObject[i].y;
+		Features[x][y] = terrain;
+	}
+}
+
+function gkTerrainLoad(jsonObject, rawSvgData) {
 
 }
 
