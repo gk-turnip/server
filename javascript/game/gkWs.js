@@ -5,18 +5,22 @@ function gkWsContextDef() {
 	this.ws = null;
 	this.dispatchFunction = null;
 	this.websocketAddressPrefix = null;
+	this.websocketPath = null;
+	this.sessionId = null;
 }
 
-function gkWsInit(dispatchFunction, websocketAddressPrefix) {
+function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessionId) {
 	gkWsContext.dispatchFunction = dispatchFunction
 	gkWsContext.websocketAddressPrefix = websocketAddressPrefix
+	gkWsContext.websocketPath = websocketPath
+	gkWsContext.sessionId = sessionId
 	if (gkWsContext.ws != null) {
 		console.log("closing extra ws")
 		gkWsContext.ws.close();
 		gkWsContext.ws = null;
 	}
 
-	gkWsContext.ws = new WebSocket(gkWsContext.websocketAddressPrefix + "/ws/svg");
+	gkWsContext.ws = new WebSocket(gkWsContext.websocketAddressPrefix + websocketPath + "?ses=" + sessionId);
 	gkWsContext.ws.onopen = function() { gkWsDoOpen(); };
 	gkWsContext.ws.onmessage = function(evt) { gkWsDoMessage(evt); };
 	gkWsContext.ws.onclose = function() { gkWsDoOnClose(); };

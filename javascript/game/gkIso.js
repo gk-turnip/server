@@ -95,7 +95,8 @@ function gkIsoCreateSingleDiamond(isoXYZ, colour, opacity) {
 
 	diamond.setAttribute("fill", colour);
 	diamond.setAttribute("stroke", colour);
-	diamond.setAttribute("opacity", opacity);
+	diamond.setAttribute("fill-opacity", opacity);
+	diamond.setAttribute("stroke-width", "0");
 
 	return diamond;
 }

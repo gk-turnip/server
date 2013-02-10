@@ -34,10 +34,6 @@ type httpContextDef struct {
 	gameConfig gameConfigDef
 }
 
-type websocketContextDef struct {
-	gameConfig gameConfigDef
-}
-
 func GameServerStart() {
 
 	var fileName *string = flag.String("config", "", "config file name")
@@ -85,8 +81,6 @@ func GameServerStart() {
 	}()
 
 	websocketAddress := fmt.Sprintf(":%d", gameConfig.WebsocketPort)
-	var websocketContext websocketContextDef
-	websocketContext.gameConfig = gameConfig
 
 	websocketSetConfig(gameConfig)
 

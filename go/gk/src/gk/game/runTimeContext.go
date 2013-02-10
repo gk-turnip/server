@@ -31,6 +31,7 @@ var _websocketMutex sync.Mutex
 
 type websocketEntryDef struct {
 	connectionId int32
+	sessionId string
 	websocketChan chan runtimeWebsocketReqDef
 }
 
@@ -40,7 +41,7 @@ type runtimeWebsocketReqDef struct {
 	data []byte
 }
 
-func addNewWebsocketLink (connectionId int32) (chan runtimeWebsocketReqDef, *gkerr.GkErrDef) {
+func addNewWebsocketLink (connectionId int32, sessionId string) (chan runtimeWebsocketReqDef, *gkerr.GkErrDef) {
 
 	_websocketMutex.Lock()
 	defer _websocketMutex.Unlock()
@@ -57,6 +58,7 @@ func addNewWebsocketLink (connectionId int32) (chan runtimeWebsocketReqDef, *gke
 	var websocketEntry websocketEntryDef
 
 	websocketEntry.connectionId = connectionId
+	websocketEntry.sessionId = sessionId
 	websocketEntry.websocketChan = make(chan runtimeWebsocketReqDef)
 	_websocketMap[connectionId] = websocketEntry
 

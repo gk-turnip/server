@@ -52,6 +52,8 @@ type gameDataDef struct {
 	WebAddressPrefix string
 	WebsocketAddressPrefix string
 	AudioAddressPrefix string
+	WebsocketPath string
+	SessionId string
 }
 
 var _errorTemplate *gktmpl.TemplateDef
@@ -124,11 +126,16 @@ func (httpContext *httpContextDef) handleGameRequest(res http.ResponseWriter, re
 func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, req *http.Request) {
 	var gameData gameDataDef
 	var gkErr *gkerr.GkErrDef
+	var session *sessionDef
+
+	session = newSession(req.RemoteAddr)
 
 	gameData.Title = "game"
 	gameData.WebAddressPrefix = httpContext.gameConfig.WebAddressPrefix
 	gameData.WebsocketAddressPrefix = httpContext.gameConfig.WebsocketAddressPrefix
 	gameData.AudioAddressPrefix = httpContext.gameConfig.AudioAddressPrefix
+	gameData.WebsocketPath = httpContext.gameConfig.WebsocketPath
+	gameData.SessionId = session.sessionId
 
 	gkErr = _gameTemplate.Build(gameData)
 	if gkErr != nil {

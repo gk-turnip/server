@@ -34,7 +34,7 @@
 			s1 = document.getElementById("volume2");
 			s1.selectedIndex = 1;
 
-			gkWsInit(dispatchWsMessage, "{{.WebsocketAddressPrefix}}");
+			gkWsInit(dispatchWsMessage, "{{.WebsocketAddressPrefix}}", "{{.WebsocketPath}}", "{{.SessionId}}");
 
 			//gkIsoDrawGridDiamond();
 			gkRenderMap(Math.floor(Math.random() * 5), 55);

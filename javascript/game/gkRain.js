@@ -41,7 +41,7 @@ function gkRainLoop() {
 					if (gkDrops[i].diamond == undefined) {
 						gkDrops[i].isoXYZ.z = 0;
 						var diamond;
-						diamond = gkIsoCreateSingleDiamond(gkDrops[i].isoXYZ, "#1e49bf");
+						diamond = gkIsoCreateSingleDiamond(gkDrops[i].isoXYZ, "#0000ff", 0.5);
 						field.appendChild(diamond);
 						gkDrops[i].diamond = diamond;
 						gkDrops[i].svgGroup.parentNode.removeChild(gkDrops[i].svgGroup);

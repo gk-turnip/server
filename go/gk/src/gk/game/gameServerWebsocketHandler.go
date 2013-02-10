@@ -44,9 +44,8 @@ var _nextConnectionMutex sync.Mutex
 type websocketReqDef struct {
 	gameConfig   *gameConfigDef
 	connectionId int32
+	sessionId	string
 	remoteAddr   net.Addr
-	requestPath  string
-	requestQuery string
 	command      string
 	jsonData     []byte
 	data         []byte
@@ -79,15 +78,41 @@ func websocketHandler(ws *websocket.Conn) {
 
 	connectionId = getNextConnectionId()
 
+	var config *websocket.Config
+	config = ws.Config()
+
+	gklog.LogTrace(fmt.Sprintf("new weboscket connection id: %d\nlocalAddr: %+v\nremoteAddr: %+v\npath: %+v\nquery: %+v\nLocation: %+v\nOrigin: %+v\nreq_adr: %+v",connectionId, ws.LocalAddr(), ws.RemoteAddr(), url.Path, url.RawQuery, config.Location.Host, config.Origin.Host, ws.Request().RemoteAddr))
+
+	if url.Path != _websocketGameConfig.WebsocketPath {
+		gkErr = gkerr.GenGkErr("invalid websocket path: " + url.Path, nil, ERROR_ID_WEBSOCKET_INVALID_PATH)
+		gklog.LogGkErr("", gkErr)
+		return
+	}
+
+	var sessionId string
+
+	sessionId = openSessionWebsocket(url.RawQuery, ws.Request().RemoteAddr, connectionId) 
+	if sessionId == "" {
+		gkErr = gkerr.GenGkErr("session not valid", nil, ERROR_ID_WEBSOCKET_INVALID_SESSION)
+		gklog.LogGkErr("", gkErr)
+		return
+	}
+
+	defer func() {
+		closeSessionWebsocket(connectionId, sessionId)
+	}()
+
 	var runtimeChan chan runtimeWebsocketReqDef
 
-	runtimeChan, gkErr = addNewWebsocketLink(connectionId)
+	runtimeChan, gkErr = addNewWebsocketLink(connectionId, sessionId)
 	if gkErr != nil {
 		gklog.LogGkErr("addNewWebsocketLink", gkErr)
 		return
 	}
 
-	gklog.LogTrace(fmt.Sprintf("new weboscket connection id: %d addr: %+v path: %+v query: %+v",connectionId, ws.RemoteAddr(), url.Path, url.RawQuery))
+	defer func() {
+		go goRemoveWebsocketLink(connectionId)
+	}()
 
 	var receiveWebsocketChan chan *receiveWebsocketDef = make(chan *receiveWebsocketDef)
 
@@ -103,11 +128,9 @@ func websocketHandler(ws *websocket.Conn) {
 
 			if receiveWebsocket.err != nil {
 				if receiveWebsocket.err == io.EOF {
-					go goRemoveWebsocketLink(connectionId)
 					gklog.LogTrace(fmt.Sprintf("closing websocket got eof connectionId: %d",connectionId))
 					break
 				}
-				go goRemoveWebsocketLink(connectionId)
 				gkErr = gkerr.GenGkErr(fmt.Sprintf("got websocket input error connectionId: %d",connectionId), receiveWebsocket.err, ERROR_ID_WEBSOCKET_RECEIVE)
 				gklog.LogGkErr("websocket error", gkErr)
 				return
@@ -115,8 +138,6 @@ func websocketHandler(ws *websocket.Conn) {
 				websocketReq.gameConfig = &_websocketGameConfig
 				websocketReq.connectionId = connectionId
 				websocketReq.remoteAddr = ws.RemoteAddr()
-				websocketReq.requestPath = url.Path
-				websocketReq.requestQuery = url.RawQuery
 				websocketReq.command, websocketReq.jsonData, websocketReq.data, gkErr =
 					getCommandJsonData(receiveWebsocket.message)
 				gklog.LogTrace("got websocket command: " + websocketReq.command + " json: " + string(websocketReq.jsonData) + " data: " + string(websocketReq.data))
@@ -125,14 +146,12 @@ func websocketHandler(ws *websocket.Conn) {
 
 				websocketRes, gkErr = dispatchWebsocketRequest(&websocketReq)
 				if gkErr != nil {
-					go goRemoveWebsocketLink(connectionId)
 					gklog.LogGkErr(fmt.Sprintf("websocketReq.doRequest connectionId: %d",connectionId), gkErr)
 					return
 				}
 
 				gkErr = sendWebsocketRes(ws, websocketRes.command, websocketRes.jsonData, websocketRes.data)
 				if gkErr != nil {
-					go goRemoveWebsocketLink(connectionId)
 					gklog.LogGkErr(fmt.Sprintf("sendWebsocketRes connectionId: %d",connectionId), gkErr)
 					return
 				}
@@ -143,7 +162,6 @@ func websocketHandler(ws *websocket.Conn) {
 
 			gkErr = sendWebsocketRes(ws, runtimeWebsocketReq.command, runtimeWebsocketReq.jsonData, runtimeWebsocketReq.data)
 			if gkErr != nil {
-				go goRemoveWebsocketLink(connectionId)
 				gklog.LogGkErr(fmt.Sprintf("sendWebsocketRes connectionId: %d",connectionId), gkErr)
 				return
 			}

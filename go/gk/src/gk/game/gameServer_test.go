@@ -29,6 +29,7 @@ func TestGameServer(t *testing.T) {
 	testTrimBetweenMarkers(t)
 	testTrimCrLf(t)
 	testGetCommandJsonData(t)
+	testSession(t)
 }
 
 func testTrimBetweenMarkers(t *testing.T) {
@@ -233,3 +234,71 @@ func testGetCommandJsonData(t *testing.T) {
 
 }
 
+func testSession(t *testing.T) {
+	var session1 *sessionDef
+	var session2 *sessionDef
+	var id1, id2, id3 string
+	var id4 int32
+
+	session1 = newSession("1.1.1.1")
+	id1 = session1.sessionId
+	session2 = newSession("1.1.1.2")
+	id2 = session2.sessionId
+	if id1 == id2 {
+		t.Logf("duplicate sessionId")
+		t.Fail()
+	}
+
+	if len(id1) < 8 {
+		t.Logf("short sessionId len: " + id1)
+		t.Fail()
+	}
+
+	if len(id2) < 8 {
+		t.Logf("short sessionId len: " + id2)
+		t.Fail()
+	}
+
+	id3 = openSessionWebsocket("ses=" + session1.sessionId, "1.1.1.1", 1)
+	if id3 == "" {
+		t.Logf("getSessionFromQuery failed")
+		t.Fail()
+	}
+	if id3 != session1.sessionId {
+		t.Logf("getSessionFromQuery failed")
+		t.Fail()
+	}
+
+//	remove this test for now, see session.go for the reason
+//	id3 = openSessionWebsocket("ses=" + session1.sessionId, "1.1.1.2", 1)
+//	if id3 != "" {
+//		t.Logf("getSessionFromQuery invalid result")
+//		t.Fail()
+//	}
+
+	id3 = openSessionWebsocket("sesx=" + session1.sessionId, "1.1.1.1", 1)
+	if id3 != "" {
+		t.Logf("getSessionFromQuery invalid result")
+		t.Fail()
+	}
+
+	id3 = openSessionWebsocket("ses=" + session1.sessionId + "x", "1.1.1.1", 1)
+	if id3 != "" {
+		t.Logf("getSessionFromQuery invalid result")
+		t.Fail()
+	}
+
+	id4 = getConnectionIdFromSession(session1.sessionId)
+	if id4 != 1 {
+		t.Logf("getConnectionIdFromSession failed")
+		t.Fail()
+	}
+
+	closeSessionWebsocket(1, session1.sessionId)
+
+	id4 = getConnectionIdFromSession(session1.sessionId)
+	if id4 != -1 {
+		t.Logf("getConnectionIdFromSession failed")
+		t.Fail()
+	}
+}

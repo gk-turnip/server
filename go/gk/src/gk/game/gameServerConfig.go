@@ -42,6 +42,7 @@ type gameConfigDef struct {
 	DatabaseUserName string   `xml:"databaseUserName"`
 	DatabasePassword string   `xml:"databasePassword"`
 	DatabaseDatabase string   `xml:"databaseDatabase"`
+	WebsocketPath string `xml:"websocketPath"`
 }
 
 func loadConfigFile(fileName string) (gameConfigDef, *gkerr.GkErrDef) {
