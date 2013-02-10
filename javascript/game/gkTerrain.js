@@ -24,7 +24,6 @@ function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
 	var field = document.getElementById("gkField");
 	var a;
-	var isoXYZ;
 	var k = 0;
 //	var l = map.length
 	for (var i=1; i<=size; i++) {
@@ -45,9 +44,35 @@ function gkRenderMap (mapId,size) {
 				MapData=["DarkGoldenRod","DarkGray","DarkKhaki","DarkOliveGreen","Olive","OliveDrab","Peru","SaddleBrown","Sienna"];
 			}
 			a = Math.floor((Math.random()*MapData.length));
-			isoXYZ = new GkIsoXYZDef(i, j, 0);
+			var isoXYZ = new GkIsoXYZDef(i, j, 0);
+			var iso1 = new GkIsoXYZDef(i+1, j, 0);
+			var iso2 = new GkIsoXYZDef(i+1, j+1, 0);
+			var iso3 = new GkIsoXYZDef(i+1, j-1, 0);
+			var iso4 = new GkIsoXYZDef(i-1, j, 0);
+			var iso5 = new GkIsoXYZDef(i-1, j+1, 0);
+			var iso6 = new GkIsoXYZDef(i-1, j-1, 0);
+			var iso7 = new GkIsoXYZDef(i, j+1, 0);
+			var iso8 = new GkIsoXYZDef(i, j-1, 0);
+
 			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[a], 1.0);
 			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso1, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso2, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso3, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso4, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso5, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso6, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso7, MapData[a], 0.4);
+			field.appendChild(diamond);
+			diamond = gkIsoCreateSingleDiamond(iso8, MapData[a], 0.4);
+			field.appendChild(diamond);
+
 			Rendered[k] = MapData[a];
 			k++;
 			terrain = FeaturesA[i][j];
