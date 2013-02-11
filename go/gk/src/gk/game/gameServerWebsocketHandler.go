@@ -114,6 +114,8 @@ func websocketHandler(ws *websocket.Conn) {
 		go goRemoveWebsocketLink(connectionId)
 	}()
 
+	go sendWebsocketTerrainLoad(&_websocketGameConfig, connectionId)
+
 	var receiveWebsocketChan chan *receiveWebsocketDef = make(chan *receiveWebsocketDef)
 
 	go goGetMessage(ws, receiveWebsocketChan)

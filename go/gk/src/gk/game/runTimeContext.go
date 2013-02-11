@@ -20,10 +20,14 @@ package game
 import (
 	"sync"
 	"time"
+	"os"
+	"strings"
 )
 
 import (
 	"gk/gkerr"
+	"gk/gklog"
+	"gk/gkcommon"
 )
 
 var _websocketMap map[int32]websocketEntryDef = make(map[int32]websocketEntryDef)
@@ -63,6 +67,104 @@ func addNewWebsocketLink (connectionId int32, sessionId string) (chan runtimeWeb
 	_websocketMap[connectionId] = websocketEntry
 
 	return websocketEntry.websocketChan, nil
+}
+
+func sendWebsocketTerrainLoad(gameConfig *gameConfigDef, connectionId int32) {
+
+	var ok bool
+	var gkErr *gkerr.GkErrDef
+
+	_websocketMutex.Lock()
+	_, ok = _websocketMap[connectionId]
+	_websocketMutex.Unlock()
+
+	if !ok {
+		gkErr = gkerr.GenGkErr("could not find connection id", nil, ERROR_ID_COULD_NOT_FIND_CONNECTION_ID)
+		gklog.LogGkErr("", gkErr)
+		return
+	}
+
+	var websocketEntry websocketEntryDef
+
+	_websocketMutex.Lock()
+	websocketEntry = _websocketMap[connectionId]
+	_websocketMutex.Unlock()
+
+	var file *os.File
+	var err error
+
+	file, err = os.Open(gameConfig.SvgDir)
+	if err != nil {
+		gkErr = gkerr.GenGkErr("could not open svg dir: " + gameConfig.SvgDir, err, ERROR_ID_SVG_DIR_OPEN)
+		gklog.LogGkErr("",gkErr)
+		return
+	}
+
+	var fileNames []string
+	fileNames, err = file.Readdirnames(0)
+	if err != nil {
+		gkErr = gkerr.GenGkErr("could not open svg dir: " + gameConfig.SvgDir, err, ERROR_ID_SVG_DIR_READ)
+		gklog.LogGkErr("",gkErr)
+		return
+	}
+
+	defer file.Close()
+
+	var runtimeWebsocketReq *runtimeWebsocketReqDef
+
+	for i := 0;i < len(fileNames); i++ {
+		if strings.HasPrefix(fileNames[i],"terrain_") {
+			if strings.HasSuffix(fileNames[i],".json") {
+				runtimeWebsocketReq = createNewLoadTerrainEntry(gameConfig.SvgDir, fileNames[i][:len(fileNames[i]) - 5])
+gklog.LogTrace("load Terrain file " + fileNames[i] + " json data: " + string(runtimeWebsocketReq.jsonData))
+				websocketEntry.websocketChan <- *runtimeWebsocketReq
+			}
+		}
+	}
+
+	runtimeWebsocketReq = new(runtimeWebsocketReqDef)
+	runtimeWebsocketReq.command = _setTerrainReq
+// hard coded train for testing
+	runtimeWebsocketReq.jsonData = []byte(`
+{
+	"setList": [
+	{ "terrain": "grass", "x": 0, "y": 0 },
+	{ "terrain": "sand", "x": 0, "y": 1 },
+	{ "terrain": "sand", "x": 1, "y": 0 },
+	{ "terrain": "grass", "x": 1, "y": 1 },
+	{ "terrain": "grass", "x": 1, "y": 2 },
+	{ "terrain": "grass", "x": 2, "y": 1 },
+	{ "terrain": "grass", "x": 2, "y": 2 }
+	]
+}
+`)
+gklog.LogTrace("set Terrain " + string(runtimeWebsocketReq.jsonData))
+	websocketEntry.websocketChan <- *runtimeWebsocketReq
+}
+
+func createNewLoadTerrainEntry(dir string, fileName string) *runtimeWebsocketReqDef {
+	var runtimeWebsocketReq runtimeWebsocketReqDef
+	//var fileContents []byte
+	var gkErr *gkerr.GkErrDef
+	var jsonFileName, svgFileName string
+
+	jsonFileName = dir + string(os.PathSeparator) + fileName + ".json"
+	runtimeWebsocketReq.command = _loadTerrainReq
+
+	runtimeWebsocketReq.jsonData, gkErr = gkcommon.GetFileContents(jsonFileName)
+	if gkErr != nil {
+		gklog.LogGkErr("terrain GetFileContents",gkErr)
+		return nil
+	}
+
+	svgFileName = dir + string(os.PathSeparator) + fileName + ".svg"
+	runtimeWebsocketReq.data, gkErr = gkcommon.GetFileContents(svgFileName)
+	if gkErr != nil {
+		gklog.LogGkErr("terrain GetFileContents",gkErr)
+		return nil
+	}
+
+	return &runtimeWebsocketReq
 }
 
 func goRemoveWebsocketLink(connectionId int32) {

@@ -27,6 +27,9 @@ const _getSvgRes = "getSvgRes"
 const _turnOnRainReq = "turnOnRainReq"
 const _turnOffRainReq = "turnOffRainReq"
 
+const _loadTerrainReq = "loadTerrainReq"
+const _setTerrainReq = "setTerrainReq"
+
 func dispatchWebsocketRequest(websocketReq *websocketReqDef) (*websocketResDef, *gkerr.GkErrDef) {
 
 	var websocketRes *websocketResDef

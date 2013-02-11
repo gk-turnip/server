@@ -57,8 +57,12 @@ function gkWsDoMessage(e) {
 			jsonData = null;
 		} else {
 			jsonRawData = e.data.substring(nlIndex1 + 1, nlIndex2);
-			console.log("got jsonRawData len: " + jsonRawData.length);
+//			console.log("got jsonRawData len: " + jsonRawData.length);
+//			console.log("got jsonRawData: " + jsonRawData);
 			jsonData = JSON.parse(jsonRawData, null);
+//			console.log("got jsonData: " + jsonData);
+//console.log("terrain: " + jsonData.terrain)
+//console.log("subTerrain: " + jsonData.subTerrain)
 		}
 
 		if ((nlIndex2 + 1) == e.data.length) {

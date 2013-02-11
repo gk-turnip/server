@@ -88,6 +88,14 @@ function gkRenderMap (mapId,size) {
 }
 
 function gkTerrainSetDiamond(jsonObject) {
+	console.log("gkTerrainSetDiamond")
+	var i
+	for (i = 0;i < jsonObject.setList.length; i++) {
+		console.log(" terrain: " + jsonObject.setList[i].terrain);
+		console.log(" x: " + jsonObject.setList[i].x);
+		console.log(" y: " + jsonObject.setList[i].y);
+	}
+
 	for (var i=0; i<jsonObject.length; i++) {
 		var terrain = jsonObject[i].terrain;
 		var x = jsonObject[i].x;
@@ -97,6 +105,16 @@ function gkTerrainSetDiamond(jsonObject) {
 }
 
 function gkTerrainLoad(jsonObject, rawSvgData) {
+	console.log("gkTerrainLoad")
+
+	if (jsonObject.terrain != undefined) {
+		console.log("terrain: " + jsonObject.terrain);
+	}
+	if (jsonObject.subTerrain != undefined) {
+		console.log("subTerrain: " + jsonObject.subTerrain);
+		console.log("fillCount: " + jsonObject.fillCount);
+	}
+
 	for (var i=0; i<(jsonObject.length/2); i++) {
 		var terrain = jsonObject[i].terrain;
 		var fillFactor = jsonObject[i+1].fillFactor;
@@ -199,3 +217,4 @@ function gkCreateOverlay (method,size,param3,opacity) {
 		}
 	}
 }
+

@@ -82,6 +82,12 @@
 				gkAvatarAddNewAvatar(jsonData, svgString);
 
 				break;
+			case "loadTerrainReq":
+				gkTerrainLoad(jsonData, data);
+				break;
+			case "setTerrainReq":
+				gkTerrainSetDiamond(jsonData);
+				break;
 			default:
 				console.log("did not understand command from game server " + command);
 			}
