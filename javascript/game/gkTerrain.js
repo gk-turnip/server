@@ -89,8 +89,7 @@ function gkRenderMap (mapId,size) {
 
 function gkTerrainSetDiamond(jsonObject) {
 	console.log("gkTerrainSetDiamond")
-	var i
-	for (i = 0;i < jsonObject.setList.length; i++) {
+	for (var i=0; i<jsonObject.setList.length; i++) {
 		console.log(" terrain: " + jsonObject.setList[i].terrain);
 		console.log(" x: " + jsonObject.setList[i].x);
 		console.log(" y: " + jsonObject.setList[i].y);
