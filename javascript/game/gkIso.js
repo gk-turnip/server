@@ -101,6 +101,23 @@ function gkIsoCreateSingleDiamond(isoXYZ, colour, opacity) {
 	return diamond;
 }
 
+function gkIsoCreateSvgDiamond(rawSvgData) {
+	var g
+	g = document.createElementNS(GK_SVG_NAMESPACE,"g");
+	var r1 = new DOMParser().parseFromString(rawSvgData, "text/xml");
+	g.appendChild(document.importNode(r1.documentElement.firstChild,true))
+
+//	svgDiamond = document.importNode(r1.documentElement.firstChild,true)
+
+	return g
+}
+
+function gkIsoSetSvgDiamondPosition(svgDiamond, isoXYZ) {
+	var winXY;
+	winXY = isoXYZ.convertToWin();
+	svgDiamond.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ")");
+}
+
 function GkWinXYDef(x, y) {
 	this.x = x;
 	this.y = y;

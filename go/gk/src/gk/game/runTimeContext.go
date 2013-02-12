@@ -128,13 +128,31 @@ gklog.LogTrace("load Terrain file " + fileNames[i] + " json data: " + string(run
 	runtimeWebsocketReq.jsonData = []byte(`
 {
 	"setList": [
-	{ "terrain": "grass", "x": 0, "y": 0 },
+	{ "terrain": "sand", "x": 0, "y": 0 },
 	{ "terrain": "sand", "x": 0, "y": 1 },
+	{ "terrain": "sand", "x": 0, "y": 2 },
+	{ "terrain": "grass", "x": 0, "y": 3 },
+	{ "terrain": "grass", "x": 0, "y": 4 },
 	{ "terrain": "sand", "x": 1, "y": 0 },
-	{ "terrain": "grass", "x": 1, "y": 1 },
+	{ "terrain": "sand", "x": 1, "y": 1 },
 	{ "terrain": "grass", "x": 1, "y": 2 },
+	{ "terrain": "grass", "x": 1, "y": 3 },
+	{ "terrain": "grass", "x": 1, "y": 4 },
+	{ "terrain": "grass", "x": 2, "y": 0 },
 	{ "terrain": "grass", "x": 2, "y": 1 },
-	{ "terrain": "grass", "x": 2, "y": 2 }
+	{ "terrain": "grass", "x": 2, "y": 2 },
+	{ "terrain": "grass", "x": 2, "y": 3 },
+	{ "terrain": "grass", "x": 2, "y": 4 },
+	{ "terrain": "grass", "x": 3, "y": 0 },
+	{ "terrain": "grass", "x": 3, "y": 1 },
+	{ "terrain": "grass", "x": 3, "y": 2 },
+	{ "terrain": "grass", "x": 3, "y": 3 },
+	{ "terrain": "grass", "x": 3, "y": 4 },
+	{ "terrain": "grass", "x": 4, "y": 0 },
+	{ "terrain": "grass", "x": 4, "y": 1 },
+	{ "terrain": "grass", "x": 4, "y": 2 },
+	{ "terrain": "grass", "x": 4, "y": 3 },
+	{ "terrain": "grass", "x": 4, "y": 4 }
 	]
 }
 `)
@@ -163,6 +181,8 @@ func createNewLoadTerrainEntry(dir string, fileName string) *runtimeWebsocketReq
 		gklog.LogGkErr("terrain GetFileContents",gkErr)
 		return nil
 	}
+
+	runtimeWebsocketReq.data = fixSvgData(runtimeWebsocketReq.data)
 
 	return &runtimeWebsocketReq
 }

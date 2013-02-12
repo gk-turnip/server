@@ -10,14 +10,18 @@ var MapData=new Array();
 var OverlayData=new Array();
 
 function gkTerrainInit (size) {
-	FeaturesA = new Array(size);
+//	FeaturesA = new Array(size);
+	FeaturesA = new Array();
+	FeaturesB = new Array(size);
 
+/*
 	for (var i = 0; i < size; i++) {
 		FeaturesA[i] = new Array(size);
 		for (var j = 0; j < size; j++) {
 			FeaturesA[i][j] = '';
 		}
 	}
+*/
 }
 
 function gkRenderMap (mapId,size) {
@@ -26,7 +30,7 @@ function gkRenderMap (mapId,size) {
 	var a;
 	var k = 0;
 //	var l = map.length
-	for (var i=1; i<=size; i++) {
+	for (var i=0; i<=size; i++) {
 		for (var j=0; j<=size; j++) {
 			if (mapId==0) {
 				MapData=["PapayaWhip","IndianRed","LightSalmon","Wheat","Salmon","PaleGoldenRod","LightSalmon","Moccasin","NavajoWhite","SaddleBrown","Peru","Tan","Wheat","Moccasin","IndianRed","SandyBrown","PeachPuff","Bisque","Brown","BlanchedAlmond","Chocolate","Coral","DarkSalmon"];
@@ -53,7 +57,7 @@ function gkRenderMap (mapId,size) {
 			var iso6 = new GkIsoXYZDef(i-1, j-1, 0);
 			var iso7 = new GkIsoXYZDef(i, j+1, 0);
 			var iso8 = new GkIsoXYZDef(i, j-1, 0);
-
+/*
 			diamond = gkIsoCreateSingleDiamond(isoXYZ, MapData[a], 1.0);
 			field.appendChild(diamond);
 			diamond = gkIsoCreateSingleDiamond(iso1, MapData[a], 0.4);
@@ -72,22 +76,64 @@ function gkRenderMap (mapId,size) {
 			field.appendChild(diamond);
 			diamond = gkIsoCreateSingleDiamond(iso8, MapData[a], 0.4);
 			field.appendChild(diamond);
-
+*/
 			Rendered[k] = MapData[a];
 			k++;
-			terrain = FeaturesA[i][j];
-			var q = 0;
-			while (terrain != FeaturesB[q][0]) {
-			q++;
+
+			if (FeaturesA[i] != undefined) {
+				if (FeaturesA[i][j] != undefined) {
+					terrain = FeaturesA[i][j];
+
+					var isoXYZ
+					isoXYZ = new GkIsoXYZDef((i * 10) - 5,(j * 10) + 5,0);
+					var q;
+					for (q = 0; q < FeaturesB.length;q++) {
+						if (FeaturesB[q] != undefined) {
+							if ((terrain == FeaturesB[q].terrain) && (!FeaturesB[q].subTerrain)) {
+								var newDiamond;
+								newDiamond = FeaturesB[q].svgDiamond.cloneNode(true);
+								gkIsoSetSvgDiamondPosition(newDiamond, isoXYZ);
+								field.appendChild(newDiamond);
+								break;
+							}
+						}
+					}
+					for (q = 0; q < FeaturesB.length;q++) {
+						if (FeaturesB[q] != undefined) {
+							if ((terrain == FeaturesB[q].terrain) && (FeaturesB[q].subTerrain)) {
+								var m;
+								for (m = 0;m < FeaturesB[q].fillCount;m++) {
+									var offsetX, offsetY;
+									offsetX = Math.floor(Math.random() * 10);
+									offsetY = Math.floor(Math.random() * 10);
+									isoXYZ = new GkIsoXYZDef((i * 10) + offsetX,(j * 10) + offsetY,0);
+									var newDiamond;
+									newDiamond = FeaturesB[q].svgDiamond.cloneNode(true);
+									gkIsoSetSvgDiamondPosition(newDiamond, isoXYZ);
+									field.appendChild(newDiamond);
+								}
+							}
+						}
+					}
+
+
+//					if (FeaturesB[q] != undefined) {
+//						var isoXYZ = new GkIsoXYZDef(i * 10,j * 10,0);
+//				
+//						var newDiamond;
+//						newDiamond = FeaturesB[q].svgDiamond.cloneNode(true);
+//
+//						gkIsoSetSvgDiamondPosition(newDiamond, isoXYZ);
+//						field.appendChild(newDiamond);
+//					}
+				}
 			}
-			fillFactor = FeaturesB[q][1];
-			if (Math.random()<fillFactor) {
-//			Put in the figure specified
 		}
 	}
 }
 
 function gkTerrainSetDiamond(jsonObject) {
+/*
 	console.log("gkTerrainSetDiamond")
 	var i
 	for (i = 0;i < jsonObject.setList.length; i++) {
@@ -95,18 +141,34 @@ function gkTerrainSetDiamond(jsonObject) {
 		console.log(" x: " + jsonObject.setList[i].x);
 		console.log(" y: " + jsonObject.setList[i].y);
 	}
+*/
 
+	for (i = 0;i < jsonObject.setList.length; i++) {
+		var x, y;
+		x = jsonObject.setList[i].x;
+		y = jsonObject.setList[i].y;
+		if (FeaturesA[x] == undefined) {
+			FeaturesA[x] = new Array();
+		}
+//		while (FeaturesA[x].length <= y) {
+//			FeaturesA[x][FeaturesA[x].length] = "";
+//		}
+		FeaturesA[x][y] = jsonObject.setList[i].terrain
+	}
+
+	gkRenderMap(1, 5);
+/*
 	for (var i=0; i<jsonObject.length; i++) {
 		var terrain = jsonObject[i].terrain;
 		var x = jsonObject[i].x;
 		var y = jsonObject[i].y;
 		FeaturesA[x][y] = terrain;
 	}
+*/
 }
 
 function gkTerrainLoad(jsonObject, rawSvgData) {
-	console.log("gkTerrainLoad")
-
+/*
 	if (jsonObject.terrain != undefined) {
 		console.log("terrain: " + jsonObject.terrain);
 	}
@@ -114,7 +176,26 @@ function gkTerrainLoad(jsonObject, rawSvgData) {
 		console.log("subTerrain: " + jsonObject.subTerrain);
 		console.log("fillCount: " + jsonObject.fillCount);
 	}
+*/
 
+	var index
+	index = FeaturesB.length
+
+	var isoXYZ = new GkIsoXYZDef(0,0,0);
+
+	FeaturesB[index] = new Object();
+	if (jsonObject.terrain != undefined) {
+		FeaturesB[index].terrain = jsonObject.terrain;
+		FeaturesB[index].subTerrain = false;
+	}
+	if (jsonObject.subTerrain != undefined) {
+		FeaturesB[index].terrain = jsonObject.subTerrain;
+		FeaturesB[index].subTerrain = true;
+		FeaturesB[index].fillCount = parseInt(jsonObject.fillCount);
+	}
+	FeaturesB[index].svgDiamond = gkIsoCreateSvgDiamond(rawSvgData);
+
+/*
 	for (var i=0; i<(jsonObject.length/2); i++) {
 		var terrain = jsonObject[i].terrain;
 		var fillFactor = jsonObject[i+1].fillFactor;
@@ -123,6 +204,7 @@ function gkTerrainLoad(jsonObject, rawSvgData) {
 		FeaturesB[i][0] = terrain;
 		FeaturesB[i][1] = fillFactor;
 	}
+*/
 }
 
 function gkRestorePixel (xv,yv,size) {
