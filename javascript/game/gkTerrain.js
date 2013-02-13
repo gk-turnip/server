@@ -27,6 +27,12 @@ function gkTerrainInit (size) {
 function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
 	var field = document.getElementById("gkField");
+	var terrainLayer = document.createElementNS(GK_SVG_NAMESPACE, "g");
+	terrainLayer.id = "gkTerrainLayer";
+	field.appendChild(terrainLayer);
+	var detailLayer = document.createElementNS(GK_SVG_NAMESPACE, "g");
+	detailLayer.id = "gkDetailLayer";
+	field.appendChild(detailLayer);
 	var a;
 	var k = 0;
 //	var l = map.length
@@ -93,7 +99,7 @@ function gkRenderMap (mapId,size) {
 								var newDiamond;
 								newDiamond = FeaturesB[q].svgDiamond.cloneNode(true);
 								gkIsoSetSvgDiamondPosition(newDiamond, isoXYZ);
-								field.appendChild(newDiamond);
+								terrainLayer.appendChild(newDiamond);
 								break;
 							}
 						}
@@ -110,7 +116,7 @@ function gkRenderMap (mapId,size) {
 									var newDiamond;
 									newDiamond = FeaturesB[q].svgDiamond.cloneNode(true);
 									gkIsoSetSvgDiamondPosition(newDiamond, isoXYZ);
-									field.appendChild(newDiamond);
+									detailLayer.appendChild(newDiamond);
 								}
 							}
 						}
