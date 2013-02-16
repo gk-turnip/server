@@ -23,6 +23,9 @@ import (
 
 const _getSvgReq = "getSvgReq"
 const _getSvgRes = "getSvgRes"
+const _addSvgReq = "addSvgReq"
+const _delSvgReq = "delSvgReq"
+const _moveSvgReq = "moveSvgReq"
 
 const _turnOnRainReq = "turnOnRainReq"
 const _turnOffRainReq = "turnOffRainReq"

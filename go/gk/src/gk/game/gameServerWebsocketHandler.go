@@ -142,7 +142,7 @@ func websocketHandler(ws *websocket.Conn) {
 				websocketReq.remoteAddr = ws.RemoteAddr()
 				websocketReq.command, websocketReq.jsonData, websocketReq.data, gkErr =
 					getCommandJsonData(receiveWebsocket.message)
-				gklog.LogTrace("got websocket command: " + websocketReq.command + " json: " + string(websocketReq.jsonData) + " data: " + string(websocketReq.data))
+//				gklog.LogTrace("got websocket command: " + websocketReq.command + " json: " + string(websocketReq.jsonData) + " data: " + string(websocketReq.data))
 
 				var websocketRes *websocketResDef
 
@@ -172,7 +172,7 @@ func websocketHandler(ws *websocket.Conn) {
 }
 
 func sendWebsocketRes(ws *websocket.Conn, command string, jsonData []byte, data []byte) *gkerr.GkErrDef {
-	gklog.LogTrace("sending websocket response: " + fmt.Sprintf("c: %s j: %s d: %s", command, jsonData, data))
+//	gklog.LogTrace("sending websocket response: " + fmt.Sprintf("c: %s j: %s d: %s", command, jsonData, data))
 
 	var websocketResponse []byte
 	var err error
@@ -238,7 +238,6 @@ func goGetMessage(ws *websocket.Conn, ch chan *receiveWebsocketDef) {
 		receiveWebsocket = new(receiveWebsocketDef)
 		receiveWebsocket.message = message
 		receiveWebsocket.err = err
-gklog.LogTrace(fmt.Sprintf("got websocket message before chan write err: %+v",err))
 		ch <- receiveWebsocket
 		if err != nil {
 			gklog.LogTrace("exit goGetMessage due to error")

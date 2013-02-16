@@ -18,10 +18,12 @@
 package game
 
 import (
+	"fmt"
 	"sync"
-	"time"
 	"os"
 	"strings"
+	"bytes"
+	"text/template"
 )
 
 import (
@@ -30,19 +32,24 @@ import (
 	"gk/gkcommon"
 )
 
-var _websocketMap map[int32]websocketEntryDef = make(map[int32]websocketEntryDef)
+var _websocketMap map[int32]*websocketEntryDef
 var _websocketMutex sync.Mutex
 
 type websocketEntryDef struct {
 	connectionId int32
 	sessionId string
 	websocketChan chan runtimeWebsocketReqDef
+	localEventContext globalEventContextDef
 }
 
 type runtimeWebsocketReqDef struct {
 	command string
 	jsonData []byte
 	data []byte
+}
+
+func init() {
+	_websocketMap = make(map[int32]*websocketEntryDef)
 }
 
 func addNewWebsocketLink (connectionId int32, sessionId string) (chan runtimeWebsocketReqDef, *gkerr.GkErrDef) {
@@ -59,18 +66,24 @@ func addNewWebsocketLink (connectionId int32, sessionId string) (chan runtimeWeb
 		return nil, gkErr
 	}
 
-	var websocketEntry websocketEntryDef
+	var websocketEntry *websocketEntryDef = new(websocketEntryDef)
 
 	websocketEntry.connectionId = connectionId
 	websocketEntry.sessionId = sessionId
 	websocketEntry.websocketChan = make(chan runtimeWebsocketReqDef)
+
+gklog.LogTrace("addNewWebsocketLink about to populate context")
+	populateLocalEventContext(&websocketEntry.localEventContext)
+gklog.LogTrace("addNewWebsocketLink populate context done")
+
+	setContext(websocketEntry)
+
 	_websocketMap[connectionId] = websocketEntry
 
 	return websocketEntry.websocketChan, nil
 }
 
 func sendWebsocketTerrainLoad(gameConfig *gameConfigDef, connectionId int32) {
-
 	var ok bool
 	var gkErr *gkerr.GkErrDef
 
@@ -84,7 +97,7 @@ func sendWebsocketTerrainLoad(gameConfig *gameConfigDef, connectionId int32) {
 		return
 	}
 
-	var websocketEntry websocketEntryDef
+	var websocketEntry *websocketEntryDef
 
 	_websocketMutex.Lock()
 	websocketEntry = _websocketMap[connectionId]
@@ -195,29 +208,130 @@ func goRemoveWebsocketLink(connectionId int32) {
 }
 
 func goRuntimeContextLoop(gameConfig *gameConfigDef) {
+
+	var globalEventChan chan globalEventContextDef = make(chan globalEventContextDef)
+
+	go goGlobalEventLoop(globalEventChan)
+
 	for {
-		time.Sleep(time.Second * 10)
-		turnOnRain(true)
-		time.Sleep(time.Second * 10)
-		turnOnRain(false)
+		var globalEventContext globalEventContextDef
+
+		globalEventContext = <- globalEventChan
+		handleNewGlobalEvent(gameConfig, globalEventContext)
 	}
 }
 
-func turnOnRain(on bool) {
-	var runtimeWebsocketReq runtimeWebsocketReqDef
+func handleNewGlobalEvent(gameConfig *gameConfigDef, globalEventContext globalEventContextDef) {
+	_websocketMutex.Lock()
+	defer _websocketMutex.Unlock()
 
+	gklog.LogTrace(fmt.Sprintf("size of field objects: %d",len(globalEventContext.fieldObjectList)))
 	for _, websocketEntry := range _websocketMap {
-		if on {
-			runtimeWebsocketReq.command = _turnOnRainReq
-		} else {
-			runtimeWebsocketReq.command = _turnOffRainReq
-		}
-		go goSendRain(websocketEntry.websocketChan, runtimeWebsocketReq);
-		//websocketEntry.websocketChan <- runtimeWebsocketReq
+		handleSingleEventChange(gameConfig, globalEventContext, websocketEntry)
 	}
 }
 
-func goSendRain(websocketChan chan runtimeWebsocketReqDef, runtimeWebsocketReq runtimeWebsocketReqDef) {
+func handleSingleEventChange(gameConfig *gameConfigDef, globalEventContext globalEventContextDef, websocketEntry *websocketEntryDef) {
+	if websocketEntry.localEventContext.rainOn != globalEventContext.rainOn {
+		websocketEntry.localEventContext.rainOn = globalEventContext.rainOn
+		setContext(websocketEntry)
+	}
+	for _, fieldObject := range globalEventContext.fieldObjectList {
+		var ok bool
+		_, ok = websocketEntry.localEventContext.fieldObjectList[fieldObject.Id]
+gklog.LogTrace(fmt.Sprintf("ok? %v",ok))
+		if !ok {
+gklog.LogTrace("new object ready")
+			setContextAddFieldObject(gameConfig, websocketEntry, &fieldObject)
+			websocketEntry.localEventContext.fieldObjectList[fieldObject.Id] = fieldObject
+		}
+	}
+	for _, fieldObject := range websocketEntry.localEventContext.fieldObjectList {
+		var ok bool
+		_, ok = globalEventContext.fieldObjectList[fieldObject.Id]
+		if !ok {
+gklog.LogTrace("object delete")
+			setContextDelFieldObject(websocketEntry, &fieldObject)
+			delete(websocketEntry.localEventContext.fieldObjectList, fieldObject.Id)
+		}
+	}
+}
+
+func setContext(websocketEntry *websocketEntryDef) {
+	var runtimeWebsocketReq runtimeWebsocketReqDef
+	if websocketEntry.localEventContext.rainOn {
+		runtimeWebsocketReq.command = _turnOnRainReq
+	} else {
+		runtimeWebsocketReq.command = _turnOffRainReq
+	}
+	go goSendCommand(websocketEntry.websocketChan, runtimeWebsocketReq);
+}
+
+func goSendCommand(websocketChan chan runtimeWebsocketReqDef, runtimeWebsocketReq runtimeWebsocketReqDef) {
 	websocketChan <- runtimeWebsocketReq
 }
+
+func setContextAddFieldObject(gameConfig *gameConfigDef, websocketEntry *websocketEntryDef, fieldObject *fieldObjectDef) {
+	var runtimeWebsocketReq runtimeWebsocketReqDef
+	var gkErr *gkerr.GkErrDef
+
+	runtimeWebsocketReq.command = _addSvgReq
+
+    jsonFileName := gameConfig.SvgDir + string(os.PathSeparator) + fieldObject.fileName + ".json"
+    svgFileName := gameConfig.SvgDir + string(os.PathSeparator) + fieldObject.fileName + ".svg"
+
+	var jsonRawData []byte
+    jsonRawData, gkErr = gkcommon.GetFileContents(jsonFileName)
+    if gkErr != nil {
+		gklog.LogGkErr("gkcommon.GetFileContents", gkErr)
+        return
+    }
+    runtimeWebsocketReq.data, gkErr = gkcommon.GetFileContents(svgFileName)
+    if gkErr != nil {
+		gklog.LogGkErr("gkcommon.GetFileContents", gkErr)
+        return
+    }
+    runtimeWebsocketReq.data = fixSvgData(runtimeWebsocketReq.data)
+
+	runtimeWebsocketReq.jsonData, gkErr = templateTranslateFieldObject(jsonRawData, fieldObject)
+	if gkErr != nil {
+		gklog.LogGkErr("templateTranslateFieldObject", gkErr);
+	}
+
+	go goSendCommand(websocketEntry.websocketChan, runtimeWebsocketReq)
+}
+
+func setContextDelFieldObject(websocketEntry *websocketEntryDef, fieldObject *fieldObjectDef) {
+
+	var runtimeWebsocketReq runtimeWebsocketReqDef
+
+	runtimeWebsocketReq.command = _delSvgReq
+	runtimeWebsocketReq.jsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}",fieldObject.Id))
+
+	go goSendCommand(websocketEntry.websocketChan, runtimeWebsocketReq)
+}
+
+func templateTranslateFieldObject(jsonRawData []byte, fieldObject *fieldObjectDef) ([]byte, *gkerr.GkErrDef) {
+	var tmpl *template.Template
+	var err error
+	var gkErr *gkerr.GkErrDef
+
+	tmpl, err = template.New("fieldObject").Parse(string(jsonRawData))
+	if err != nil {
+		gkErr = gkerr.GenGkErr("template.New.Parse", err, ERROR_ID_TEMPLATE_PARSE)
+		return nil, gkErr
+	}
+
+	result := make([]byte, 0, 0)
+	var writer *bytes.Buffer = bytes.NewBuffer(result)
+
+	err = tmpl.Execute(writer, fieldObject)
+	if err != nil {
+		gkErr = gkerr.GenGkErr("tmpl.Execute", err, ERROR_ID_TEMPLATE_EXECUTE)
+		return nil, gkErr
+	}
+
+	return writer.Bytes(), nil
+}
+
 

@@ -31,8 +31,6 @@ function gkWsDoOpen() {
 }
 
 function gkWsDoMessage(e) {
-	console.log("gkWsDoMessage");
-
 	var nlIndex1 = -1;
 	var nlIndex2 = -1;
 
@@ -53,24 +51,18 @@ function gkWsDoMessage(e) {
 		command = e.data.substring(0,nlIndex1);
 		console.log("command from gameServer: " + command);
 		if ((nlIndex1 + 1) == nlIndex2) {
-			console.log("no jsonData");
+			// no json data
 			jsonData = null;
 		} else {
 			jsonRawData = e.data.substring(nlIndex1 + 1, nlIndex2);
-//			console.log("got jsonRawData len: " + jsonRawData.length);
-//			console.log("got jsonRawData: " + jsonRawData);
 			jsonData = JSON.parse(jsonRawData, null);
-//			console.log("got jsonData: " + jsonData);
-//console.log("terrain: " + jsonData.terrain)
-//console.log("subTerrain: " + jsonData.subTerrain)
 		}
 
 		if ((nlIndex2 + 1) == e.data.length) {
-			console.log("no ws data");
+			// no data
 			data = null;
 		} else {
 			data = e.data.substring(nlIndex2 + 1);
-			console.log("got ws data len: " + data.length);
 		}
 
 		gkWsContext.dispatchFunction(command, jsonData, data);

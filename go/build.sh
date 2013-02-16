@@ -41,9 +41,9 @@ then
                 mkdir $GOBASE/gk/pkg/linux_amd64
         fi
 
-	go clean all
-	rm -f */pkg/*/*.a
-	rm -f gk/bin/*
+#	go clean all
+#	rm -f */pkg/*/*.a
+#	rm -f gk/bin/*
 
 	go install gk/gkerr
 	go install gk/gklog
