@@ -19,9 +19,9 @@
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkIso.js" type="text/javascript"></script>
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkWs.js" type="text/javascript"></script>
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkAudio.js" type="text/javascript"></script>
-	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkAvatar.js" type="text/javascript"></script>
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkTerrain.js" type="text/javascript"></script>
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkField.js" type="text/javascript"></script>
+	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkDispatch.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
 		function init() {
@@ -35,7 +35,7 @@
 			s1 = document.getElementById("volume2");
 			s1.selectedIndex = 1;
 
-			gkWsInit(dispatchWsMessage, "{{.WebsocketAddressPrefix}}", "{{.WebsocketPath}}", "{{.SessionId}}");
+			gkWsInit(gkDispatchWsMessage, "{{.WebsocketAddressPrefix}}", "{{.WebsocketPath}}", "{{.SessionId}}");
 
 			//gkIsoDrawGridDiamond();
 			//gkRenderMap(Math.floor(Math.random() * 5), 55);
@@ -56,52 +56,9 @@
 			gkAudioStartAudio(1, "Devildance");
 
 			gkTerrainInit(5);
-			gkAvatarInit();
+			//gkAvatarInit();
+			gkFieldInit();
 
-		}
-
-		function dispatchWsMessage(command, jsonData, data) {
-
-			switch (command) {
-			case "turnOnRainReq":
-				gkRainOn();
-				break;
-			case "turnOffRainReq":
-				gkRainOff();
-				break;
-			case "getSvgRes":
-				var avatar
-				field = document.getElementById("gkField");
-				gkAvatarRemoveCurrentAvatar();
-
-				console.log("avatarMeta x,y: " + jsonData.origin_x + "," + jsonData.origin_y);
-
-				var svgString = "";
-				for (i = 0;i < data.length;i++) {
-					svgString += data[i];
-				}
-
-				gkAvatarAddNewAvatar(jsonData, svgString);
-
-				break;
-			case "addSvgReq":
-				gkFieldAddSvg(jsonData, data);
-				break;
-			case "delSvgReq":
-				gkFieldDelSvg(jsonData);
-				break;
-			case "moveSvgReq":
-				gkFieldMoveSvg(jsonData);
-				break;
-			case "loadTerrainReq":
-				gkTerrainLoad(jsonData, data);
-				break;
-			case "setTerrainReq":
-				gkTerrainSetDiamond(jsonData);
-				break;
-			default:
-				console.log("did not understand command from game server " + command);
-			}
 		}
 
 		function doClick(e) {
@@ -113,7 +70,9 @@
 			var winXY;
 
 			winXY = new GkWinXYDef(x,y);
-			gkAvatarSetNewDestination(winXY.convertToIso(0));
+			//gkAvatarSetNewDestination(winXY.convertToIso(0));
+
+			gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
 
 			gkAudioStartAudio(2, "duck");
 		}
@@ -121,8 +80,8 @@
 		function changeAvatar() {
 			avatarName = document.getElementById("selectAvatar").value;
 			console.log("avatarName: " + avatarName)
-			//gkWsSendMessage("getSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
-			gkAvatarLoadNewAvatar(avatarName);
+			//gkAvatarLoadNewAvatar(avatarName);
+			gkFieldLoadNewAvatar(avatarName);
 		}
 
 		function volumeChange(volumeId) {

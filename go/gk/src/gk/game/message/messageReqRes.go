@@ -15,11 +15,20 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package game
+package message
 
-const (
-	ERROR_ID_HTTP_SERVER_START = 0x4000 + iota
-	ERROR_ID_WEBSOCKET_SERVER_START
-	ERROR_ID_DUPLICATE_WEBSOCKET_ID
-	ERROR_ID_COULD_NOT_FIND_CONNECTION_ID
-)
+const GetAvatarSvgReq = "getAvatarSvgReq"
+const GetAvatarSvgRes = "getAvatarSvgRes"
+const DelAvatarSvgReq = "delAvatarSvgReq"
+const MoveAvatarSvgReq = "moveAvatarSvgReq"
+
+const AddSvgReq = "addSvgReq"
+const DelSvgReq = "delSvgReq"
+const MoveSvgReq = "moveSvgReq"
+
+const TurnOnRainReq = "turnOnRainReq"
+const TurnOffRainReq = "turnOffRainReq"
+
+const LoadTerrainReq = "loadTerrainReq"
+const SetTerrainReq = "setTerrainReq"
+

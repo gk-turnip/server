@@ -28,16 +28,16 @@ import (
 import (
 	"gk/gkerr"
 	"gk/gklog"
+	"gk/game/ses"
+	"gk/game/ws"
+	"gk/game/field"
+	"gk/game/config"
 )
-
-type httpContextDef struct {
-	gameConfig gameConfigDef
-}
 
 func GameServerStart() {
 
 	var fileName *string = flag.String("config", "", "config file name")
-	var gameConfig gameConfigDef
+	var gameConfig *config.GameConfigDef
 	var gkErr *gkerr.GkErrDef
 
 	flag.Parse()
@@ -47,16 +47,20 @@ func GameServerStart() {
 		return
 	}
 
-	gameConfig, gkErr = loadConfigFile(*fileName)
+	gameConfig, gkErr = config.LoadConfigFile(*fileName)
 	if gkErr != nil {
 		fmt.Print(gkErr.String())
 		return
 	}
 
-	var httpContext httpContextDef
-	httpContext.gameConfig = gameConfig
-
 	gklog.LogInit(gameConfig.LogDir)
+
+	var sessionContext *ses.SessionContextDef
+	var httpContext *httpContextDef
+
+	sessionContext = ses.NewSessionContext()
+	httpContext = NewHttpContext(gameConfig, sessionContext)
+
 	gkErr = httpContext.gameInit()
 	if gkErr != nil {
 		gklog.LogGkErr("gameConfig.gameInit", gkErr)
@@ -65,14 +69,21 @@ func GameServerStart() {
 
 	gklog.LogTrace("game server started")
 
+	var wsContext *ws.WsContextDef
+	var fieldContext *field.FieldContextDef
+
+	fieldContext = field.NewFieldContext(gameConfig.SvgDir)
+	wsContext = ws.NewWsContext(gameConfig, sessionContext, fieldContext)
+	ws.SetGlobalWsContext(wsContext)
+
+	go fieldContext.StartFieldHandler()
+
 	httpAddress := fmt.Sprintf(":%d", gameConfig.HttpPort)
 
 	var err error
 
-	go goRuntimeContextLoop(&gameConfig)
-
 	go func() {
-		err = http.ListenAndServe(httpAddress, &httpContext)
+		err = http.ListenAndServe(httpAddress, httpContext)
 		if err != nil {
 			gkErr = gkerr.GenGkErr("http.ListenAndServer http", err, ERROR_ID_HTTP_SERVER_START)
 			gklog.LogGkErr("http.ListenAndServer", gkErr)
@@ -80,7 +91,20 @@ func GameServerStart() {
 		}
 	}()
 
-	websocketAddress := fmt.Sprintf(":%d", gameConfig.WebsocketPort)
+	go func() {
+		websocketAddress := fmt.Sprintf(":%d", gameConfig.WebsocketPort)
+		gklog.LogTrace("starting web socket listener")
+		err = http.ListenAndServe(websocketAddress, websocket.Handler(ws.WebsocketHandler))
+		if err != nil {
+			gkErr = gkerr.GenGkErr("http.ListenAndServer websocket", err, ERROR_ID_WEBSOCKET_SERVER_START)
+			gklog.LogGkErr("http.ListenAndServer", gkErr)
+			return
+		}
+	}()
+
+/*
+	go goRuntimeContextLoop(&gameConfig)
+
 
 	websocketSetConfig(gameConfig)
 
@@ -93,6 +117,7 @@ func GameServerStart() {
 			return
 		}
 	}()
+*/
 
 	// give it time for the servers to start
 	time.Sleep(time.Second * 60)

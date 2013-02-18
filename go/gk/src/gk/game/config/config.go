@@ -15,7 +15,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package game
+package config
 
 import (
 	"encoding/xml"
@@ -27,7 +27,7 @@ import (
 	"gk/gkerr"
 )
 
-type gameConfigDef struct {
+type GameConfigDef struct {
 	XMLName          xml.Name `xml:"config"`
 	HttpPort         int      `xml:"httpPort"`
 	WebsocketPort    int      `xml:"websocketPort"`
@@ -45,9 +45,9 @@ type gameConfigDef struct {
 	WebsocketPath string `xml:"websocketPath"`
 }
 
-func loadConfigFile(fileName string) (gameConfigDef, *gkerr.GkErrDef) {
+func LoadConfigFile(fileName string) (*GameConfigDef, *gkerr.GkErrDef) {
 	var err error
-	var gameConfig gameConfigDef
+	var gameConfig *GameConfigDef = new(GameConfigDef)
 
 	var file *os.File
 	file, err = os.Open(fileName)
@@ -56,7 +56,7 @@ func loadConfigFile(fileName string) (gameConfigDef, *gkerr.GkErrDef) {
 	}
 	defer file.Close()
 
-	err = xml.NewDecoder(file).Decode(&gameConfig)
+	err = xml.NewDecoder(file).Decode(gameConfig)
 	if err != nil {
 		return gameConfig, gkerr.GenGkErr(fmt.Sprintf("xml.NewDecoder file: %s", fileName), err, ERROR_ID_DECODE_CONFIG)
 	}

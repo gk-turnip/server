@@ -29,6 +29,8 @@ import (
 	"gk/gklog"
 	"gk/gknet"
 	"gk/gktmpl"
+	"gk/game/ses"
+	"gk/game/config"
 )
 
 const _methodGet = "GET"
@@ -46,6 +48,11 @@ const _emailParam = "email"
 
 var _gameTemplate *gktmpl.TemplateDef
 var _gameTemplateName string = "game"
+
+type httpContextDef struct {
+	sessionContext *ses.SessionContextDef
+	gameConfig *config.GameConfigDef
+}
 
 type gameDataDef struct {
 	Title string
@@ -66,6 +73,15 @@ type errorDataDef struct {
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
+}
+
+func NewHttpContext(gameConfig *config.GameConfigDef, sessionContext *ses.SessionContextDef) *httpContextDef {
+	var httpContext *httpContextDef = new(httpContextDef)
+
+	httpContext.gameConfig = gameConfig
+	httpContext.sessionContext = sessionContext
+
+	return httpContext
 }
 
 func (httpContext *httpContextDef) gameInit() *gkerr.GkErrDef {
@@ -126,16 +142,16 @@ func (httpContext *httpContextDef) handleGameRequest(res http.ResponseWriter, re
 func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, req *http.Request) {
 	var gameData gameDataDef
 	var gkErr *gkerr.GkErrDef
-	var session *sessionDef
+	var singleSession *ses.SingleSessionDef
 
-	session = newSession(req.RemoteAddr)
+	singleSession = httpContext.sessionContext.NewSingleSession(req.RemoteAddr)
 
 	gameData.Title = "game"
 	gameData.WebAddressPrefix = httpContext.gameConfig.WebAddressPrefix
 	gameData.WebsocketAddressPrefix = httpContext.gameConfig.WebsocketAddressPrefix
 	gameData.AudioAddressPrefix = httpContext.gameConfig.AudioAddressPrefix
 	gameData.WebsocketPath = httpContext.gameConfig.WebsocketPath
-	gameData.SessionId = session.sessionId
+	gameData.SessionId = singleSession.GetSessionId()
 
 	gkErr = _gameTemplate.Build(gameData)
 	if gkErr != nil {

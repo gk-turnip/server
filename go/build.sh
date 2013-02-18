@@ -41,9 +41,9 @@ then
                 mkdir $GOBASE/gk/pkg/linux_amd64
         fi
 
-#	go clean all
-#	rm -f */pkg/*/*.a
-#	rm -f gk/bin/*
+	go clean all
+	rm -f */pkg/*/*.a
+	rm -f gk/bin/*
 
 	go install gk/gkerr
 	go install gk/gklog
@@ -52,12 +52,24 @@ then
 	go install gk/sec
 	go install gk/wf
 	go install gk/login
+	go install gk/game/field
+	go install gk/game/iso
+	go install gk/game/config
+	go install gk/game/message
+	go install gk/game/ses
+	go install gk/game/ws
 	go install gk/game
 	go install gk/gknet
 	go install gk/database
 
 	go test gk/sec
 	go test gk/gknet
+	go test gk/game/iso
+	go test gk/game/field
+	go test gk/game/config
+	go test gk/game/message
+	go test gk/game/ses
+	go test gk/game/ws
 	go test gk/game
 	go test gk/login
 

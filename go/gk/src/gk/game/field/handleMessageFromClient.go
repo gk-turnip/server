@@ -15,39 +15,38 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package game
+package field
 
 import (
+	"gk/game/message"
 	"gk/gkerr"
 )
 
-const _getSvgReq = "getSvgReq"
-const _getSvgRes = "getSvgRes"
-const _addSvgReq = "addSvgReq"
-const _delSvgReq = "delSvgReq"
-const _moveSvgReq = "moveSvgReq"
+func (fieldContext *FieldContextDef) handleMessageFromClient(messageFromClient *message.MessageFromClientDef) *gkerr.GkErrDef {
 
-const _turnOnRainReq = "turnOnRainReq"
-const _turnOffRainReq = "turnOffRainReq"
-
-const _loadTerrainReq = "loadTerrainReq"
-const _setTerrainReq = "setTerrainReq"
-
-func dispatchWebsocketRequest(websocketReq *websocketReqDef) (*websocketResDef, *gkerr.GkErrDef) {
-
-	var websocketRes *websocketResDef
 	var gkErr *gkerr.GkErrDef
 
-	switch websocketReq.command {
-	case _getSvgReq:
-		websocketRes, gkErr = doGetSvgReq(websocketReq)
+	switch messageFromClient.Command {
+	case message.GetAvatarSvgReq:
+		gkErr = fieldContext.handleGetAvatarSvgReq(messageFromClient)
 		if gkErr != nil {
-			return nil, gkErr
+			return gkErr
+		}
+	case message.DelAvatarSvgReq:
+		gkErr = fieldContext.handleDelAvatarSvgReq(messageFromClient)
+		if gkErr != nil {
+			return gkErr
+		}
+	case message.MoveAvatarSvgReq:
+		gkErr = fieldContext.handleMoveAvatarSvgReq(messageFromClient)
+		if gkErr != nil {
+			return gkErr
 		}
 	default:
-		gkErr = gkerr.GenGkErr("unknonwn websocket request: " + websocketReq.command, nil, ERROR_ID_UNKNOWN_WEBSOCKET_COMMAND)
-		return nil, gkErr
+		gkErr = gkerr.GenGkErr("unknonwn websocket request: " + messageFromClient.Command, nil, ERROR_ID_UNKNOWN_WEBSOCKET_COMMAND)
+		return gkErr
 	}
 
-	return websocketRes, nil
+	return nil
 }
+

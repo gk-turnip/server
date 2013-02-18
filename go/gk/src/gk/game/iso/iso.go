@@ -15,11 +15,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package game
+package iso
 
-const (
-	ERROR_ID_HTTP_SERVER_START = 0x4000 + iota
-	ERROR_ID_WEBSOCKET_SERVER_START
-	ERROR_ID_DUPLICATE_WEBSOCKET_ID
-	ERROR_ID_COULD_NOT_FIND_CONNECTION_ID
-)
+type IsoXYZDef struct {
+	X int16
+	Y int16
+	Z int16
+}
+

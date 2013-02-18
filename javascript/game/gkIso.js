@@ -118,6 +118,14 @@ function gkIsoSetSvgDiamondPosition(svgDiamond, isoXYZ) {
 	svgDiamond.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ")");
 }
 
+function gkIsoSetSvgPositionWithOffset(svgDiamond, isoXYZ, originX, originY) {
+	var winXY;
+	winXY = isoXYZ.convertToWin();
+	winXY.x -= originX
+	winXY.y -= originY
+	svgDiamond.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ")");
+}
+
 function GkWinXYDef(x, y) {
 	this.x = x;
 	this.y = y;

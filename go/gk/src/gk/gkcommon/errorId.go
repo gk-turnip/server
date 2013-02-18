@@ -18,6 +18,6 @@
 package gkcommon
 
 const (
-	ERROR_ID_OPEN_FILE = 0x60000000 + iota
+	ERROR_ID_OPEN_FILE = 0x6000 + iota
 	ERROR_ID_READ_FILE
 )

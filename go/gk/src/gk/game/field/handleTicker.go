@@ -15,11 +15,29 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package game
+package field
 
-const (
-	ERROR_ID_HTTP_SERVER_START = 0x4000 + iota
-	ERROR_ID_WEBSOCKET_SERVER_START
-	ERROR_ID_DUPLICATE_WEBSOCKET_ID
-	ERROR_ID_COULD_NOT_FIND_CONNECTION_ID
+import (
+	"time"
 )
+
+import (
+	"gk/gkerr"
+)
+
+func (fieldContext *FieldContextDef) handleTicker(time.Time) *gkerr.GkErrDef {
+	var gkErr *gkerr.GkErrDef
+
+	gkErr = fieldContext.handleRain()
+	if gkErr != nil {
+		return gkErr
+	}
+
+	gkErr = fieldContext.handleDandelions()
+	if gkErr != nil {
+		return gkErr
+	}
+
+	return nil
+}
+

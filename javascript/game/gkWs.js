@@ -10,6 +10,7 @@ function gkWsContextDef() {
 }
 
 function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessionId) {
+	console.log("gkWsInit");
 	gkWsContext.dispatchFunction = dispatchFunction
 	gkWsContext.websocketAddressPrefix = websocketAddressPrefix
 	gkWsContext.websocketPath = websocketPath
@@ -31,6 +32,7 @@ function gkWsDoOpen() {
 }
 
 function gkWsDoMessage(e) {
+	console.log("gkWsDoMessage");
 	var nlIndex1 = -1;
 	var nlIndex2 = -1;
 
@@ -74,9 +76,11 @@ function gkWsDoMessage(e) {
 
 function gkWsDoOnClose() {
 	console.log("gkWsDoOnClose");
+	gkFieldDelAllObjects();
 }
 
 function gkWsSendMessage(message) {
+	console.log("gkWsSendMessage");
 	gkWsContext.ws.send(message);
 }
 
