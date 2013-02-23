@@ -15,6 +15,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// to_do
+// this program logs any errors
+// but does not always forward the user to a meaningful error page
 package login
 
 import (
@@ -22,7 +25,9 @@ import (
 	"html/template"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"time"
+	"io/ioutil"
 )
 
 import (
@@ -38,6 +43,7 @@ const _methodGet = "GET"
 const _methodPost = "POST"
 const _loginServer = "/gk/loginServer"
 const _gameServer = "/gk/gameServer"
+const _tokenServer = "/gk/tokenServer"
 
 const _actParam = "act"
 const _loginParam = "login"
@@ -373,8 +379,50 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 			// and it is not critical that their login date be updated.
 			gklog.LogGkErr("_loginTemplate.Send", gkErr)
 		}
-		http.Redirect(res, req, loginConfig.GameWebAddressPrefix+_gameServer, http.StatusFound)
+		var gameRedirect string
+		gameRedirect, gkErr = getGameRedirect(loginConfig, loginData.UserName)
+		if gkErr != nil {
+			gklog.LogGkErr("getGameRedirect", gkErr)
+			return
+		}
+		http.Redirect(res, req, gameRedirect, http.StatusFound)
 	}
+}
+
+func getGameRedirect(loginConfig *loginConfigDef, userName string) (string, *gkerr.GkErrDef) {
+	var newSessionToken string
+	var gkErr *gkerr.GkErrDef
+
+	newSessionToken, gkErr = getNewSessionToken(loginConfig, userName)
+
+	if gkErr != nil {
+		return "", gkErr
+	}
+
+	return loginConfig.GameWebAddressPrefix + _gameServer + "?token=" + newSessionToken, nil
+}
+
+func getNewSessionToken(loginConfig *loginConfigDef, userName string) (string, *gkerr.GkErrDef) {
+	var res *http.Response
+	var err error
+	var gkErr *gkerr.GkErrDef
+
+	res, err = http.Get(loginConfig.GameTokenAddressPrefix + _tokenServer + "?userName=" + url.QueryEscape(userName))
+	if err != nil {
+		gkErr = gkerr.GenGkErr("token http.Get", err, ERROR_ID_TOKEN_SERVER_GET)
+		return "", gkErr
+	}
+
+	defer res.Body.Close()
+
+	var token []byte
+	token, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		gkErr = gkerr.GenGkErr("token ioutil.ReadAll", err, ERROR_ID_TOKEN_SERVER_READ)
+		return "", gkErr
+	}
+
+	return string(token), nil
 }
 
 func handleLoginRegisterInitial(loginConfig *loginConfigDef, res http.ResponseWriter, req *http.Request, userName string) {
@@ -482,7 +530,10 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 			gklog.LogGkErr("_registerTemplate.send", gkErr)
 		}
 	} else {
-		http.Redirect(res, req, loginConfig.GameWebAddressPrefix+_gameServer, http.StatusFound)
+		http.Redirect(res, req, _loginServer, http.StatusFound)
+//		var gameRedirect string
+//		gameRedirect = getGameRedirect(loginConfig, loginData.UserName)
+//		http.Redirect(res, req, gameRedirect, http.StatusFound)
 	}
 }
 
@@ -620,7 +671,7 @@ func handleLoginForgotPassword(loginConfig *loginConfigDef, res http.ResponseWri
 			gklog.LogGkErr("_forgotPasswordTemplate.send", gkErr)
 		}
 	} else {
-		http.Redirect(res, req, loginConfig.GameWebAddressPrefix+_gameServer, http.StatusFound)
+		http.Redirect(res, req, _loginServer, http.StatusFound)
 	}
 }
 

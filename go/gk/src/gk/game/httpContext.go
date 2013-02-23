@@ -45,6 +45,7 @@ const _registerParam = "register"
 const _userNameParam = "userName"
 const _passwordParam = "password"
 const _emailParam = "email"
+const _tokenParam = "token"
 
 var _gameTemplate *gktmpl.TemplateDef
 var _gameTemplateName string = "game"
@@ -52,6 +53,7 @@ var _gameTemplateName string = "game"
 type httpContextDef struct {
 	sessionContext *ses.SessionContextDef
 	gameConfig *config.GameConfigDef
+	tokenContext *tokenContextDef
 }
 
 type gameDataDef struct {
@@ -69,17 +71,19 @@ var _errorTemplateName string = "error"
 type errorDataDef struct {
 	Title   string
 	Message string
+	WebAddressPrefix string
 }
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func NewHttpContext(gameConfig *config.GameConfigDef, sessionContext *ses.SessionContextDef) *httpContextDef {
+func NewHttpContext(gameConfig *config.GameConfigDef, sessionContext *ses.SessionContextDef, tokenContext *tokenContextDef) *httpContextDef {
 	var httpContext *httpContextDef = new(httpContextDef)
 
 	httpContext.gameConfig = gameConfig
 	httpContext.sessionContext = sessionContext
+	httpContext.tokenContext = tokenContext
 
 	return httpContext
 }
@@ -134,7 +138,7 @@ func (httpContext *httpContextDef) handleGameRequest(res http.ResponseWriter, re
 		return
 	default:
 		gklog.LogError("unknown act")
-		redirectToError("unknown act", res, req)
+		httpContext.redirectToError("unknown act", res, req)
 		return
 	}
 }
@@ -143,8 +147,20 @@ func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, re
 	var gameData gameDataDef
 	var gkErr *gkerr.GkErrDef
 	var singleSession *ses.SingleSessionDef
+	var token string
 
-	singleSession = httpContext.sessionContext.NewSingleSession(req.RemoteAddr)
+	token = req.Form.Get(_tokenParam)
+gklog.LogTrace("got token: " + token)
+	var userName string
+	userName = httpContext.tokenContext.getUserFromToken(token)
+gklog.LogTrace("got username: " + userName)
+
+	if len(userName) < 3 {
+		httpContext.redirectToError("not valid token", res, req)
+		return
+	}
+
+	singleSession = httpContext.sessionContext.NewSingleSession(userName, req.RemoteAddr)
 
 	gameData.Title = "game"
 	gameData.WebAddressPrefix = httpContext.gameConfig.WebAddressPrefix
@@ -156,7 +172,7 @@ func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, re
 	gkErr = _gameTemplate.Build(gameData)
 	if gkErr != nil {
 		gklog.LogGkErr("_gameTemplate.Build", gkErr)
-		redirectToError("_gameTemplate.Build", res, req)
+		httpContext.redirectToError("_gameTemplate.Build", res, req)
 		return
 	}
 
@@ -171,12 +187,13 @@ func genErrorMarker() template.HTML {
 	return template.HTML("<span class=\"errorMarker\">*</span>")
 }
 
-func redirectToError(message string, res http.ResponseWriter, req *http.Request) {
+func (httpContext *httpContextDef) redirectToError(message string, res http.ResponseWriter, req *http.Request) {
 	var errorData errorDataDef
 	var gkErr *gkerr.GkErrDef
 
 	errorData.Title = "Error"
 	errorData.Message = message
+	errorData.WebAddressPrefix = httpContext.gameConfig.WebAddressPrefix
 
 	gkErr = _errorTemplate.Build(errorData)
 	if gkErr != nil {

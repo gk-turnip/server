@@ -29,6 +29,7 @@ import (
 import (
 	"gk/game/message"
 	"gk/game/iso"
+	"gk/game/ses"
 	"gk/gkcommon"
 	"gk/gkerr"
 	"gk/gklog"
@@ -37,6 +38,7 @@ import (
 type FieldContextDef struct {
 	globalFieldObjectMap map[string]*fieldObjectDef
 	websocketConnectionMap map[string]*websocketConnectionContextDef
+	sessionContext *ses.SessionContextDef
 	WebsocketOpenedChan chan WebsocketOpenedMessageDef
 	WebsocketClosedChan chan WebsocketClosedMessageDef
 	MessageFromClientChan chan *message.MessageFromClientDef
@@ -74,10 +76,11 @@ type toClientQueueDef struct {
 	queueSize int
 }
 
-func NewFieldContext(svgDir string) *FieldContextDef {
+func NewFieldContext(svgDir string, sessionContext *ses.SessionContextDef) *FieldContextDef {
 	var fieldContext *FieldContextDef = new(FieldContextDef)
 
 	fieldContext.svgDir = svgDir
+	fieldContext.sessionContext = sessionContext
 	fieldContext.globalFieldObjectMap = make(map[string]*fieldObjectDef)
 	fieldContext.websocketConnectionMap = make(map[string]*websocketConnectionContextDef)
 	fieldContext.WebsocketOpenedChan = make(chan WebsocketOpenedMessageDef)
@@ -128,19 +131,6 @@ func (fieldContext *FieldContextDef) sendAllFieldObjects(websocketConnectionCont
 		if gkErr != nil {
 			return gkErr
 		}
-/*
-		var svgJsonData *message.SvgJsonDataDef = new(message.SvgJsonDataDef)
-		svgJsonData.Id = fieldObject.id
-		svgJsonData.IsoXYZ = fieldObject.isoXYZ
-
-		var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-		gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.svgDir, message.AddSvgReq, fieldObject.fileName, svgJsonData)
-		if gkErr != nil {
-			return gkErr
-		}
-
-		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
-*/
 	}
 
 	return nil
@@ -153,6 +143,13 @@ func (fieldContext *FieldContextDef) sendSingleFieldObject(websocketConnectionCo
 
 	svgJsonData.Id = fieldObject.id
 	svgJsonData.IsoXYZ = fieldObject.isoXYZ
+gklog.LogTrace("sourceSessionId: " + fieldObject.sourceSessionId)
+	if fieldObject.sourceSessionId != "" {
+		var singleSession *ses.SingleSessionDef
+		singleSession = fieldContext.sessionContext.GetSessionFromId(fieldObject.sourceSessionId)
+		svgJsonData.UserName = singleSession.GetUserName()
+gklog.LogTrace("going to send to ws userName: " + singleSession.GetUserName())
+	}
 
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 	gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.svgDir, message.AddSvgReq, fieldObject.fileName, svgJsonData)

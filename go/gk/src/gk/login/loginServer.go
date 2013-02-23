@@ -43,7 +43,7 @@ func LoginServerStart() {
 
 	loginConfig, gkErr = loadConfigFile(*fileName)
 	if gkErr != nil {
-		gklog.LogGkErr("loadConfigFile", gkErr)
+		fmt.Printf("error before log setup %s\n", gkErr.String())
 		return
 	}
 

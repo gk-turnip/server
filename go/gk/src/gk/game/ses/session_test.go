@@ -30,9 +30,9 @@ func testSession(t *testing.T) {
 
 	sessionContext = NewSessionContext()
 
-	session1 = sessionContext.NewSingleSession("1.1.1.1")
+	session1 = sessionContext.NewSingleSession("user", "1.1.1.1")
 	id1 = session1.GetSessionId()
-	session2 = sessionContext.NewSingleSession("1.1.1.2")
+	session2 = sessionContext.NewSingleSession("user", "1.1.1.2")
 	id2 = session2.GetSessionId()
 	if id1 == id2 {
 		t.Logf("duplicate sessionId")

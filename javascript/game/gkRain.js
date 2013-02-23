@@ -22,9 +22,9 @@ function gkRainOff() {
 }
 
 function gkRainLoop() {
-	var field;
+	var tileLayer;
 
-	field = document.getElementById("gkField");
+	tileLayer = document.getElementById("gkField");
 	var undefinedIndex = -1;
 	var dropsCounted = 0;
 	for (i = 0;i < gkDrops.length;i++) {

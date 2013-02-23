@@ -23,7 +23,8 @@ import (
 	"strings"
 	"time"
 	"sync"
-	"crypto/rand"
+	c_rand "crypto/rand"
+	m_rand "math/rand"
 )
 
 import (
@@ -42,6 +43,7 @@ type SingleSessionDef struct {
 	remoteAddr string
 	createdTime time.Time
 	isWebsocketOpen bool
+	userName string
 }
 
 func NewSessionContext() *SessionContextDef {
@@ -52,10 +54,15 @@ func NewSessionContext() *SessionContextDef {
 	return sessionContext
 }
 
-func (sessionContext *SessionContextDef) NewSingleSession(remoteAddr string) *SingleSessionDef {
+func init() {
+	m_rand.Seed(time.Now().UnixNano())
+}
+
+func (sessionContext *SessionContextDef) NewSingleSession(userName string, remoteAddr string) *SingleSessionDef {
 
 	var singleSession *SingleSessionDef = new(SingleSessionDef)
 	singleSession.remoteAddr = remoteAddr
+	singleSession.userName = userName
 
 	sessionContext.sessionMutex.Lock()
 	defer sessionContext.sessionMutex.Unlock()
@@ -158,27 +165,33 @@ func (singleSession *SingleSessionDef) IsSessionWebsocketOpen() bool {
 	return singleSession.isWebsocketOpen
 }
 
-func (singleSessionContext *SingleSessionDef) GetSessionId() string {
-	return singleSessionContext.sessionId
+func (singleSession *SingleSessionDef) GetSessionId() string {
+	return singleSession.sessionId
+}
+
+func (singleSession *SingleSessionDef) GetUserName() string {
+	return singleSession.userName
 }
 
 func genSessionString(sessionId23 int64) string {
-	var sessionId63 int64
+	var sessionId63_c int64
+	var sessionId63_m int64
 	var readCount int
 	var err error
 	var gkErr *gkerr.GkErrDef
 
 	buf := make([]byte, 5, 5)
-	readCount, err = io.ReadFull(rand.Reader, buf)
+	readCount, err = io.ReadFull(c_rand.Reader, buf)
 	if (readCount != len(buf)) || (err != nil) {
 		// just log the error
 		// the system can continue on with a damaged session id
-		gkErr = gkerr.GenGkErr("rand io.ReadFull", err, ERROR_ID_RAND)
-		gklog.LogGkErr("rand io.ReadFull", gkErr)
+		gkErr = gkerr.GenGkErr("c_rand io.ReadFull", err, ERROR_ID_RAND)
+		gklog.LogGkErr("c_rand io.ReadFull", gkErr)
 	}
 
-	sessionId63 = (sessionId23 << 40) | int64(buf[0]) | (int64(buf[1]) << 8) | (int64(buf[2]) << 16) | (int64(buf[3]) << 24) | (int64(buf[4]) << 32)
+	sessionId63_c = (sessionId23 << 40) | int64(buf[0]) | (int64(buf[1]) << 8) | (int64(buf[2]) << 16) | (int64(buf[3]) << 24) | (int64(buf[4]) << 32)
+	sessionId63_m = m_rand.Int63()
 
-	return strconv.FormatInt(sessionId63,36)
+	return strconv.FormatInt(sessionId63_c,36) + strconv.FormatInt(sessionId63_m,36)
 }
 

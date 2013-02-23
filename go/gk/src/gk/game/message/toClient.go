@@ -38,6 +38,7 @@ type MessageToClientDef struct {
 type SvgJsonDataDef struct {
 	Id string
 	IsoXYZ iso.IsoXYZDef
+	UserName string
 }
 
 func (messageToClient *MessageToClientDef) BuildSvgMessageToClient(svgDir string, command string, fileName string, svgJsonData *SvgJsonDataDef) *gkerr.GkErrDef {

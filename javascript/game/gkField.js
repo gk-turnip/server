@@ -11,8 +11,9 @@ function gkFieldInit() {
 	setInterval(gkFieldMoveObjects,50)
 }
 
-function gkFieldObjectDef(id, g, isoXYZCurrent, isoXYZDestination, originX, originY) {
+function gkFieldObjectDef(id, userName, g, isoXYZCurrent, isoXYZDestination, originX, originY) {
 	this.id = id
+	this.userName = userName
 	this.g = g
 	this.isoXYZCurrent = isoXYZCurrent
 	this.isoXYZDestination = isoXYZDestination
@@ -36,12 +37,26 @@ console.log("gkFieldAddSvg");
 
 	g.setAttribute("id",jsonData.id)
 
+	var text = document.createElementNS(GK_SVG_NAMESPACE, "text");
+	text.setAttribute("stroke","#000000");
+	text.setAttribute("stroke-width","0");
+	text.setAttribute("x","0");
+	text.setAttribute("y","0");
+	text.setAttribute("font-size","24");
+	text.setAttribute("id",jsonData.id + "_userName");
+	var userNameText = document.createTextNode(jsonData.userName);
+	text.appendChild(userNameText)
+
+	g.appendChild(text)
+
 	var field;
 	field = document.getElementById("gkField");
 	field.appendChild(g)
 
-	var fieldObject = new gkFieldObjectDef(jsonData.id, g, isoXYZ, isoXYZ, originX, originY)
+	var fieldObject = new gkFieldObjectDef(jsonData.id, jsonData.userName, g, isoXYZ, isoXYZ, originX, originY)
 	gkFieldContext.objectMap[fieldObject.id] = fieldObject
+
+	console.log("got new field object userName: " + jsonData.userName);
 }
 
 function gkFieldDelSvg(jsonData) {

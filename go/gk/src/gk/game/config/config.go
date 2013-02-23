@@ -30,6 +30,7 @@ import (
 type GameConfigDef struct {
 	XMLName          xml.Name `xml:"config"`
 	HttpPort         int      `xml:"httpPort"`
+	TokenPort         int      `xml:"tokenPort"`
 	WebsocketPort    int      `xml:"websocketPort"`
 	LogDir           string   `xml:"logDir"`
 	TemplateDir      string   `xml:"templateDir"`
@@ -43,6 +44,8 @@ type GameConfigDef struct {
 	DatabasePassword string   `xml:"databasePassword"`
 	DatabaseDatabase string   `xml:"databaseDatabase"`
 	WebsocketPath string `xml:"websocketPath"`
+	CertificatePath string `xml:"certificatePath"`
+	PrivateKeyPath string `xml:"privateKeyPath"`
 }
 
 func LoadConfigFile(fileName string) (*GameConfigDef, *gkerr.GkErrDef) {

@@ -34,7 +34,7 @@ function gkRenderMap (mapId,size) {
 	detailLayer.id = "gkDetailLayer";
 	field.appendChild(detailLayer);
 	var tileLayer = document.createElementNS(GK_SVG_NAMESPACE, "g");
-	tileLayer.id = "gkDetailLayer";
+	tileLayer.id = "gkTileLayer";
 	field.appendChild(tileLayer);
 	var a;
 	var k = 0;

@@ -55,15 +55,23 @@ func GameServerStart() {
 
 	gklog.LogInit(gameConfig.LogDir)
 
+	var tokenContext *tokenContextDef
 	var sessionContext *ses.SessionContextDef
 	var httpContext *httpContextDef
 
+	tokenContext = NewTokenContext(gameConfig, sessionContext)
 	sessionContext = ses.NewSessionContext()
-	httpContext = NewHttpContext(gameConfig, sessionContext)
+	httpContext = NewHttpContext(gameConfig, sessionContext, tokenContext)
 
 	gkErr = httpContext.gameInit()
 	if gkErr != nil {
-		gklog.LogGkErr("gameConfig.gameInit", gkErr)
+		gklog.LogGkErr("httpContext.gameInit", gkErr)
+		return
+	}
+
+	gkErr = tokenContext.gameInit()
+	if gkErr != nil {
+		gklog.LogGkErr("tokenContext.gameInit", gkErr)
 		return
 	}
 
@@ -72,7 +80,7 @@ func GameServerStart() {
 	var wsContext *ws.WsContextDef
 	var fieldContext *field.FieldContextDef
 
-	fieldContext = field.NewFieldContext(gameConfig.SvgDir)
+	fieldContext = field.NewFieldContext(gameConfig.SvgDir, sessionContext)
 	wsContext = ws.NewWsContext(gameConfig, sessionContext, fieldContext)
 	ws.SetGlobalWsContext(wsContext)
 
@@ -80,44 +88,45 @@ func GameServerStart() {
 
 	httpAddress := fmt.Sprintf(":%d", gameConfig.HttpPort)
 
+	tokenAddress := fmt.Sprintf(":%d", gameConfig.TokenPort)
+
 	var err error
+
+	go func() {
+		err = http.ListenAndServe(tokenAddress, tokenContext)
+		if err != nil {
+			gkErr = gkerr.GenGkErr("http.ListenAndServer token", err, ERROR_ID_TOKEN_SERVER_START)
+			gklog.LogGkErr("", gkErr)
+			return
+		}
+		gklog.LogTrace("token listener ended, this is probably bad")
+	}()
 
 	go func() {
 		err = http.ListenAndServe(httpAddress, httpContext)
 		if err != nil {
 			gkErr = gkerr.GenGkErr("http.ListenAndServer http", err, ERROR_ID_HTTP_SERVER_START)
-			gklog.LogGkErr("http.ListenAndServer", gkErr)
+			gklog.LogGkErr("", gkErr)
 			return
 		}
+		gklog.LogTrace("http listener ended, this is probably bad")
 	}()
 
 	go func() {
 		websocketAddress := fmt.Sprintf(":%d", gameConfig.WebsocketPort)
 		gklog.LogTrace("starting web socket listener")
-		err = http.ListenAndServe(websocketAddress, websocket.Handler(ws.WebsocketHandler))
+		if gameConfig.CertificatePath == "" {
+			err = http.ListenAndServe(websocketAddress, websocket.Handler(ws.WebsocketHandler))
+		} else {
+			err = http.ListenAndServeTLS(websocketAddress, gameConfig.CertificatePath, gameConfig.PrivateKeyPath, websocket.Handler(ws.WebsocketHandler))
+		}
 		if err != nil {
 			gkErr = gkerr.GenGkErr("http.ListenAndServer websocket", err, ERROR_ID_WEBSOCKET_SERVER_START)
-			gklog.LogGkErr("http.ListenAndServer", gkErr)
+			gklog.LogGkErr("", gkErr)
 			return
 		}
+		gklog.LogTrace("websocket listener ended, this is probably bad")
 	}()
-
-/*
-	go goRuntimeContextLoop(&gameConfig)
-
-
-	websocketSetConfig(gameConfig)
-
-	go func() {
-		gklog.LogTrace("starting web socket listener")
-		err = http.ListenAndServe(websocketAddress, websocket.Handler(websocketHandler))
-		if err != nil {
-			gkErr = gkerr.GenGkErr("http.ListenAndServer websocket", err, ERROR_ID_WEBSOCKET_SERVER_START)
-			gklog.LogGkErr("http.ListenAndServer", gkErr)
-			return
-		}
-	}()
-*/
 
 	// give it time for the servers to start
 	time.Sleep(time.Second * 60)
