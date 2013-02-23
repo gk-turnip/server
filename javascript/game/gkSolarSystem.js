@@ -13,7 +13,8 @@ function gkSSCalculateLight(doClamp,clampL,clampH,doLimitTotal,totalMin,totalMax
 	for (var i=0;i<=SSD.length;i++) {
 		dy = SSD[i].posy - Position.y;
 		dx = SSD[i].posx - Position.x;
-		m = dy/dx;
+		n = dy/dx;
+		m = n * Math.sqrt(dy * dy + dx * dx);
 		if (SSD[i].posy > Position.y) {
 			if (doClamp == true) {
 				if (m < clampL) {
@@ -41,7 +42,7 @@ function gkSSCalculateLight(doClamp,clampL,clampH,doLimitTotal,totalMin,totalMax
 		out[i].lum = lights[i];
 	}
 	if (doRender == true) {
-//		Stuff goes here
+//		Renderer goes here
 	}
 	else {
 		return out;
