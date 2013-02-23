@@ -42,7 +42,7 @@ function gkRainLoop() {
 						gkDrops[i].isoXYZ.z = 0;
 						var diamond;
 						diamond = gkIsoCreateSingleDiamond(gkDrops[i].isoXYZ, "#0000ff", 0.5);
-						field.appendChild(diamond);
+						tileLayer.appendChild(diamond);
 						gkDrops[i].diamond = diamond;
 						gkDrops[i].svgGroup.parentNode.removeChild(gkDrops[i].svgGroup);
 					}
@@ -58,10 +58,10 @@ function gkRainLoop() {
 	if (dropsCounted < gkRainContext.dropsRequired) {
 		if (undefinedIndex != -1) {
 			gkDrops[undefinedIndex] = new GkDropDef();
-			field.appendChild(gkDrops[undefinedIndex].svgGroup);
+			tileLayer.appendChild(gkDrops[undefinedIndex].svgGroup);
 		} else {
 			gkDrops.push(new GkDropDef());
-			field.appendChild(gkDrops[gkDrops.length - 1].svgGroup);
+			tileLayer.appendChild(gkDrops[gkDrops.length - 1].svgGroup);
 		}
 	}
 }
