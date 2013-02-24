@@ -41,7 +41,7 @@ console.log("gkFieldAddSvg");
 	text.setAttribute("stroke","#000000");
 	text.setAttribute("stroke-width","0");
 	text.setAttribute("x","0");
-	text.setAttribute("y","0");
+	text.setAttribute("y",originY);
 	text.setAttribute("font-size","24");
 	text.setAttribute("id",jsonData.id + "_userName");
 	var userNameText = document.createTextNode(jsonData.userName);
