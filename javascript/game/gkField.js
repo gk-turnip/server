@@ -48,6 +48,7 @@ console.log("gkFieldAddSvg");
 	text.appendChild(userNameText)
 
 	g.appendChild(text)
+	g.setAttribute("alt",jsonData.userName);
 
 	var field;
 	field = document.getElementById("gkField");
