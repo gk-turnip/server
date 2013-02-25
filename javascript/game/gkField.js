@@ -50,9 +50,9 @@ console.log("gkFieldAddSvg");
 	g.appendChild(text)
 	g.setAttribute("alt",jsonData.userName);
 
-	var field;
-	field = document.getElementById("gkField");
-	field.appendChild(g)
+	var layer;
+	layer = document.getElementById(jsonData.layer);
+	layer.appendChild(g)
 
 	var fieldObject = new gkFieldObjectDef(jsonData.id, jsonData.userName, g, isoXYZ, isoXYZ, originX, originY)
 	gkFieldContext.objectMap[fieldObject.id] = fieldObject

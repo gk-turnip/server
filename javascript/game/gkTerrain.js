@@ -26,16 +26,23 @@ function gkTerrainInit (size) {
 
 function gkRenderMap (mapId,size) {
 	//MapIds: 0=desert, 1=ocean, 2=fire, 3=grassland, 4=bog
-	var field = document.getElementById("gkField");
-	var terrainLayer = document.createElementNS(GK_SVG_NAMESPACE, "g");
-	terrainLayer.id = "gkTerrainLayer";
-	field.appendChild(terrainLayer);
-	var detailLayer = document.createElementNS(GK_SVG_NAMESPACE, "g");
-	detailLayer.id = "gkDetailLayer";
-	field.appendChild(detailLayer);
-	var tileLayer = document.createElementNS(GK_SVG_NAMESPACE, "g");
-	tileLayer.id = "gkTileLayer";
-	field.appendChild(tileLayer);
+//	var field = document.getElementById("gkField");
+
+	var terrainBaseLayer = document.getElementById("gkTerrainBaseLayer");
+	var terrainObjectLayer = document.getElementById("gkTerrainObjectLayer");
+
+//	var terrainLayer = document.createElementNS(GK_SVG_NAMESPACE, "g");
+//	terrainLayer.id = "gkTerrainLayer";
+//	field.appendChild(terrainLayer);
+
+//	var detailLayer = document.createElementNS(GK_SVG_NAMESPACE, "g");
+//	detailLayer.id = "gkDetailLayer";
+//	field.appendChild(detailLayer);
+
+//	var tileLayer = document.createElementNS(GK_SVG_NAMESPACE, "g");
+//	tileLayer.id = "gkTileLayer";
+//	field.appendChild(tileLayer);
+
 	var a;
 	var k = 0;
 //	var l = map.length
@@ -102,7 +109,7 @@ function gkRenderMap (mapId,size) {
 								var newDiamond;
 								newDiamond = FeaturesB[q].svgDiamond.cloneNode(true);
 								gkIsoSetSvgDiamondPosition(newDiamond, isoXYZ);
-								terrainLayer.appendChild(newDiamond);
+								terrainBaseLayer.appendChild(newDiamond);
 								break;
 							}
 						}
@@ -119,7 +126,7 @@ function gkRenderMap (mapId,size) {
 									var newDiamond;
 									newDiamond = FeaturesB[q].svgDiamond.cloneNode(true);
 									gkIsoSetSvgDiamondPosition(newDiamond, isoXYZ);
-									detailLayer.appendChild(newDiamond);
+									terrainObjectLayer.appendChild(newDiamond);
 								}
 							}
 						}
@@ -215,11 +222,13 @@ function gkTerrainLoad(jsonObject, rawSvgData) {
 */
 }
 
+/*
 function gkRestorePixel (xv,yv,size) {
 	isoXYZ = new GkIsoXYZDef(xv, yv, 0);
 	diamond = gkIsoCreateSingleDiamond(isoXYZ, Rendered[k], 1.0);
 	field.appendChild(diamond);
 }
+*/
 
 //This has been delayed due to the me needing to talk to Turnip about some dine details here.
 /*
@@ -274,13 +283,16 @@ function gkRenderTexelsAll (texel,size) {
 }
 */
 
+/*
 function gkPutShrub (x,y,z,location) {
 	var putLocationX;
 	var putLocationY;
 	putLocationX, putLocationY = GkIsoXYZDef(x, y, z);
 	field.innerHTML += '\x3Cdiv id\x3Dshrub' + location + ' style\x3D\x22position\x3A absolute\x3B top\x3A ' + putLocationY + 'px\x3B left\x3A ' + putLocationX + 'px\x3B\x22\x3E\x3Cimg src\x3D\x22' + location + '\x3D\x3E\x3C\x2Fdiv\x3E';
 }
+*/
 
+/*
 function gkCreateOverlay (method,size,param3,opacity) {
 //	method 0 uses solid color given in param3.
 //	method 1 uses palatte in variable OverlayData
@@ -307,4 +319,5 @@ function gkCreateOverlay (method,size,param3,opacity) {
 		}
 	}
 }
+*/
 

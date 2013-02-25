@@ -44,6 +44,12 @@ function gkAudioStartAudio(audioSelect, sourceFile) {
 	source.type = gkAudioContext.preferredType;
 	source.src = gkAudioContext.sourceDir + "/assets/gk/audio/" + sourceFile + gkAudioContext.preferredSuffix;
 	audio.appendChild(source);
+	if (audioSelect == 1) {
+		audio.addEventListener('ended', function() {
+  			this.currentTime = 0;
+			this.play();
+			}, false);
+	}
 	audio.play();
 }
 

@@ -22,9 +22,9 @@ function gkRainOff() {
 }
 
 function gkRainLoop() {
-	var tileLayer;
+	var rainLayer;
 
-	tileLayer = document.getElementById("gkField");
+	rainLayer = document.getElementById("gkRainLayer");
 	var undefinedIndex = -1;
 	var dropsCounted = 0;
 	for (i = 0;i < gkDrops.length;i++) {
@@ -42,7 +42,7 @@ function gkRainLoop() {
 						gkDrops[i].isoXYZ.z = 0;
 						var diamond;
 						diamond = gkIsoCreateSingleDiamond(gkDrops[i].isoXYZ, "#0000ff", 0.5);
-						tileLayer.appendChild(diamond);
+						rainLayer.appendChild(diamond);
 						gkDrops[i].diamond = diamond;
 						gkDrops[i].svgGroup.parentNode.removeChild(gkDrops[i].svgGroup);
 					}
@@ -58,10 +58,10 @@ function gkRainLoop() {
 	if (dropsCounted < gkRainContext.dropsRequired) {
 		if (undefinedIndex != -1) {
 			gkDrops[undefinedIndex] = new GkDropDef();
-			tileLayer.appendChild(gkDrops[undefinedIndex].svgGroup);
+			rainLayer.appendChild(gkDrops[undefinedIndex].svgGroup);
 		} else {
 			gkDrops.push(new GkDropDef());
-			tileLayer.appendChild(gkDrops[gkDrops.length - 1].svgGroup);
+			rainLayer.appendChild(gkDrops[gkDrops.length - 1].svgGroup);
 		}
 	}
 }
