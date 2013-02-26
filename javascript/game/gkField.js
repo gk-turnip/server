@@ -1,9 +1,12 @@
 
+// handle the game playing field
+// objectMap is a list of objects on the field (dandelions, avatars etc.)
+// avatarId is the id of the current users avatar
 var gkFieldContext = new gkFieldContextDef();
 
 function gkFieldContextDef() {
 	this.objectMap = new Object();
-	this.avatarId = null;
+//	this.avatarId = null;
 	this.avatarDestination = null;
 }
 
@@ -11,6 +14,7 @@ function gkFieldInit() {
 	setInterval(gkFieldMoveObjects,50)
 }
 
+// the attributes for a single object on the field
 function gkFieldObjectDef(id, userName, g, isoXYZCurrent, isoXYZDestination, originX, originY) {
 	this.id = id
 	this.userName = userName
@@ -25,8 +29,9 @@ function gkFieldObjectDef(id, userName, g, isoXYZCurrent, isoXYZDestination, ori
 	}
 }
 
+// add an svg image into the field
 function gkFieldAddSvg(jsonData, rawSvgData) {
-console.log("gkFieldAddSvg");
+console.log("gkFieldAddSvg id: " + jsonData.id);
 
 	var g = gkIsoCreateSvgDiamond(rawSvgData);
 
@@ -37,18 +42,19 @@ console.log("gkFieldAddSvg");
 
 	g.setAttribute("id",jsonData.id)
 
-	var text = document.createElementNS(GK_SVG_NAMESPACE, "text");
-	text.setAttribute("stroke","#000000");
-	text.setAttribute("stroke-width","0");
-	text.setAttribute("x","0");
-	text.setAttribute("y",originY);
-	text.setAttribute("font-size","24");
-	text.setAttribute("id",jsonData.id + "_userName");
-	var userNameText = document.createTextNode(jsonData.userName);
-	text.appendChild(userNameText)
+	if ((jsonData.userName != undefined) && (jsonData.userName.length > 0)) {
+		var text = document.createElementNS(GK_SVG_NAMESPACE, "text");
+		text.setAttribute("stroke","#000000");
+		text.setAttribute("stroke-width","0");
+		text.setAttribute("x","0");
+		text.setAttribute("y",originY);
+		text.setAttribute("font-size","24");
+		text.setAttribute("id",jsonData.id + "_userName");
+		var userNameText = document.createTextNode(jsonData.userName);
+		text.appendChild(userNameText)
 
-	g.appendChild(text)
-	g.setAttribute("alt",jsonData.userName);
+		g.appendChild(text)
+	}
 
 	var layer;
 	layer = document.getElementById(jsonData.layer);
@@ -57,11 +63,12 @@ console.log("gkFieldAddSvg");
 	var fieldObject = new gkFieldObjectDef(jsonData.id, jsonData.userName, g, isoXYZ, isoXYZ, originX, originY)
 	gkFieldContext.objectMap[fieldObject.id] = fieldObject
 
-	console.log("got new field object userName: " + jsonData.userName);
+	console.log("got new field object userName: " + jsonData.userName + " id: " + jsonData.id);
 }
 
+// delete an svg object from the field
 function gkFieldDelSvg(jsonData) {
-console.log("gkFieldDelSvg");
+console.log("gkFieldDelSvg id: " + jsonData.id);
 	var fieldObject = gkFieldContext.objectMap[jsonData.id];
 	if (fieldObject != undefined) {
 		var g = document.getElementById(fieldObject.id);
@@ -70,8 +77,9 @@ console.log("gkFieldDelSvg");
 	}
 }
 
+// move the svg object in the field
 function gkFieldMoveSvg(jsonData) {
-console.log("gkFieldMoveSvg");
+console.log("gkFieldMoveSvg id: " + jsonData.id);
 console.log(jsonData.id + " " + jsonData.x + " " + jsonData.y)
 	var fieldObject = gkFieldContext.objectMap[jsonData.id];
 	if (fieldObject != undefined) {
@@ -82,6 +90,7 @@ console.log(jsonData.id + " " + jsonData.x + " " + jsonData.y)
 	}
 }
 
+// request a new avatar svg and jsonData from the server
 function gkFieldLoadNewAvatar(avatarName) {
 	gkFieldRemoveExistingAvatar()
 	gkWsSendMessage("delAvatarSvgReq~~");
@@ -90,21 +99,24 @@ function gkFieldLoadNewAvatar(avatarName) {
 	}
 }
 
+// if there is an avarar already, remove it
 function gkFieldRemoveExistingAvatar() {
 	if (gkFieldContext.avatarId != undefined) {
 		var fieldObject = gkFieldContext.objectMap[gkFieldContext.avatarId];
 		var g = document.getElementById(fieldObject.id);
 		g.parentNode.removeChild(g);
 		delete gkFieldContext.objectMap[jsonData.id];
-		gkFieldContext.avatarId = null
+		delete gkFieldContext.avatarId;
 	}
 }
 
+// add a new avatar to the field for the current user
 function gkFieldAddAvatar(jsonData, data) {
 	gkFieldContext.avatarId = jsonData.id
 	gkFieldAddSvg(jsonData, data);
 }
 
+// set the current users avatar to a new position
 function gkFieldSetNewAvatarDestination(isoXYZ) {
 	var fieldObject
 	if (gkFieldContext.avatarId != undefined) {
@@ -116,6 +128,7 @@ function gkFieldSetNewAvatarDestination(isoXYZ) {
 	}
 }
 
+// move all objects closer to their proper destination
 function gkFieldMoveObjects() {
 	gkFieldContext.objectMap
 
@@ -145,6 +158,8 @@ function gkFieldMoveObjects() {
 	}
 }
 
+// delete all objects from the field
+// called if we lose communications from the server
 function gkFieldDelAllObjects() {
 	for (var prop in gkFieldContext.objectMap) {
 		var fieldObject;
@@ -155,6 +170,6 @@ function gkFieldDelAllObjects() {
 			delete gkFieldContext.objectMap[jsonData.id];
 		}
 	}
-	gkFieldContext.avatarId = null
+	delete gkFieldContext.avatarId;
 }
 

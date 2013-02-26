@@ -1,3 +1,6 @@
+
+// dispatch the message from the websocket connection
+// to the correct function
 function gkDispatchWsMessage(command, jsonData, data) {
 console.log("got command: " + command);
 	switch (command) {

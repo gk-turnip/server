@@ -1,10 +1,18 @@
 
+// convert between windows x,y coordinates and iso x,y,z coordinates
+
+// higher iso x coordinates go down and to the right
+// higher iso y coordinates go down and to the left
+// higher iso z coordinates go up
+
 var GK_SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 var GK_SVG_MARGIN_X = 5;
 var GK_SVG_MARGIN_Y = 5;
 var GK_SVG_WIDTH = 600;
 var GK_SVG_HEIGHT = 300;
 
+// draw a diamond grid
+// not called anymore
 function gkIsoDrawGridDiamond() {
 	var line;
 	var gridColour = "#afafaf";
@@ -35,6 +43,8 @@ function gkIsoDrawGridDiamond() {
 	}
 }
 
+// draw a full grid
+// not called anymore
 function gkIsoDrawGridFull() {
 	var line;
 	var gridColour = "#afafaf";
@@ -71,6 +81,7 @@ function gkIsoDrawGridFull() {
 	}
 }
 
+// create and return a single small diamond (1/10 fern sized)
 function gkIsoCreateSingleDiamond(isoXYZ, colour, opacity) {
 	winXY = isoXYZ.convertToWin();
 
@@ -101,6 +112,7 @@ function gkIsoCreateSingleDiamond(isoXYZ, colour, opacity) {
 	return diamond;
 }
 
+// create an object from raw svg data
 function gkIsoCreateSvgDiamond(rawSvgData) {
 	var g
 	g = document.createElementNS(GK_SVG_NAMESPACE,"g");
@@ -112,12 +124,14 @@ function gkIsoCreateSvgDiamond(rawSvgData) {
 	return g
 }
 
+// set the position of the object
 function gkIsoSetSvgDiamondPosition(svgDiamond, isoXYZ) {
 	var winXY;
 	winXY = isoXYZ.convertToWin();
 	svgDiamond.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ")");
 }
 
+// set the position of the object, with originX and originY offsets
 function gkIsoSetSvgPositionWithOffset(svgDiamond, isoXYZ, originX, originY) {
 	var winXY;
 	winXY = isoXYZ.convertToWin();
@@ -126,6 +140,7 @@ function gkIsoSetSvgPositionWithOffset(svgDiamond, isoXYZ, originX, originY) {
 	svgDiamond.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ")");
 }
 
+// a windows x,y object
 function GkWinXYDef(x, y) {
 	this.x = x;
 	this.y = y;
@@ -139,6 +154,7 @@ function GkWinXYDef(x, y) {
 	}
 }
 
+// an iso x,y,z object
 function GkIsoXYZDef(x, y, z) {
 	this.x = x;
 	this.y = y;

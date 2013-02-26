@@ -1,4 +1,8 @@
 
+// audio control
+// several audio streams or "audioSelect"
+// which are 1, 2, or 3 (more in the future
+// the first is automatically looping for background music
 var gkAudioContext = new gkAudioContextDef();
 
 function gkAudioContextDef() {
@@ -10,6 +14,7 @@ function gkAudioContextDef() {
 	this.sourceDir = "unknown";
 }
 
+// check what audio formats are supported by the browser
 function gkAudioInit(sourceDir) {
 	gkAudioContext.sourceDir = sourceDir;
 	var audio1 = document.getElementById("audio1")
@@ -34,6 +39,7 @@ function gkAudioInit(sourceDir) {
 	gkAudioVolumeChange("3",0,3);
 }
 
+// start a new audio source, loop for audioSelect 1
 function gkAudioStartAudio(audioSelect, sourceFile) {
 	var source = document.createElement("source");
 	var audio = document.getElementById("audio" + audioSelect);
@@ -54,6 +60,7 @@ function gkAudioStartAudio(audioSelect, sourceFile) {
 	audio.play();
 }
 
+// change the volume for one audioSelect
 function gkAudioVolumeChange(audioSelect, volumeValue) {
 	var audio = document.getElementById("audio" + audioSelect);
 	audio.volume = volumeValue;
