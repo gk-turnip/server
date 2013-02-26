@@ -1,4 +1,6 @@
 
+var rainVolumeOriginal;
+var rainFadeInterval;
 var gkDrops = new Array();
 var gkRainContext = new gkRainContextDef();
 
@@ -16,19 +18,35 @@ function gkRainStart() {
 function gkRainOn() {
 	gkRainContext.dropsRequired = 30
 	var rainTBP = document.getElementById("audio3");
+	rainTBP.stop();
 	rainTBP.play();
+	rainFadeInterval = setInterval(gkRainVolumeFader(0.1),100)
 }
 
 function gkRainOff() {
 	gkRainContext.dropsRequired = 0
 	var rainTBP = document.getElementById("audio3");
-	rainTBP.pause();
+	rainFadeInterval = setInterval(gkRainVolumeFader(0.1),100)
 }
 
+function gkRainVolumeFader(change) {
+	var rainTBP = document.getElementById("audio3");
+	var volume = rainTBP.volume;
+	var rainVolumeOriginal = rainTBP.volume;
+	rainTBP.volume += change;
+	if (Math.min(rainTBP.volume,rainVolumeOriginal) == rainVolumeOriginal) {
+		rainTBP.volume -= change;
+		clearInterval(rainFadeInterval);
+	}
+	if (Math.max(rainTBP.volume,0) == 0) {
+		rainTBP.volume -= change;
+		clearInterval(rainFadeInterval);
+	}
+}
 function gkRainLoop() {
-	var rainLayer;
+	var tileLayer;
 
-	rainLayer = document.getElementById("gkRainLayer");
+	tileLayer = document.getElementById("gkField");
 	var undefinedIndex = -1;
 	var dropsCounted = 0;
 	for (i = 0;i < gkDrops.length;i++) {
@@ -46,7 +64,7 @@ function gkRainLoop() {
 						gkDrops[i].isoXYZ.z = 0;
 						var diamond;
 						diamond = gkIsoCreateSingleDiamond(gkDrops[i].isoXYZ, "#0000ff", 0.5);
-						rainLayer.appendChild(diamond);
+						tileLayer.appendChild(diamond);
 						gkDrops[i].diamond = diamond;
 						gkDrops[i].svgGroup.parentNode.removeChild(gkDrops[i].svgGroup);
 					}
@@ -62,10 +80,10 @@ function gkRainLoop() {
 	if (dropsCounted < gkRainContext.dropsRequired) {
 		if (undefinedIndex != -1) {
 			gkDrops[undefinedIndex] = new GkDropDef();
-			rainLayer.appendChild(gkDrops[undefinedIndex].svgGroup);
+			tileLayer.appendChild(gkDrops[undefinedIndex].svgGroup);
 		} else {
 			gkDrops.push(new GkDropDef());
-			rainLayer.appendChild(gkDrops[gkDrops.length - 1].svgGroup);
+			tileLayer.appendChild(gkDrops[gkDrops.length - 1].svgGroup);
 		}
 	}
 }
