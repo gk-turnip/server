@@ -15,10 +15,14 @@ function gkRainStart() {
 
 function gkRainOn() {
 	gkRainContext.dropsRequired = 30
+	var rainTBP = document.getElementById("audio3");
+	rainTBP.play();
 }
 
 function gkRainOff() {
 	gkRainContext.dropsRequired = 0
+	var rainTBP = document.getElementById("audio3");
+	rainTBP.pause();
 }
 
 function gkRainLoop() {

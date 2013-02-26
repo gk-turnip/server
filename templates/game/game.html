@@ -58,9 +58,17 @@
 		<option value="0.66">medium</option>
 		<option value="0.99">high</option>
 	</select>
-
+	<br/>
+	FX volume:
+	<select id="volume1" onchange="volumeChange(3);">
+		<option value="0.00">off</option>
+		<option value="0.33" selected="selected">low</option>
+		<option value="0.66">medium</option>
+		<option value="0.99">high</option>
+	</select>
 	<audio id="audio1">Audio One</audio>
 	<audio id="audio2">Audio Two</audio>
+	<audio id="audio3">Audio Three</audio>
 	<span id="scriptUse"></span>
 </body>
 {{end}}

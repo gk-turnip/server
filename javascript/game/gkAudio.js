@@ -31,6 +31,7 @@ function gkAudioInit(sourceDir) {
 
 	gkAudioVolumeChange("1",0.3);
 	gkAudioVolumeChange("2",0.3);
+	gkAudioVolumeChange("3",0,3);
 }
 
 function gkAudioStartAudio(audioSelect, sourceFile) {
