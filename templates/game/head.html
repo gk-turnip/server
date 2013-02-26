@@ -24,9 +24,15 @@
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkDispatch.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
+		var loaded;
 		function init() {
 			console.log("calling init");
 
+			scriptUse = document.getElementById("scriptUse");
+			var loader = document.createTextNode("Loading...");
+			var loaded = scriptUse.appendChild(loader);
+			var loader;
+			
 			var s1
 			s1 = document.getElementById("selectAvatar");
 			s1.selectedIndex = 0;
