@@ -39,7 +39,7 @@ function gkAudioInit(sourceDir) {
 	gkAudioVolumeChange("3",0,3);
 }
 
-// start a new audio source, loop for audioSelect 1
+// start a new audio source, loop for audioSelect 1 or 3
 function gkAudioStartAudio(audioSelect, sourceFile) {
 	var source = document.createElement("source");
 	var audio = document.getElementById("audio" + audioSelect);

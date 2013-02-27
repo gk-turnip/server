@@ -25,11 +25,12 @@
 
 	<script type="text/javascript">
 		var loaded;
+		var mode;
 		function init() {
 			console.log("calling init");
 
 			scriptUse = document.getElementById("scriptUse");
-			var loader = document.createTextNode("Loading...");
+			var loader = document.createTextNode("Loaded!");
 			var loaded = scriptUse.appendChild(loader);
 			var loader;
 			
