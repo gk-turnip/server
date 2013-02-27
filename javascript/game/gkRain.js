@@ -18,7 +18,7 @@ function gkRainStart() {
 function gkRainOn() {
 	gkRainContext.dropsRequired = 30
 	var rainTBP = document.getElementById("audio3");
-	rainTBP.stop();
+	rainTBP.pause();
 	rainTBP.play();
 	rainFadeInterval = setInterval(gkRainVolumeFader(0.1),100)
 }
@@ -33,12 +33,10 @@ function gkRainVolumeFader(change) {
 	var rainTBP = document.getElementById("audio3");
 	var volume = rainTBP.volume;
 	var rainVolumeOriginal = rainTBP.volume;
-	rainTBP.volume += change;
-	if (Math.min(rainTBP.volume,rainVolumeOriginal) == rainVolumeOriginal) {
-		rainTBP.volume -= change;
-		clearInterval(rainFadeInterval);
+	if ((rainTBP.volume + change <= 1) && (rainTBP.volume + change >= 0)) {
+		rainTBP.volume += change;
 	}
-	if (Math.max(rainTBP.volume,0) == 0) {
+	if ((Math.min(rainTBP.volume,rainVolumeOriginal) == rainVolumeOriginal) && rainTBP.volume != rainVolumeOriginal) {
 		rainTBP.volume -= change;
 		clearInterval(rainFadeInterval);
 	}
