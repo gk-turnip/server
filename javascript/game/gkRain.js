@@ -22,14 +22,14 @@ function gkRainStart() {
 function gkRainOn() {
 	gkRainContext.dropsRequired = 30
 	var rainTBP = document.getElementById("audio3");
-	rainTBP.pause();
 	rainTBP.play();
+	rainFadeAmount = 0.1;
 	rainFadeInterval = setInterval(gkRainVolumeFader,rainFadeTime);
 }
 
 function gkRainOff() {
 	gkRainContext.dropsRequired = 0
-	var rainTBP = document.getElementById("audio3");
+	rainFadeAmount = -0.1;
 	rainFadeInterval = setInterval(gkRainVolumeFader,rainFadeTime);
 }
 
