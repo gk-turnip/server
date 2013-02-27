@@ -1,7 +1,10 @@
 
 var rainVolumeOriginal;
+var rainFadeAmount;
 var rainFadeInterval;
+var rainFadeTime;
 var gkDrops = new Array();
+var rainLast;
 var gkRainContext = new gkRainContextDef();
 
 function gkRainContextDef () {
@@ -13,6 +16,7 @@ function gkRainContextDef () {
 
 function gkRainStart() {
 	setInterval(gkRainLoop,100);
+	var rainFadeAmount = 0.1;
 }
 
 function gkRainOn() {
@@ -20,26 +24,29 @@ function gkRainOn() {
 	var rainTBP = document.getElementById("audio3");
 	rainTBP.pause();
 	rainTBP.play();
-	rainFadeInterval = setInterval(gkRainVolumeFader(0.1),100)
+	rainFadeInterval = setInterval(gkRainVolumeFader,rainFadeTime);
 }
 
 function gkRainOff() {
 	gkRainContext.dropsRequired = 0
 	var rainTBP = document.getElementById("audio3");
-	rainFadeInterval = setInterval(gkRainVolumeFader(0.1),100)
+	rainFadeInterval = setInterval(gkRainVolumeFader,rainFadeTime);
 }
 
-function gkRainVolumeFader(change) {
+function gkRainVolumeFader() {
 	var rainTBP = document.getElementById("audio3");
-	var volume = rainTBP.volume;
 	var rainVolumeOriginal = rainTBP.volume;
-	if ((rainTBP.volume + change <= 1) && (rainTBP.volume + change >= 0)) {
-		rainTBP.volume += change;
+	if ((rainTBP.volume + rainFadeAmount <= 1) && (rainTBP.volume + rainFadeAmount >= 0)) {
+		rainTBP.volume += rainFadeAmount;
 	}
 	if ((Math.min(rainTBP.volume,rainVolumeOriginal) == rainVolumeOriginal) && rainTBP.volume != rainVolumeOriginal) {
-		rainTBP.volume -= change;
+		rainTBP.volume -= rainFadeAmount;
 		clearInterval(rainFadeInterval);
 	}
+	if (rainTBP.volume == rainLast) {
+		clearInterval(rainFadeInterval);
+	}
+	rainLast = rainTBP.volume;
 }
 function gkRainLoop() {
 	var tileLayer;
