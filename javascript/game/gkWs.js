@@ -25,6 +25,8 @@ function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessi
 	gkWsContext.ws.onopen = function() { gkWsDoOpen(); };
 	gkWsContext.ws.onmessage = function(evt) { gkWsDoMessage(evt); };
 	gkWsContext.ws.onclose = function() { gkWsDoOnClose(); };
+	scriptUse = document.getElementById("scriptUse");
+	scriptUse.removeChild(loaded);
 }
 
 function gkWsDoOpen() {
@@ -77,6 +79,9 @@ function gkWsDoMessage(e) {
 function gkWsDoOnClose() {
 	console.log("gkWsDoOnClose");
 	gkFieldDelAllObjects();
+	scriptUse = document.getElementById("scriptUse");
+	var errorOut = document.createTextNode("The WebSocket connection was closed.");
+	scriptUse.appendChild(errorOut);
 }
 
 function gkWsSendMessage(message) {
