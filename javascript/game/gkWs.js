@@ -79,9 +79,10 @@ function gkWsDoMessage(e) {
 function gkWsDoOnClose() {
 	console.log("gkWsDoOnClose");
 	gkFieldDelAllObjects();
-	//scriptUse = document.getElementById("scriptUse");
 	var errorOut = document.createTextNode("The WebSocket connection was closed.");
-	//scriptUse.appendChild(errorOut);
+	if (mode == "debug") {
+		alert("The WebSocket connection was closed.");
+	}
 }
 
 function gkWsSendMessage(message) {
