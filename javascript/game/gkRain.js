@@ -45,6 +45,7 @@ function gkRainVolumeFader() {
 	}
 	if (rainTBP.volume == rainLast) {
 		clearInterval(rainFadeInterval);
+		rainTBP.pause();
 	}
 	rainLast = rainTBP.volume;
 }
