@@ -40,4 +40,3 @@ func (fieldContext *FieldContextDef) handleTicker(time.Time) *gkerr.GkErrDef {
 
 	return nil
 }
-

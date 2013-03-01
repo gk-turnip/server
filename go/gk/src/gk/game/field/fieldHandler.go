@@ -58,4 +58,3 @@ func (fieldContext *FieldContextDef) StartFieldHandler() {
 		}
 	}
 }
-

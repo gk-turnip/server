@@ -21,27 +21,27 @@ package ws
 // getting go websocket: go get code.google.com/p/go.net/websocket
 
 import (
+	"code.google.com/p/go.net/websocket"
 	"fmt"
 	"io"
-	"code.google.com/p/go.net/websocket"
 	//"net"
 	"net/url"
 	//"sync"
 )
 
 import (
+	"gk/game/field"
+	"gk/game/message"
+	"gk/game/ses"
 	"gk/gkerr"
 	"gk/gklog"
-	"gk/game/ses"
-	"gk/game/message"
-	"gk/game/field"
 )
 
 var _wsContext *WsContextDef
 
 type receiveWebsocketDef struct {
 	message []byte
-	err error
+	err     error
 }
 
 func SetGlobalWsContext(wsContext *WsContextDef) {
@@ -55,14 +55,14 @@ func WebsocketHandler(ws *websocket.Conn) {
 
 	defer ws.Close()
 
-gklog.LogTrace("WebsocketHandler start")
-defer gklog.LogTrace("WebsocketHandler end")
+	gklog.LogTrace("WebsocketHandler start")
+	defer gklog.LogTrace("WebsocketHandler end")
 
-//	var websocketConfig *websocket.Config
-//	websocketConfig = ws.Config()
+	//	var websocketConfig *websocket.Config
+	//	websocketConfig = ws.Config()
 
 	if url.Path != _wsContext.gameConfig.WebsocketPath {
-		gkErr = gkerr.GenGkErr("invalid websocket path: " + url.Path, nil, ERROR_ID_WEBSOCKET_INVALID_PATH)
+		gkErr = gkerr.GenGkErr("invalid websocket path: "+url.Path, nil, ERROR_ID_WEBSOCKET_INVALID_PATH)
 		gklog.LogGkErr("", gkErr)
 		return
 	}
@@ -101,7 +101,6 @@ defer gklog.LogTrace("WebsocketHandler end")
 
 	go goGetMessage(ws, receiveWebsocketChan)
 
-
 	var done bool = false
 	for !done {
 		var receiveWebsocket *receiveWebsocketDef
@@ -111,16 +110,15 @@ defer gklog.LogTrace("WebsocketHandler end")
 
 			if receiveWebsocket.err != nil {
 				if receiveWebsocket.err == io.EOF {
-					gklog.LogTrace(fmt.Sprintf("closing websocket got eof sessionId: %s",sessionId))
+					gklog.LogTrace(fmt.Sprintf("closing websocket got eof sessionId: %s", sessionId))
 					done = true
 					break
 				}
-				gkErr = gkerr.GenGkErr(fmt.Sprintf("got websocket input error sessionId %s",sessionId), receiveWebsocket.err, ERROR_ID_WEBSOCKET_RECEIVE)
+				gkErr = gkerr.GenGkErr(fmt.Sprintf("got websocket input error sessionId %s", sessionId), receiveWebsocket.err, ERROR_ID_WEBSOCKET_RECEIVE)
 				gklog.LogGkErr("websocket error", gkErr)
 				return
 			} else {
-				var messageFromClient *message.MessageFromClientDef =
-					new(message.MessageFromClientDef)
+				var messageFromClient *message.MessageFromClientDef = new(message.MessageFromClientDef)
 				messageFromClient.PopulateFromMessage(sessionId, receiveWebsocket.message)
 
 				_wsContext.fieldContext.MessageFromClientChan <- messageFromClient
@@ -130,7 +128,7 @@ defer gklog.LogTrace("WebsocketHandler end")
 
 			gkErr = sendWebsocketMessage(ws, messageToClient)
 			if gkErr != nil {
-				gklog.LogGkErr(fmt.Sprintf("sendWebsocketMessage sessionId: %s",sessionId), gkErr)
+				gklog.LogGkErr(fmt.Sprintf("sendWebsocketMessage sessionId: %s", sessionId), gkErr)
 				return
 			}
 		}
@@ -167,7 +165,7 @@ func goGetMessage(ws *websocket.Conn, ch chan *receiveWebsocketDef) {
 
 	for {
 		var message []byte
-		message = make([]byte,0,0)
+		message = make([]byte, 0, 0)
 		err = websocket.Message.Receive(ws, &message)
 		receiveWebsocket = new(receiveWebsocketDef)
 		receiveWebsocket.message = message
@@ -179,4 +177,3 @@ func goGetMessage(ws *websocket.Conn, ch chan *receiveWebsocketDef) {
 		}
 	}
 }
-

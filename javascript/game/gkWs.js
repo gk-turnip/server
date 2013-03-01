@@ -1,6 +1,9 @@
 
+// handle the websocket communications
+
 var gkWsContext = new gkWsContextDef();
 
+// common "global" stuff put into a single context
 function gkWsContextDef() {
 	this.ws = null;
 	this.dispatchFunction = null;
@@ -9,6 +12,7 @@ function gkWsContextDef() {
 	this.sessionId = null;
 }
 
+// the websocket needs to be "initialized" so it can open a connection to the server
 function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessionId) {
 	console.log("gkWsInit");
 	gkWsContext.dispatchFunction = dispatchFunction
@@ -29,10 +33,17 @@ function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessi
 	//scriptUse.removeChild(loaded);
 }
 
+// this is called when the websocket completes a connection
 function gkWsDoOpen() {
 	console.log("gkWsDoOpen");
+	var connectionStatus = document.getElementById("wsConnectionStatus");
+	connectionStatus.innerHTML="web socket connected";
+	connectionStatus.style.backgroundColor = "green";
+	connectionStatus.style.color = "white";
 }
 
+// this is called when a new message is received from the server
+// it is decoded and sent to gkDispatch
 function gkWsDoMessage(e) {
 	console.log("gkWsDoMessage");
 	var nlIndex1 = -1;
@@ -76,6 +87,7 @@ function gkWsDoMessage(e) {
 	}
 }
 
+// this is called if the web socket is closed
 function gkWsDoOnClose() {
 	console.log("gkWsDoOnClose");
 	gkFieldDelAllObjects();
@@ -83,8 +95,13 @@ function gkWsDoOnClose() {
 	if (mode == "debug") {
 		alert("The WebSocket connection was closed.");
 	}
+	var connectionStatus = document.getElementById("wsConnectionStatus");
+	connectionStatus.innerHTML="web socket not connected";
+	connectionStatus.style.backgroundColor = "red";
+	connectionStatus.style.color = "white";
 }
 
+// this is called when the client side wants to send a message to the server
 function gkWsSendMessage(message) {
 	console.log("gkWsSendMessage");
 	gkWsContext.ws.send(message);

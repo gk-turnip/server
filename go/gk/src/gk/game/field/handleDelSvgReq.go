@@ -33,4 +33,3 @@ func (fieldContext *FieldContextDef) handleDelAvatarSvgReq(messageFromClient *me
 
 	return nil
 }
-

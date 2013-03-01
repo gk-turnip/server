@@ -80,4 +80,3 @@ func (fieldContext *FieldContextDef) handleGetAvatarSvgReq(messageFromClient *me
 
 	return nil
 }
-

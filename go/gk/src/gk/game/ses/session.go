@@ -18,13 +18,13 @@
 package ses
 
 import (
+	c_rand "crypto/rand"
 	"io"
+	m_rand "math/rand"
 	"strconv"
 	"strings"
-	"time"
 	"sync"
-	c_rand "crypto/rand"
-	m_rand "math/rand"
+	"time"
 )
 
 import (
@@ -34,16 +34,16 @@ import (
 
 type SessionContextDef struct {
 	lastSessionId int64
-	sessionMutex sync.Mutex
-	sessionMap map[string]*SingleSessionDef
+	sessionMutex  sync.Mutex
+	sessionMap    map[string]*SingleSessionDef
 }
 
 type SingleSessionDef struct {
-	sessionId string
-	remoteAddr string
-	createdTime time.Time
+	sessionId       string
+	remoteAddr      string
+	createdTime     time.Time
 	isWebsocketOpen bool
-	userName string
+	userName        string
 }
 
 func NewSessionContext() *SessionContextDef {
@@ -87,7 +87,7 @@ func (sessionContext *SessionContextDef) OpenSessionWebsocket(rawQuery string, r
 	var index int
 	var sessionId string = ""
 
-	index = strings.Index(rawQuery,"=")
+	index = strings.Index(rawQuery, "=")
 	if index < 1 {
 		return sessionId
 	}
@@ -97,7 +97,7 @@ func (sessionContext *SessionContextDef) OpenSessionWebsocket(rawQuery string, r
 	if rawQuery[:index] != "ses" {
 		return sessionId
 	}
-	sessionId = rawQuery[index + 1:]
+	sessionId = rawQuery[index+1:]
 
 	sessionContext.sessionMutex.Lock()
 	defer sessionContext.sessionMutex.Unlock()
@@ -112,19 +112,19 @@ func (sessionContext *SessionContextDef) OpenSessionWebsocket(rawQuery string, r
 	var singleSession *SingleSessionDef
 	singleSession = sessionContext.sessionMap[sessionId]
 
-//	this comparison is good for security
-//	it would keep people from stealing a session
-//	by sniffing out the session id of an existing session
-//	but this currently has two problems:
-//	1) apache2 is currently configured to reverse proxy to the game
-//		so the addresses will never match
-//	2) both the session.remoteAddr and remoteAddr have ip and port
-//		and it is unknown at this time if the port will match
-//	so we comment it out for now
-//	if singleSession.remoteAddr != remoteAddr {
-//		sessionId = ""
-//		return sessionId
-//	}
+	//	this comparison is good for security
+	//	it would keep people from stealing a session
+	//	by sniffing out the session id of an existing session
+	//	but this currently has two problems:
+	//	1) apache2 is currently configured to reverse proxy to the game
+	//		so the addresses will never match
+	//	2) both the session.remoteAddr and remoteAddr have ip and port
+	//		and it is unknown at this time if the port will match
+	//	so we comment it out for now
+	//	if singleSession.remoteAddr != remoteAddr {
+	//		sessionId = ""
+	//		return sessionId
+	//	}
 
 	if singleSession.isWebsocketOpen {
 		sessionContext.closeSessionWebsocketNoLock(singleSession.sessionId)
@@ -192,6 +192,5 @@ func genSessionString(sessionId23 int64) string {
 	sessionId63_c = (sessionId23 << 40) | int64(buf[0]) | (int64(buf[1]) << 8) | (int64(buf[2]) << 16) | (int64(buf[3]) << 24) | (int64(buf[4]) << 32)
 	sessionId63_m = m_rand.Int63()
 
-	return strconv.FormatInt(sessionId63_c,36) + strconv.FormatInt(sessionId63_m,36)
+	return strconv.FormatInt(sessionId63_c, 36) + strconv.FormatInt(sessionId63_m, 36)
 }
-

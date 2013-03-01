@@ -28,24 +28,24 @@ import (
 )
 
 type GameConfigDef struct {
-	XMLName          xml.Name `xml:"config"`
-	HttpPort         int      `xml:"httpPort"`
-	TokenPort         int      `xml:"tokenPort"`
-	WebsocketPort    int      `xml:"websocketPort"`
-	LogDir           string   `xml:"logDir"`
-	TemplateDir      string   `xml:"templateDir"`
-	SvgDir           string   `xml:"svgDir"`
-	WebAddressPrefix string   `xml:"webAddressPrefix"`
+	XMLName                xml.Name `xml:"config"`
+	HttpPort               int      `xml:"httpPort"`
+	TokenPort              int      `xml:"tokenPort"`
+	WebsocketPort          int      `xml:"websocketPort"`
+	LogDir                 string   `xml:"logDir"`
+	TemplateDir            string   `xml:"templateDir"`
+	SvgDir                 string   `xml:"svgDir"`
+	WebAddressPrefix       string   `xml:"webAddressPrefix"`
 	WebsocketAddressPrefix string   `xml:"websocketAddressPrefix"`
-	AudioAddressPrefix string   `xml:"audioAddressPrefix"`
-	DatabaseHost     string   `xml:"databaseHost"`
-	DatabasePort     int      `xml:"databasePort"`
-	DatabaseUserName string   `xml:"databaseUserName"`
-	DatabasePassword string   `xml:"databasePassword"`
-	DatabaseDatabase string   `xml:"databaseDatabase"`
-	WebsocketPath string `xml:"websocketPath"`
-	CertificatePath string `xml:"certificatePath"`
-	PrivateKeyPath string `xml:"privateKeyPath"`
+	AudioAddressPrefix     string   `xml:"audioAddressPrefix"`
+	DatabaseHost           string   `xml:"databaseHost"`
+	DatabasePort           int      `xml:"databasePort"`
+	DatabaseUserName       string   `xml:"databaseUserName"`
+	DatabasePassword       string   `xml:"databasePassword"`
+	DatabaseDatabase       string   `xml:"databaseDatabase"`
+	WebsocketPath          string   `xml:"websocketPath"`
+	CertificatePath        string   `xml:"certificatePath"`
+	PrivateKeyPath         string   `xml:"privateKeyPath"`
 }
 
 func LoadConfigFile(fileName string) (*GameConfigDef, *gkerr.GkErrDef) {

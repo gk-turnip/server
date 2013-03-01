@@ -1,4 +1,9 @@
 
+// handle the "Rain"
+
+// rain is "global" so if it is raining in one browser,
+// it is raining in all browsers
+
 var rainVolumeOriginal;
 var rainFadeAmount;
 var rainFadeInterval;
@@ -7,6 +12,10 @@ var gkDrops = new Array();
 var rainLast;
 var gkRainContext = new gkRainContextDef();
 
+// all the "global" stuff required for rain
+// all encapsulated into the single gkRainContext
+// (except for all those variables above, which will have to get refactored into
+// the gkRainContextDef once the rain fade is working)
 function gkRainContextDef () {
 	this.dropsRequired = 0;
 	this.dropsWidth = 500;
@@ -14,11 +23,13 @@ function gkRainContextDef () {
 	this.dropsStateCount = 0;
 }
 
+// start the rain interval loop
 function gkRainStart() {
 	setInterval(gkRainLoop,100);
 	var rainFadeAmount = 0.1;
 }
 
+// turn on rain, triggered from the server
 function gkRainOn() {
 	gkRainContext.dropsRequired = 30
 	var rainTBP = document.getElementById("audio3");
@@ -27,12 +38,15 @@ function gkRainOn() {
 	rainFadeInterval = setInterval(gkRainVolumeFader,rainFadeTime);
 }
 
+// turn off rain, triggered from the server
 function gkRainOff() {
 	gkRainContext.dropsRequired = 0
 	rainFadeAmount = -0.1;
 	rainFadeInterval = setInterval(gkRainVolumeFader,rainFadeTime);
 }
 
+// the rain sound needs to fade in and fade out
+// or it sounds too "harsh"
 function gkRainVolumeFader() {
 	var rainTBP = document.getElementById("audio3");
 	var rainVolumeOriginal = rainTBP.volume;
@@ -49,6 +63,8 @@ function gkRainVolumeFader() {
 	}
 	rainLast = rainTBP.volume;
 }
+
+// fade loop
 function gkRainLoop() {
 	var tileLayer;
 
@@ -94,6 +110,8 @@ function gkRainLoop() {
 	}
 }
 
+// context for a single drop of rain
+// and the svg data required for the rain
 function GkDropDef() {
 	var x, y, z;
 

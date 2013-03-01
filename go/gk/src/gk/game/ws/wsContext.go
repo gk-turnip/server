@@ -18,21 +18,21 @@
 package ws
 
 import (
-	"gk/game/ses"
 	"gk/game/config"
-	"gk/game/message"
 	"gk/game/field"
+	"gk/game/message"
+	"gk/game/ses"
 )
 
 type WsContextDef struct {
-	contextMap map[string]*singleWsDef
-	gameConfig *config.GameConfigDef
+	contextMap     map[string]*singleWsDef
+	gameConfig     *config.GameConfigDef
 	sessionContext *ses.SessionContextDef
-	fieldContext *field.FieldContextDef
+	fieldContext   *field.FieldContextDef
 }
 
 type singleWsDef struct {
-	singleSession *ses.SingleSessionDef
+	singleSession       *ses.SingleSessionDef
 	messageToClientChan chan *message.MessageToClientDef
 }
 

@@ -22,11 +22,10 @@ import (
 )
 
 type WebsocketOpenedMessageDef struct {
-	SessionId string
+	SessionId           string
 	MessageToClientChan chan *message.MessageToClientDef
 }
 
 type WebsocketClosedMessageDef struct {
 	SessionId string
 }
-

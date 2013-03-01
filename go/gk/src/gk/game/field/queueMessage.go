@@ -25,7 +25,7 @@ import (
 
 func (websocketConnectionContext *websocketConnectionContextDef) initQueue() {
 	websocketConnectionContext.toClientQueue.queueSize = 0
-	websocketConnectionContext.toClientQueue.messagesChan = make(chan *message.MessageToClientDef, MAX_MESSAGES_TO_CLIENT_QUEUE + 1)
+	websocketConnectionContext.toClientQueue.messagesChan = make(chan *message.MessageToClientDef, MAX_MESSAGES_TO_CLIENT_QUEUE+1)
 	websocketConnectionContext.toClientQueue.doneChan = make(chan bool)
 
 	go websocketConnectionContext.runQueue()
@@ -44,7 +44,7 @@ func (fieldContext *FieldContextDef) queueMessageToClient(sessionId string, mess
 	var websocketConnectionContext *websocketConnectionContextDef
 	var gkErr *gkerr.GkErrDef
 
-gklog.LogTrace("queu up message " + messageToClient.Command)
+	gklog.LogTrace("queu up message " + messageToClient.Command)
 
 	websocketConnectionContext, gkErr =
 		fieldContext.getWebsocketConnectionContextById(sessionId)
@@ -82,7 +82,7 @@ func (websocketConnectionContext *websocketConnectionContextDef) runQueue() {
 		case done = <-websocketConnectionContext.toClientQueue.doneChan:
 		}
 		if !done {
-gklog.LogTrace("got message to send: " + messageToClient.Command)
+			gklog.LogTrace("got message to send: " + messageToClient.Command)
 			select {
 			case websocketConnectionContext.messageToClientChan <- messageToClient:
 			case done = <-websocketConnectionContext.toClientQueue.doneChan:
@@ -95,4 +95,3 @@ gklog.LogTrace("got message to send: " + messageToClient.Command)
 		}
 	}
 }
-

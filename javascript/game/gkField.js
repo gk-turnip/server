@@ -31,7 +31,7 @@ function gkFieldObjectDef(id, userName, g, isoXYZCurrent, isoXYZDestination, ori
 
 // add an svg image into the field
 function gkFieldAddSvg(jsonData, rawSvgData) {
-console.log("gkFieldAddSvg id: " + jsonData.id);
+//console.log("gkFieldAddSvg id: " + jsonData.id);
 
 	var g = gkIsoCreateSvgDiamond(rawSvgData);
 
@@ -60,15 +60,16 @@ console.log("gkFieldAddSvg id: " + jsonData.id);
 	layer = document.getElementById(jsonData.layer);
 	layer.appendChild(g)
 
-	var fieldObject = new gkFieldObjectDef(jsonData.id, jsonData.userName, g, isoXYZ, isoXYZ, originX, originY)
+	var destIsoXYZ = new GkIsoXYZDef(isoXYZ.x, isoXYZ.y, isoXYZ.z)
+	var fieldObject = new gkFieldObjectDef(jsonData.id, jsonData.userName, g, isoXYZ, destIsoXYZ, originX, originY)
 	gkFieldContext.objectMap[fieldObject.id] = fieldObject
 
-	console.log("got new field object userName: " + jsonData.userName + " id: " + jsonData.id);
+	//console.log("got new field object userName: " + jsonData.userName + " id: " + jsonData.id);
 }
 
 // delete an svg object from the field
 function gkFieldDelSvg(jsonData) {
-console.log("gkFieldDelSvg id: " + jsonData.id);
+//console.log("gkFieldDelSvg id: " + jsonData.id);
 	var fieldObject = gkFieldContext.objectMap[jsonData.id];
 	if (fieldObject != undefined) {
 		var g = document.getElementById(fieldObject.id);
@@ -79,14 +80,12 @@ console.log("gkFieldDelSvg id: " + jsonData.id);
 
 // move the svg object in the field
 function gkFieldMoveSvg(jsonData) {
-console.log("gkFieldMoveSvg id: " + jsonData.id);
-console.log(jsonData.id + " " + jsonData.x + " " + jsonData.y)
+//console.log("gkFieldMoveSvg id: " + jsonData.id);
 	var fieldObject = gkFieldContext.objectMap[jsonData.id];
 	if (fieldObject != undefined) {
-		fieldObject.isoXYZCurrent.x = parseInt(jsonData.x)
-		fieldObject.isoXYZCurrent.y = parseInt(jsonData.y)
-		fieldObject.isoXYZCurrent.z = parseInt(jsonData.z)
-		gkIsoSetSvgPositionWithOffset(fieldObject.g, fieldObject.isoXYZCurrent, fieldObject.originX, fieldObject.originY);
+		fieldObject.isoXYZDestination.x = parseInt(jsonData.x)
+		fieldObject.isoXYZDestination.y = parseInt(jsonData.y)
+		fieldObject.isoXYZDestination.z = parseInt(jsonData.z)
 	}
 }
 

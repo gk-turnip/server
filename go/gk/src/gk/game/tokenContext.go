@@ -18,22 +18,22 @@
 package game
 
 import (
-	"fmt"
-	"net/http"
-	"time"
-	"io"
-	"sync"
-	"strconv"
-	m_rand "math/rand"
 	c_rand "crypto/rand"
+	"fmt"
+	"io"
+	m_rand "math/rand"
+	"net/http"
+	"strconv"
+	"sync"
+	"time"
 )
 
 import (
+	"gk/game/config"
+	"gk/game/ses"
 	"gk/gkerr"
 	"gk/gklog"
 	"gk/gknet"
-	"gk/game/ses"
-	"gk/game/config"
 )
 
 const _tokenRequest = "/gk/tokenServer"
@@ -44,15 +44,15 @@ const _tokenTimeoutSeconds = 60 * 60
 
 type tokenContextDef struct {
 	sessionContext *ses.SessionContextDef
-	gameConfig *config.GameConfigDef
-	tokenMap map[string] *tokenEntryDef
-	tokenMutex sync.Mutex
+	gameConfig     *config.GameConfigDef
+	tokenMap       map[string]*tokenEntryDef
+	tokenMutex     sync.Mutex
 }
 
 type tokenEntryDef struct {
-	tokenId string
+	tokenId     string
 	createdDate time.Time
-	userName string
+	userName    string
 }
 
 func NewTokenContext(gameConfig *config.GameConfigDef, sessionContext *ses.SessionContextDef) *tokenContextDef {
@@ -68,7 +68,7 @@ func (tokenContext *tokenContextDef) gameInit() *gkerr.GkErrDef {
 	//var gkErr *gkerr.GkErrDef
 
 	m_rand.Seed(time.Now().UnixNano())
-	tokenContext.tokenMap = make(map[string] *tokenEntryDef)
+	tokenContext.tokenMap = make(map[string]*tokenEntryDef)
 
 	return nil
 }
@@ -105,7 +105,7 @@ func (tokenContext *tokenContextDef) handleTokenRequest(res http.ResponseWriter,
 		tokenContext.tokenMutex.Lock()
 		tokenContext.tokenMap[tokenEntry.tokenId] = tokenEntry
 		tokenContext.tokenMutex.Unlock()
-gklog.LogTrace(fmt.Sprintf("adding token entry: %+v",tokenEntry))
+		gklog.LogTrace(fmt.Sprintf("adding token entry: %+v", tokenEntry))
 	} else {
 		tokenEntry.tokenId = ""
 	}
@@ -118,22 +118,22 @@ func (tokenContext *tokenContextDef) getUserFromToken(token string) string {
 	var ok bool
 	var tokenEntry *tokenEntryDef
 
-	tokenContext.purgeOldTokenEntries();
+	tokenContext.purgeOldTokenEntries()
 
 	tokenContext.tokenMutex.Lock()
 	defer tokenContext.tokenMutex.Unlock()
 
-gklog.LogTrace(fmt.Sprintf("getting token entry: %+v",token))
+	gklog.LogTrace(fmt.Sprintf("getting token entry: %+v", token))
 	tokenEntry, ok = tokenContext.tokenMap[token]
 	if !ok {
-gklog.LogTrace("did not find")
+		gklog.LogTrace("did not find")
 		return ""
 	}
 
 	var userName string
 
 	userName = tokenEntry.userName
-gklog.LogTrace("found " + userName)
+	gklog.LogTrace("found " + userName)
 
 	// token cannot be reused
 	// but for now we allow it to be reused :)
@@ -148,7 +148,7 @@ func (tokenContext *tokenContextDef) purgeOldTokenEntries() {
 
 	for tokenId, tokenEntry := range tokenContext.tokenMap {
 		if tokenEntry.createdDate.Add(time.Second * _tokenTimeoutSeconds).Before(time.Now()) {
-			gklog.LogTrace(fmt.Sprintf("purge token entry: %+v",tokenEntry))
+			gklog.LogTrace(fmt.Sprintf("purge token entry: %+v", tokenEntry))
 			delete(tokenContext.tokenMap, tokenId)
 		}
 	}
@@ -176,4 +176,3 @@ func getSessionToken() string {
 
 	return strconv.FormatInt(result, 36)
 }
-

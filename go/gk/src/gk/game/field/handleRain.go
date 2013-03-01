@@ -18,8 +18,8 @@
 package field
 
 import (
-	"time"
 	"math/rand"
+	"time"
 )
 
 import (
@@ -30,7 +30,7 @@ import (
 func (fieldContext *FieldContextDef) handleRain() *gkerr.GkErrDef {
 	if time.Now().After(fieldContext.rainContext.nextRainEvent) {
 		fieldContext.rainContext.rainCurrentlyOn =
-			! fieldContext.rainContext.rainCurrentlyOn
+			!fieldContext.rainContext.rainCurrentlyOn
 
 		fieldContext.sendEveryoneRainEvent()
 		fieldContext.rainContext.nextRainEvent =
@@ -54,4 +54,3 @@ func (fieldContext *FieldContextDef) sendEveryoneRainEvent() {
 		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 	}
 }
-

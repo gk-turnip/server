@@ -26,12 +26,12 @@ import (
 )
 
 import (
-	"gk/gkerr"
-	"gk/gklog"
+	"gk/game/config"
+	"gk/game/field"
 	"gk/game/ses"
 	"gk/game/ws"
-	"gk/game/field"
-	"gk/game/config"
+	"gk/gkerr"
+	"gk/gklog"
 )
 
 func GameServerStart() {

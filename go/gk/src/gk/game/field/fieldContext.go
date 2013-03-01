@@ -19,16 +19,16 @@ package field
 
 import (
 	"fmt"
-	"sync"
 	"os"
-	"time"
-	"strings"
 	"strconv"
+	"strings"
+	"sync"
+	"time"
 )
 
 import (
-	"gk/game/message"
 	"gk/game/iso"
+	"gk/game/message"
 	"gk/game/ses"
 	"gk/gkcommon"
 	"gk/gkerr"
@@ -36,44 +36,44 @@ import (
 )
 
 type FieldContextDef struct {
-	globalFieldObjectMap map[string]*fieldObjectDef
+	globalFieldObjectMap   map[string]*fieldObjectDef
 	websocketConnectionMap map[string]*websocketConnectionContextDef
-	sessionContext *ses.SessionContextDef
-	WebsocketOpenedChan chan WebsocketOpenedMessageDef
-	WebsocketClosedChan chan WebsocketClosedMessageDef
-	MessageFromClientChan chan *message.MessageFromClientDef
-	svgDir string
-	lastObjectId int64
-	lastObjectIdMutex sync.Mutex
-	rainContext rainContextDef
+	sessionContext         *ses.SessionContextDef
+	WebsocketOpenedChan    chan WebsocketOpenedMessageDef
+	WebsocketClosedChan    chan WebsocketClosedMessageDef
+	MessageFromClientChan  chan *message.MessageFromClientDef
+	svgDir                 string
+	lastObjectId           int64
+	lastObjectIdMutex      sync.Mutex
+	rainContext            rainContextDef
 }
 
 type websocketConnectionContextDef struct {
-	sessionId string
+	sessionId           string
 	messageToClientChan chan<- *message.MessageToClientDef
-	toClientQueue toClientQueueDef
-	avatarId string
+	toClientQueue       toClientQueueDef
+	avatarId            string
 }
 
 type fieldObjectDef struct {
-	id string
-	fileName string
-	isoXYZ iso.IsoXYZDef
+	id              string
+	fileName        string
+	isoXYZ          iso.IsoXYZDef
 	sourceSessionId string
 }
 
 type rainContextDef struct {
 	rainCurrentlyOn bool
-	nextRainEvent time.Time
+	nextRainEvent   time.Time
 }
 
 const MAX_MESSAGES_TO_CLIENT_QUEUE = 5
 
 type toClientQueueDef struct {
 	messagesChan chan *message.MessageToClientDef
-	doneChan chan bool
-	mutex sync.Mutex
-	queueSize int
+	doneChan     chan bool
+	mutex        sync.Mutex
+	queueSize    int
 }
 
 func NewFieldContext(svgDir string, sessionContext *ses.SessionContextDef) *FieldContextDef {
@@ -118,7 +118,7 @@ func (fieldContext *FieldContextDef) addFieldObject(fieldObject *fieldObjectDef)
 }
 
 func (fieldContext *FieldContextDef) delFieldObject(fieldObject *fieldObjectDef) {
-	delete(fieldContext.globalFieldObjectMap,fieldObject.id)
+	delete(fieldContext.globalFieldObjectMap, fieldObject.id)
 }
 
 func (fieldContext *FieldContextDef) sendAllFieldObjects(websocketConnectionContext *websocketConnectionContextDef) *gkerr.GkErrDef {
@@ -143,12 +143,12 @@ func (fieldContext *FieldContextDef) sendSingleFieldObject(websocketConnectionCo
 
 	svgJsonData.Id = fieldObject.id
 	svgJsonData.IsoXYZ = fieldObject.isoXYZ
-gklog.LogTrace("sourceSessionId: " + fieldObject.sourceSessionId)
+	gklog.LogTrace("sourceSessionId: " + fieldObject.sourceSessionId)
 	if fieldObject.sourceSessionId != "" {
 		var singleSession *ses.SingleSessionDef
 		singleSession = fieldContext.sessionContext.GetSessionFromId(fieldObject.sourceSessionId)
 		svgJsonData.UserName = singleSession.GetUserName()
-gklog.LogTrace("going to send to ws userName: " + singleSession.GetUserName())
+		gklog.LogTrace("going to send to ws userName: " + singleSession.GetUserName())
 	}
 
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
@@ -186,14 +186,14 @@ func (fieldContext *FieldContextDef) sendNewAvatarToAll(sessionId string, id str
 }
 
 func (fieldContext *FieldContextDef) removeAllObjectsBySessionId(sessionId string) {
-gklog.LogTrace("removing all object by session id")
+	gklog.LogTrace("removing all object by session id")
 	for _, fieldObject := range fieldContext.globalFieldObjectMap {
 		if fieldObject.sourceSessionId == sessionId {
 			var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 
 			messageToClient.Command = message.DelSvgReq
-			messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}",fieldObject.id))
-			messageToClient.Data = make([]byte,0,0)
+			messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
+			messageToClient.Data = make([]byte, 0, 0)
 
 			for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
 				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
@@ -207,7 +207,7 @@ func (fieldContext *FieldContextDef) sendAllRemoveMessageForObject(sessionId str
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 
 	messageToClient.Command = message.DelSvgReq
-	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}",fieldObject.id))
+	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
 	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
 		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 	}
@@ -246,7 +246,7 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 
 	dir, err = os.Open(fieldContext.svgDir)
 	if err != nil {
-        gkErr = gkerr.GenGkErr("could not open svg dir: " + fieldContext.svgDir, err, ERROR_ID_SVG_DIR_OPEN)
+		gkErr = gkerr.GenGkErr("could not open svg dir: "+fieldContext.svgDir, err, ERROR_ID_SVG_DIR_OPEN)
 		return gkErr
 	}
 
@@ -255,15 +255,15 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 	var fileNames []string
 	fileNames, err = dir.Readdirnames(0)
 	if err != nil {
-        gkErr = gkerr.GenGkErr("could not open svg dir: " + fieldContext.svgDir, err, ERROR_ID_SVG_DIR_READ)
+		gkErr = gkerr.GenGkErr("could not open svg dir: "+fieldContext.svgDir, err, ERROR_ID_SVG_DIR_READ)
 		return gkErr
 	}
 
-	for i := 0; i < len(fileNames);i++ {
-		if strings.HasPrefix(fileNames[i],"terrain_") {
-			if strings.HasSuffix(fileNames[i],".json") {
+	for i := 0; i < len(fileNames); i++ {
+		if strings.HasPrefix(fileNames[i], "terrain_") {
+			if strings.HasSuffix(fileNames[i], ".json") {
 				var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-				gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.svgDir, message.LoadTerrainReq, fileNames[i][:len(fileNames[i]) - 5],nil)
+				gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.svgDir, message.LoadTerrainReq, fileNames[i][:len(fileNames[i])-5], nil)
 				if gkErr != nil {
 					return gkErr
 				}
@@ -285,4 +285,3 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 
 	return nil
 }
-

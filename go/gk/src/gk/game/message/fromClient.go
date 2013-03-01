@@ -27,9 +27,9 @@ import (
 
 type MessageFromClientDef struct {
 	SessionId string
-	Command string
-	JsonData []byte
-	data []byte
+	Command   string
+	JsonData  []byte
+	data      []byte
 }
 
 func (messageFromClient *MessageFromClientDef) PopulateFromMessage(sessionId string, message []byte) *gkerr.GkErrDef {
@@ -49,9 +49,8 @@ func (messageFromClient *MessageFromClientDef) PopulateFromMessage(sessionId str
 
 	messageFromClient.SessionId = sessionId
 	messageFromClient.Command = string(message[0:index1])
-	messageFromClient.JsonData = message[index1 + 1: index2]
-	messageFromClient.data = message[index2 + 1:]
+	messageFromClient.JsonData = message[index1+1 : index2]
+	messageFromClient.data = message[index2+1:]
 
 	return nil
 }
-

@@ -31,4 +31,3 @@ const TurnOffRainReq = "turnOffRainReq"
 
 const LoadTerrainReq = "loadTerrainReq"
 const SetTerrainReq = "setTerrainReq"
-

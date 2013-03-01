@@ -25,12 +25,12 @@ import (
 )
 
 import (
+	"gk/game/config"
+	"gk/game/ses"
 	"gk/gkerr"
 	"gk/gklog"
 	"gk/gknet"
 	"gk/gktmpl"
-	"gk/game/ses"
-	"gk/game/config"
 )
 
 const _methodGet = "GET"
@@ -52,25 +52,25 @@ var _gameTemplateName string = "game"
 
 type httpContextDef struct {
 	sessionContext *ses.SessionContextDef
-	gameConfig *config.GameConfigDef
-	tokenContext *tokenContextDef
+	gameConfig     *config.GameConfigDef
+	tokenContext   *tokenContextDef
 }
 
 type gameDataDef struct {
-	Title string
-	WebAddressPrefix string
+	Title                  string
+	WebAddressPrefix       string
 	WebsocketAddressPrefix string
-	AudioAddressPrefix string
-	WebsocketPath string
-	SessionId string
+	AudioAddressPrefix     string
+	WebsocketPath          string
+	SessionId              string
 }
 
 var _errorTemplate *gktmpl.TemplateDef
 var _errorTemplateName string = "error"
 
 type errorDataDef struct {
-	Title   string
-	Message string
+	Title            string
+	Message          string
 	WebAddressPrefix string
 }
 
@@ -150,10 +150,10 @@ func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, re
 	var token string
 
 	token = req.Form.Get(_tokenParam)
-gklog.LogTrace("got token: " + token)
+	gklog.LogTrace("got token: " + token)
 	var userName string
 	userName = httpContext.tokenContext.getUserFromToken(token)
-gklog.LogTrace("got username: " + userName)
+	gklog.LogTrace("got username: " + userName)
 
 	if len(userName) < 3 {
 		httpContext.redirectToError("not valid token", res, req)

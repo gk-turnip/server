@@ -35,10 +35,9 @@ func (fieldContext *FieldContextDef) handleWebsocketClosed(websocketClosedMessag
 
 	websocketConnectionContext.closeQueue()
 
-	delete(fieldContext.websocketConnectionMap,websocketClosedMessage.SessionId)
+	delete(fieldContext.websocketConnectionMap, websocketClosedMessage.SessionId)
 
 	fieldContext.removeAllObjectsBySessionId(websocketClosedMessage.SessionId)
 
 	return nil
 }
-

@@ -1,3 +1,6 @@
+
+// this whole Solar System stuff is not called yet
+
 var Position = { "x":0 , "y":0 };
 var SSD = new Array();
 

@@ -18,26 +18,26 @@
 package message
 
 import (
-	"os"
 	"bytes"
+	"os"
 	"text/template"
 )
 
 import (
-	"gk/gkerr"
-	"gk/gkcommon"
 	"gk/game/iso"
+	"gk/gkcommon"
+	"gk/gkerr"
 )
 
 type MessageToClientDef struct {
-	Command string
+	Command  string
 	JsonData []byte
-	Data []byte
+	Data     []byte
 }
 
 type SvgJsonDataDef struct {
-	Id string
-	IsoXYZ iso.IsoXYZDef
+	Id       string
+	IsoXYZ   iso.IsoXYZDef
 	UserName string
 }
 
@@ -47,7 +47,7 @@ func (messageToClient *MessageToClientDef) BuildSvgMessageToClient(svgDir string
 	messageToClient.Command = command
 
 	jsonFileName := svgDir + string(os.PathSeparator) + fileName + ".json"
-	svgFileName := svgDir + string(os.PathSeparator) + fileName+ ".svg"
+	svgFileName := svgDir + string(os.PathSeparator) + fileName + ".svg"
 
 	messageToClient.JsonData, gkErr = gkcommon.GetFileContents(jsonFileName)
 	if gkErr != nil {
@@ -91,4 +91,3 @@ func templateTranslateJsonData(inputData []byte, svgJsonData *SvgJsonDataDef) ([
 
 	return writer.Bytes(), nil
 }
-

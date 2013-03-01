@@ -43,10 +43,9 @@ func (fieldContext *FieldContextDef) handleMessageFromClient(messageFromClient *
 			return gkErr
 		}
 	default:
-		gkErr = gkerr.GenGkErr("unknonwn websocket request: " + messageFromClient.Command, nil, ERROR_ID_UNKNOWN_WEBSOCKET_COMMAND)
+		gkErr = gkerr.GenGkErr("unknonwn websocket request: "+messageFromClient.Command, nil, ERROR_ID_UNKNOWN_WEBSOCKET_COMMAND)
 		return gkErr
 	}
 
 	return nil
 }
-

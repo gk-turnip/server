@@ -18,8 +18,8 @@
 package field
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"strconv"
 )
 
@@ -31,9 +31,9 @@ import (
 
 type moveSvgDef struct {
 	Id string
-	X string
-	Y string
-	Z string
+	X  string
+	Y  string
+	Z  string
 }
 
 func (fieldContext *FieldContextDef) handleMoveAvatarSvgReq(messageFromClient *message.MessageFromClientDef) *gkerr.GkErrDef {
@@ -42,7 +42,7 @@ func (fieldContext *FieldContextDef) handleMoveAvatarSvgReq(messageFromClient *m
 	var err error
 	var moveSvg moveSvgDef
 
-gklog.LogTrace("json raw: " + string(messageFromClient.JsonData))
+	gklog.LogTrace("json raw: " + string(messageFromClient.JsonData))
 
 	err = json.Unmarshal(messageFromClient.JsonData, &moveSvg)
 	if err != nil {
@@ -62,7 +62,7 @@ gklog.LogTrace("json raw: " + string(messageFromClient.JsonData))
 		cord, _ = strconv.Atoi(moveSvg.Z)
 		fieldObject.isoXYZ.Z = int16(cord)
 
-gklog.LogTrace("one")
+		gklog.LogTrace("one")
 		fieldContext.moveAllAvatars(messageFromClient.SessionId, fieldObject)
 	} else {
 		gkErr = gkerr.GenGkErr("move object", nil, ERROR_ID_COULD_NOT_FIND_OBJECT_TO_MOVE)
@@ -75,17 +75,16 @@ gklog.LogTrace("one")
 func (fieldContext *FieldContextDef) moveAllAvatars(sessionId string, fieldObject *fieldObjectDef) {
 
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-gklog.LogTrace("two")
+	gklog.LogTrace("two")
 
 	messageToClient.Command = message.MoveSvgReq
-	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\", \"x\": %d, \"y\": %d, \"z\": %d }",fieldObject.id,fieldObject.isoXYZ.X,fieldObject.isoXYZ.Y,fieldObject.isoXYZ.Z))
+	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\", \"x\": %d, \"y\": %d, \"z\": %d }", fieldObject.id, fieldObject.isoXYZ.X, fieldObject.isoXYZ.Y, fieldObject.isoXYZ.Z))
 
 	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
-gklog.LogTrace("compare session " + websocketConnectionContext.sessionId + " " + sessionId)
+		gklog.LogTrace("compare session " + websocketConnectionContext.sessionId + " " + sessionId)
 		if websocketConnectionContext.sessionId != sessionId {
-gklog.LogTrace("Trace about to queue up move command")
+			gklog.LogTrace("Trace about to queue up move command")
 			fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 		}
 	}
 }
-

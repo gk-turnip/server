@@ -5,6 +5,9 @@
 // higher iso y coordinates go down and to the left
 // higher iso z coordinates go up
 
+// note: all ISO coordinates are in deciferns or 1/10 of a fern 
+// which is 5 wide and 2.5 high in svg units
+
 var GK_SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 var GK_SVG_MARGIN_X = 5;
 var GK_SVG_MARGIN_Y = 5;
@@ -113,6 +116,12 @@ function gkIsoCreateSingleDiamond(isoXYZ, colour, opacity) {
 }
 
 // create an object from raw svg data
+// it uses "firstChild" because the uploaded svg file has
+// the <svg> tag, but the svg image in the browser also already has
+// the <svg> tag, so I take the first child.
+// note that sometimes the svg files must be edited to add an extra
+// <g> tag around the entire contents after the <svt>
+// so that the first child is the entire image, minus the <svg>
 function gkIsoCreateSvgDiamond(rawSvgData) {
 	var g
 	g = document.createElementNS(GK_SVG_NAMESPACE,"g");

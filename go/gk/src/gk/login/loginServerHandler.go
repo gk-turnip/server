@@ -23,11 +23,11 @@ package login
 import (
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
-	"io/ioutil"
 )
 
 import (
@@ -531,9 +531,9 @@ func handleLoginRegister(loginConfig *loginConfigDef, res http.ResponseWriter, r
 		}
 	} else {
 		http.Redirect(res, req, _loginServer, http.StatusFound)
-//		var gameRedirect string
-//		gameRedirect = getGameRedirect(loginConfig, loginData.UserName)
-//		http.Redirect(res, req, gameRedirect, http.StatusFound)
+		//		var gameRedirect string
+		//		gameRedirect = getGameRedirect(loginConfig, loginData.UserName)
+		//		http.Redirect(res, req, gameRedirect, http.StatusFound)
 	}
 }
 

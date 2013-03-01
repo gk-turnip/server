@@ -53,4 +53,3 @@ func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessag
 
 	return nil
 }
-

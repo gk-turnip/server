@@ -157,9 +157,9 @@ func testTrimCrLf(t *testing.T) {
 }
 
 func testPopulateFromMessage(t *testing.T) {
-//	var command string
-//	var jsonData []byte
-//	var data []byte
+	//	var command string
+	//	var jsonData []byte
+	//	var data []byte
 	var gkErr *gkerr.GkErrDef
 	var message []byte
 	var messageFromClient *MessageFromClientDef
@@ -238,4 +238,3 @@ func testPopulateFromMessage(t *testing.T) {
 		t.Fail()
 	}
 }
-

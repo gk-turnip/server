@@ -26,7 +26,7 @@ func testSession(t *testing.T) {
 	var session1 *SingleSessionDef
 	var session2 *SingleSessionDef
 	var id1, id2, id3 string
-//	var id4 int32
+	//	var id4 int32
 
 	sessionContext = NewSessionContext()
 
@@ -49,7 +49,7 @@ func testSession(t *testing.T) {
 		t.Fail()
 	}
 
-	id3 = sessionContext.OpenSessionWebsocket("ses=" + session1.GetSessionId(), "1.1.1.1")
+	id3 = sessionContext.OpenSessionWebsocket("ses="+session1.GetSessionId(), "1.1.1.1")
 	if id3 == "" {
 		t.Logf("getSessionFromQuery failed")
 		t.Fail()
@@ -59,20 +59,20 @@ func testSession(t *testing.T) {
 		t.Fail()
 	}
 
-//	remove this test for now, see session.go for the reason
-//	id3 = openSessionWebsocket("ses=" + session1.sessionId, "1.1.1.2", 1)
-//	if id3 != "" {
-//		t.Logf("getSessionFromQuery invalid result")
-//		t.Fail()
-//	}
+	//	remove this test for now, see session.go for the reason
+	//	id3 = openSessionWebsocket("ses=" + session1.sessionId, "1.1.1.2", 1)
+	//	if id3 != "" {
+	//		t.Logf("getSessionFromQuery invalid result")
+	//		t.Fail()
+	//	}
 
-	id3 = sessionContext.OpenSessionWebsocket("sesx=" + session1.GetSessionId(), "1.1.1.1")
+	id3 = sessionContext.OpenSessionWebsocket("sesx="+session1.GetSessionId(), "1.1.1.1")
 	if id3 != "" {
 		t.Logf("getSessionFromQuery invalid result")
 		t.Fail()
 	}
 
-	id3 = sessionContext.OpenSessionWebsocket("ses=" + session1.sessionId + "x", "1.1.1.1")
+	id3 = sessionContext.OpenSessionWebsocket("ses="+session1.sessionId+"x", "1.1.1.1")
 	if id3 != "" {
 		t.Logf("getSessionFromQuery invalid result")
 		t.Fail()

@@ -28,20 +28,20 @@ import (
 )
 
 type loginConfigDef struct {
-	XMLName               xml.Name `xml:"config"`
-	Port                  int      `xml:"port"`
-	LogDir                string   `xml:"logDir"`
-	TemplateDir           string   `xml:"templateDir"`
-	LoginWebAddressPrefix string   `xml:"loginWebAddressPrefix"`
-	GameWebAddressPrefix  string   `xml:"gameWebAddressPrefix"`
-	GameTokenAddressPrefix  string   `xml:"gameTokenAddressPrefix"`
-	DatabaseHost          string   `xml:"databaseHost"`
-	DatabasePort          int      `xml:"databasePort"`
-	DatabaseUserName      string   `xml:"databaseUserName"`
-	DatabasePassword      string   `xml:"databasePassword"`
-	DatabaseDatabase      string   `xml:"databaseDatabase"`
-	ServerFromEmail       string   `xml:"serverFromEmail"`
-	EmailServer           string   `xml:"emailServer"`
+	XMLName                xml.Name `xml:"config"`
+	Port                   int      `xml:"port"`
+	LogDir                 string   `xml:"logDir"`
+	TemplateDir            string   `xml:"templateDir"`
+	LoginWebAddressPrefix  string   `xml:"loginWebAddressPrefix"`
+	GameWebAddressPrefix   string   `xml:"gameWebAddressPrefix"`
+	GameTokenAddressPrefix string   `xml:"gameTokenAddressPrefix"`
+	DatabaseHost           string   `xml:"databaseHost"`
+	DatabasePort           int      `xml:"databasePort"`
+	DatabaseUserName       string   `xml:"databaseUserName"`
+	DatabasePassword       string   `xml:"databasePassword"`
+	DatabaseDatabase       string   `xml:"databaseDatabase"`
+	ServerFromEmail        string   `xml:"serverFromEmail"`
+	EmailServer            string   `xml:"emailServer"`
 }
 
 func loadConfigFile(fileName string) (loginConfigDef, *gkerr.GkErrDef) {
