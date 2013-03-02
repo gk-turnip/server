@@ -1,3 +1,19 @@
+/*
+    Copyright 2012-2013 1620469 Ontario Limited.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 // handle the websocket communications
 
@@ -30,6 +46,7 @@ function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessi
 	gkWsContext.ws.onopen = function() { gkWsDoOpen(); };
 	gkWsContext.ws.onmessage = function(evt) { gkWsDoMessage(evt); };
 	gkWsContext.ws.onclose = function() { gkWsDoOnClose(); };
+	gkWsContext.ws.onerror = function() { gkWsDoOnError(); };
 	//scriptUse = document.getElementById("scriptUse");
 	//scriptUse.removeChild(loaded);
 }
@@ -66,7 +83,7 @@ function gkWsDoMessage(e) {
 
 	if ((nlIndex1 != -1) && (nlIndex2 != -1)) {
 		command = e.data.substring(0,nlIndex1);
-		console.log("command from gameServer: " + command);
+		//console.log("command from gameServer: " + command);
 		if ((nlIndex1 + 1) == nlIndex2) {
 			// no json data
 			jsonData = null;
@@ -101,6 +118,7 @@ function gkWsDoOnClose() {
 	connectionStatus.innerHTML="web socket not connected";
 	connectionStatus.style.backgroundColor = "red";
 	connectionStatus.style.color = "white";
+console.log("reconnectTries: " + gkWsContext.reconnectTries);
 	if (gkWsContext.reconnectTries < 3) {
 		console.log("Attempting to reconnect in 5 seconds");
 		gkWsContext.reconnectTries++;
@@ -109,6 +127,10 @@ function gkWsDoOnClose() {
 	else {
 		console.error("Max reconnects exceeded");
 	}
+}
+
+function gkWsDoOnError() {
+	console.log("gkWsDoOnError");
 }
 
 // this is called when we attempt to reconnect to the game server
@@ -124,6 +146,6 @@ function gkWsAttemptReconnect() {
 
 // this is called when the client side wants to send a message to the server
 function gkWsSendMessage(message) {
-	console.log("gkWsSendMessage");
+	console.log("gkWsSendMessage bufferedAmount: " + gkWsContext.ws.bufferedAmount);
 	gkWsContext.ws.send(message);
 }
