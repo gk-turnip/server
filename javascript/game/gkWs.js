@@ -10,6 +10,7 @@ function gkWsContextDef() {
 	this.websocketAddressPrefix = null;
 	this.websocketPath = null;
 	this.sessionId = null;
+	this.reconnectTries = 0;
 }
 
 // the websocket needs to be "initialized" so it can open a connection to the server
@@ -40,6 +41,7 @@ function gkWsDoOpen() {
 	connectionStatus.innerHTML="web socket connected";
 	connectionStatus.style.backgroundColor = "green";
 	connectionStatus.style.color = "white";
+	gkWsContext.reconnectTries = 0;
 }
 
 // this is called when a new message is received from the server
@@ -99,6 +101,25 @@ function gkWsDoOnClose() {
 	connectionStatus.innerHTML="web socket not connected";
 	connectionStatus.style.backgroundColor = "red";
 	connectionStatus.style.color = "white";
+	if (gkWsContext.reconnectTries < 3) {
+		console.log("Attempting to reconnect in 5 seconds");
+		gkWsContext.reconnectTries++;
+		setTimeout(gkWsAttemptReconnect, 5000);
+	}
+	else {
+		console.error("Max reconnects exceeded");
+	}
+}
+
+// this is called when we attempt to reconnect to the game server
+function gkWsAttemptReconnect() {
+	console.log("gkWsAttemptReconnect");
+	var connectionStatus = document.getElementById("wsConnectionStatus");
+	connectionStatus.innerHTML="web socket reconnecting...";
+	connectionStatus.style.backgroundColor = "DarkOrange";
+	connectionStatus.style.color = "black";
+	gkWsContext.ws = null;
+	gkWsInit(gkWsContext.dispatchFunction, gkWsContext.websocketAddressPrefix, gkWsContext.websocketPath, gkWsContext.sessionId)
 }
 
 // this is called when the client side wants to send a message to the server
@@ -106,4 +127,3 @@ function gkWsSendMessage(message) {
 	console.log("gkWsSendMessage");
 	gkWsContext.ws.send(message);
 }
-
