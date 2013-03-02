@@ -103,11 +103,11 @@ function gkFieldRemoveExistingAvatar() {
 	if (gkFieldContext.avatarId != undefined) {
 		var fieldObject = gkFieldContext.objectMap[gkFieldContext.avatarId];
 		if (fieldObject == undefined) {
-			console.Log("ERROR undefined fieldObject trying to remove avatar");
+			console.error("ERROR undefined fieldObject trying to remove avatar");
 		} else {
 			var g = document.getElementById(fieldObject.id);
 			if (g == undefined) {
-				console.Log("ERROR undefined g trying to remove avatar");
+				console.error("ERROR undefined g trying to remove avatar");
 			} else {
 				g.parentNode.removeChild(g);
 				delete gkFieldContext.objectMap[fieldObject.id];
