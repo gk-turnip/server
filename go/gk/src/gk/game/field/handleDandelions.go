@@ -29,11 +29,11 @@ import (
 
 func (fieldContext *FieldContextDef) handleDandelions() *gkerr.GkErrDef {
 	if fieldContext.rainContext.rainCurrentlyOn {
-		if rand.Int31n(5) == 2 {
+		if rand.Int31n(5) == 1 {
 			fieldContext.addDandelion()
 		}
 	} else {
-		if rand.Int31n(3) == 1 {
+		if rand.Int31n(4) == 1 {
 			fieldContext.removeDandelion()
 		}
 	}

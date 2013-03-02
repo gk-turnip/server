@@ -110,7 +110,7 @@ func (fieldContext *FieldContextDef) getNextObjectId() string {
 
 	fieldContext.lastObjectId += 1
 
-	return strconv.FormatInt(fieldContext.lastObjectId, 36)
+	return "gki_" + strconv.FormatInt(fieldContext.lastObjectId, 36)
 }
 
 func (fieldContext *FieldContextDef) addFieldObject(fieldObject *fieldObjectDef) {
