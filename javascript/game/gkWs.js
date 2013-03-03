@@ -27,6 +27,7 @@ function gkWsContextDef() {
 	this.websocketPath = null;
 	this.sessionId = null;
 	this.reconnectTries = 0;
+	this.pingId = Math.floor(Math.random() * 32767)
 }
 
 // the websocket needs to be "initialized" so it can open a connection to the server
@@ -51,17 +52,16 @@ function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessi
 	//scriptUse.removeChild(loaded);
 }
 
-// this is called when the websocket completes a connection
+// this is called (by the browser) when the websocket completes a connection
 function gkWsDoOpen() {
 	console.log("gkWsDoOpen");
-	var connectionStatus = document.getElementById("wsConnectionStatus");
-	connectionStatus.innerHTML="web socket connected";
-	connectionStatus.style.backgroundColor = "green";
-	connectionStatus.style.color = "white";
+	gkWsSetStatusWaitingPing();
 	gkWsContext.reconnectTries = 0;
+
+	gkWsSendMessage("pingReq~{ \"pingId\":\"" + gkWsContext.pingId + "\" }~");
 }
 
-// this is called when a new message is received from the server
+// this is called (by the browser) when a new message is received from the server
 // it is decoded and sent to gkDispatch
 function gkWsDoMessage(e) {
 	console.log("gkWsDoMessage");
@@ -106,7 +106,7 @@ function gkWsDoMessage(e) {
 	}
 }
 
-// this is called if the web socket is closed
+// this is called (by the browser) if the web socket is closed
 function gkWsDoOnClose() {
 	console.log("gkWsDoOnClose");
 	gkFieldDelAllObjects();
@@ -114,10 +114,7 @@ function gkWsDoOnClose() {
 	if (mode == "debug") {
 		alert("The WebSocket connection was closed.");
 	}
-	var connectionStatus = document.getElementById("wsConnectionStatus");
-	connectionStatus.innerHTML="web socket not connected";
-	connectionStatus.style.backgroundColor = "red";
-	connectionStatus.style.color = "white";
+	gkWsSetStatusNotConnected();
 console.log("reconnectTries: " + gkWsContext.reconnectTries);
 	if (gkWsContext.reconnectTries < 3) {
 		console.log("Attempting to reconnect in 5 seconds");
@@ -129,6 +126,7 @@ console.log("reconnectTries: " + gkWsContext.reconnectTries);
 	}
 }
 
+// this is called (by the browser) when the websockets get an error
 function gkWsDoOnError() {
 	console.log("gkWsDoOnError");
 }
@@ -136,10 +134,7 @@ function gkWsDoOnError() {
 // this is called when we attempt to reconnect to the game server
 function gkWsAttemptReconnect() {
 	console.log("gkWsAttemptReconnect");
-	var connectionStatus = document.getElementById("wsConnectionStatus");
-	connectionStatus.innerHTML="web socket reconnecting...";
-	connectionStatus.style.backgroundColor = "DarkOrange";
-	connectionStatus.style.color = "black";
+	gkWsSetStatusReconnecting();
 	gkWsContext.ws = null;
 	gkWsInit(gkWsContext.dispatchFunction, gkWsContext.websocketAddressPrefix, gkWsContext.websocketPath, gkWsContext.sessionId)
 }
@@ -149,3 +144,54 @@ function gkWsSendMessage(message) {
 	console.log("gkWsSendMessage bufferedAmount: " + gkWsContext.ws.bufferedAmount);
 	gkWsContext.ws.send(message);
 }
+
+function gkWsSetStatusConnected() {
+	var connectionStatus = document.getElementById("wsConnectionStatus");
+	connectionStatus.innerHTML="web socket connected";
+	connectionStatus.style.backgroundColor = "green";
+	connectionStatus.style.color = "white";
+}
+
+function gkWsSetStatusNotConnected() {
+	var connectionStatus = document.getElementById("wsConnectionStatus");
+	connectionStatus.innerHTML="web socket not connected";
+	connectionStatus.style.backgroundColor = "red";
+	connectionStatus.style.color = "white";
+}
+
+function gkWsSetStatusReconnecting() {
+	var connectionStatus = document.getElementById("wsConnectionStatus");
+	connectionStatus.innerHTML="web socket reconnecting...";
+	connectionStatus.style.backgroundColor = "DarkOrange";
+	connectionStatus.style.color = "black";
+}
+
+function gkWsSetStatusWaitingPing() {
+	var connectionStatus = document.getElementById("wsConnectionStatus");
+	connectionStatus.innerHTML="web socket waiting ping";
+	connectionStatus.style.backgroundColor = "yellow";
+	connectionStatus.style.color = "black";
+}
+
+function gkWsSetStatusPingError() {
+	var connectionStatus = document.getElementById("wsConnectionStatus");
+	connectionStatus.innerHTML="web socket ping error";
+	connectionStatus.style.backgroundColor = "red";
+	connectionStatus.style.color = "black";
+}
+
+function gkWsPingRes(jsonData) {
+console.log("ping " + jsonData.pingId + " " + gkWsContext.pingId)
+	if (jsonData.pingId == gkWsContext.pingId) {
+		gkWsSetStatusConnected();
+	} else {
+		gkWsSetStatusPingError();
+	}
+
+	gkWsContext.pingId += 1
+
+	if (gkWsContext.pingId > 32767) {
+		gkWsContext.pingaId = 1;
+	}
+}
+

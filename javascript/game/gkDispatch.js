@@ -44,6 +44,8 @@ function gkDispatchWsMessage(command, jsonData, data) {
 	case "setTerrainReq":
 		gkTerrainSetDiamond(jsonData);
 		break;
+	case "pingRes":
+		gkWsPingRes(jsonData);
 	default:
 		console.log("did not understand command from game server " + command);
 	}

@@ -31,3 +31,7 @@ const TurnOffRainReq = "turnOffRainReq"
 
 const LoadTerrainReq = "loadTerrainReq"
 const SetTerrainReq = "setTerrainReq"
+
+const PingReq = "pingReq"
+const PingRes = "pingRes"
+
