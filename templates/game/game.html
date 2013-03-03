@@ -2945,7 +2945,7 @@
 <div class="gkGameRight">
 	<form onsubmit="return doSubmit();">
 	Chat <input id="chatInput" type="text"></input>
-	<input id="chatSubmit" type="submit" value="submit"/>
+	<input id="chatSubmit" type="submit" value="submit" onmouseup="function(){var chatBox = document.getElementById("chatInput");chatBox.innerHTML = "";}/>
 	<div id="chatDiv">
 		<div>
 		<span class="chatUser" id="chatUser_1"></span>
