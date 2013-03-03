@@ -57,7 +57,9 @@ function gkFieldAddSvg(jsonData, rawSvgData) {
 	gkIsoSetSvgPositionWithOffset(g, isoXYZ, originX, originY);
 
 	g.setAttribute("id",jsonData.id)
-
+	if (jsonData.clickFunction != undefined) {
+		g.setAttribute("onClick", jsonData.clickFunction);
+	}
 	if ((jsonData.userName != undefined) && (jsonData.userName.length > 0)) {
 		var text = document.createElementNS(GK_SVG_NAMESPACE, "text");
 		text.setAttribute("stroke","#000000");
