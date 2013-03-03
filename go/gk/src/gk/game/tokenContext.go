@@ -18,12 +18,8 @@
 package game
 
 import (
-	c_rand "crypto/rand"
 	"fmt"
-	"io"
-	m_rand "math/rand"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -34,6 +30,7 @@ import (
 	"gk/gkerr"
 	"gk/gklog"
 	"gk/gknet"
+	"gk/gkrand"
 )
 
 const _tokenRequest = "/gk/tokenServer"
@@ -43,6 +40,7 @@ const _tokenRequest = "/gk/tokenServer"
 const _tokenTimeoutSeconds = 60 * 60
 
 type tokenContextDef struct {
+	randContext *gkrand.GkRandContextDef
 	sessionContext *ses.SessionContextDef
 	gameConfig     *config.GameConfigDef
 	tokenMap       map[string]*tokenEntryDef
@@ -55,10 +53,11 @@ type tokenEntryDef struct {
 	userName    string
 }
 
-func NewTokenContext(gameConfig *config.GameConfigDef, sessionContext *ses.SessionContextDef) *tokenContextDef {
+func NewTokenContext(gameConfig *config.GameConfigDef, randContext *gkrand.GkRandContextDef, sessionContext *ses.SessionContextDef) *tokenContextDef {
 	var tokenContext *tokenContextDef = new(tokenContextDef)
 
 	tokenContext.gameConfig = gameConfig
+	tokenContext.randContext = randContext
 	tokenContext.sessionContext = sessionContext
 
 	return tokenContext
@@ -67,7 +66,6 @@ func NewTokenContext(gameConfig *config.GameConfigDef, sessionContext *ses.Sessi
 func (tokenContext *tokenContextDef) gameInit() *gkerr.GkErrDef {
 	//var gkErr *gkerr.GkErrDef
 
-	m_rand.Seed(time.Now().UnixNano())
 	tokenContext.tokenMap = make(map[string]*tokenEntryDef)
 
 	return nil
@@ -99,7 +97,7 @@ func (tokenContext *tokenContextDef) handleTokenRequest(res http.ResponseWriter,
 	var userName string = req.Form.Get(_userNameParam)
 
 	if len(userName) > 2 {
-		tokenEntry.tokenId = getSessionToken() + getSessionToken()
+		tokenEntry.tokenId = tokenContext.getSessionToken()
 		tokenEntry.createdDate = time.Now()
 		tokenEntry.userName = userName
 		tokenContext.tokenMutex.Lock()
@@ -154,25 +152,7 @@ func (tokenContext *tokenContextDef) purgeOldTokenEntries() {
 	}
 }
 
-func getSessionToken() string {
-	var result int64
-	var err error
-	var gkErr *gkerr.GkErrDef
-
-	buf := make([]byte, 4, 4)
-	_, err = io.ReadFull(c_rand.Reader, buf)
-	if err != nil {
-		// log it but the program can continue without crypto rand
-		gkErr = gkerr.GenGkErr("io.ReadFull c_rand.Reader", err, ERROR_ID_RAND_READ)
-		gklog.LogGkErr("", gkErr)
-	}
-
-	result = m_rand.Int63()
-
-	result ^= int64(buf[0])
-	result ^= int64(buf[1] << 8)
-	result ^= int64(buf[2] << 16)
-	result ^= int64(buf[3] << 24)
-
-	return strconv.FormatInt(result, 36)
+func (tokenContext *tokenContextDef) getSessionToken() string {
+	return tokenContext.randContext.GetRandomString(12)
 }
+

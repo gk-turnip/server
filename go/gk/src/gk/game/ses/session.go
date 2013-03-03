@@ -18,24 +18,19 @@
 package ses
 
 import (
-	c_rand "crypto/rand"
-	"io"
-	m_rand "math/rand"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
 
 import (
-	"gk/gkerr"
-	"gk/gklog"
+	"gk/gkrand"
 )
 
 type SessionContextDef struct {
-	lastSessionId int64
 	sessionMutex  sync.Mutex
 	sessionMap    map[string]*SingleSessionDef
+	randContext *gkrand.GkRandContextDef
 }
 
 type SingleSessionDef struct {
@@ -46,16 +41,13 @@ type SingleSessionDef struct {
 	userName        string
 }
 
-func NewSessionContext() *SessionContextDef {
+func NewSessionContext(randContext *gkrand.GkRandContextDef) *SessionContextDef {
 	var sessionContext *SessionContextDef = new(SessionContextDef)
 
 	sessionContext.sessionMap = make(map[string]*SingleSessionDef)
+	sessionContext.randContext = randContext
 
 	return sessionContext
-}
-
-func init() {
-	m_rand.Seed(time.Now().UnixNano())
 }
 
 func (sessionContext *SessionContextDef) NewSingleSession(userName string, remoteAddr string) *SingleSessionDef {
@@ -69,9 +61,7 @@ func (sessionContext *SessionContextDef) NewSingleSession(userName string, remot
 	for {
 		var ok bool
 
-		sessionContext.lastSessionId += 1
-		sessionContext.lastSessionId = sessionContext.lastSessionId & 0x7fffff // 23 bits for counter
-		singleSession.sessionId = genSessionString(sessionContext.lastSessionId)
+		singleSession.sessionId = sessionContext.genSessionString()
 		_, ok = sessionContext.sessionMap[singleSession.sessionId]
 		if !ok {
 			singleSession.createdTime = time.Now()
@@ -173,24 +163,7 @@ func (singleSession *SingleSessionDef) GetUserName() string {
 	return singleSession.userName
 }
 
-func genSessionString(sessionId23 int64) string {
-	var sessionId63_c int64
-	var sessionId63_m int64
-	var readCount int
-	var err error
-	var gkErr *gkerr.GkErrDef
-
-	buf := make([]byte, 5, 5)
-	readCount, err = io.ReadFull(c_rand.Reader, buf)
-	if (readCount != len(buf)) || (err != nil) {
-		// just log the error
-		// the system can continue on with a damaged session id
-		gkErr = gkerr.GenGkErr("c_rand io.ReadFull", err, ERROR_ID_RAND)
-		gklog.LogGkErr("c_rand io.ReadFull", gkErr)
-	}
-
-	sessionId63_c = (sessionId23 << 40) | int64(buf[0]) | (int64(buf[1]) << 8) | (int64(buf[2]) << 16) | (int64(buf[3]) << 24) | (int64(buf[4]) << 32)
-	sessionId63_m = m_rand.Int63()
-
-	return strconv.FormatInt(sessionId63_c, 36) + strconv.FormatInt(sessionId63_m, 36)
+func (sessionContext *SessionContextDef) genSessionString() string {
+	return sessionContext.randContext.GetRandomString(12)
 }
+

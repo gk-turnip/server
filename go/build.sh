@@ -61,6 +61,7 @@ then
 	go install gk/game
 	go install gk/gknet
 	go install gk/database
+	go install gk/gkrand
 
 	go test gk/sec
 	go test gk/gknet
@@ -72,6 +73,7 @@ then
 	go test gk/game/ws
 	go test gk/game
 	go test gk/login
+	go test gk/gkrand
 
 	go build -o gk/bin/wfToJsMain gk/src/gk/main/wfToJsMain.go
 

@@ -32,6 +32,7 @@ import (
 	"gk/game/ws"
 	"gk/gkerr"
 	"gk/gklog"
+	"gk/gkrand"
 )
 
 func GameServerStart() {
@@ -55,12 +56,14 @@ func GameServerStart() {
 
 	gklog.LogInit(gameConfig.LogDir)
 
+	var randContext *gkrand.GkRandContextDef
 	var tokenContext *tokenContextDef
 	var sessionContext *ses.SessionContextDef
 	var httpContext *httpContextDef
 
-	tokenContext = NewTokenContext(gameConfig, sessionContext)
-	sessionContext = ses.NewSessionContext()
+	randContext = gkrand.NewGkRandContext()
+	tokenContext = NewTokenContext(gameConfig, randContext, sessionContext)
+	sessionContext = ses.NewSessionContext(randContext)
 	httpContext = NewHttpContext(gameConfig, sessionContext, tokenContext)
 
 	gkErr = httpContext.gameInit()

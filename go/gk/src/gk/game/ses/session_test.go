@@ -21,14 +21,19 @@ import (
 	"testing"
 )
 
+import (
+	"gk/gkrand"
+)
+
 func testSession(t *testing.T) {
+	var randContext *gkrand.GkRandContextDef
 	var sessionContext *SessionContextDef
 	var session1 *SingleSessionDef
 	var session2 *SingleSessionDef
 	var id1, id2, id3 string
 	//	var id4 int32
 
-	sessionContext = NewSessionContext()
+	sessionContext = NewSessionContext(randContext)
 
 	session1 = sessionContext.NewSingleSession("user", "1.1.1.1")
 	id1 = session1.GetSessionId()
