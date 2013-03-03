@@ -213,6 +213,12 @@ func (fieldContext *FieldContextDef) sendAllRemoveMessageForObject(sessionId str
 	}
 }
 
+func (fieldContext *FieldContextDef) sendMessageToAll(messageToClient *message.MessageToClientDef) {
+	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+	}
+}
+
 func (fieldContext *FieldContextDef) removeAvatarBySessionId(sessionId string) *gkerr.GkErrDef {
 	var websocketConnectionContext *websocketConnectionContextDef
 	var gkErr *gkerr.GkErrDef
@@ -282,6 +288,17 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 		}
 		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 	}
+
+	return nil
+}
+
+// I think this should be (mostly) moved to the message package
+func (fieldContext *FieldContextDef) sendUserName(websocketConnectionContext *websocketConnectionContextDef, userName string) *gkerr.GkErrDef {
+
+	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
+	messageToClient.Command = message.UserNameReq;
+	messageToClient.JsonData = []byte("{ \"userName\": \"" + userName + "\" }")
+	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 
 	return nil
 }

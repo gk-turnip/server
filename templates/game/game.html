@@ -1,6 +1,6 @@
 {{define "body"}}
 <body style="margin:5px" onload="init();">
-<span onclick="doClick(event);">
+<div onclick="doClick(event);">
 <svg 
 	id="gkField" 
 	xmlns="http://www.w3.org/2000/svg"
@@ -2892,8 +2892,10 @@
 <g id="gkRainLayer"/>
 <g id="gkAvatarLayer"/>
 </svg>
-</span>
-<h4>click within grid to move baby whatknot</h4>
+</div>
+
+<div class="gkGameLeft">
+	<h4>click within grid to move baby whatknot</h4>
 	<br/>
 	<select id="selectAvatar" onchange="changeAvatar();">
 		<option value="" selected="selected">-- select avatar --</option>
@@ -2938,6 +2940,79 @@
 	<audio id="audio2">Audio Two</audio>
 	<audio id="audio3">Audio Three</audio>
 	<span id="scriptUse"></span>
+</div>
+
+<div class="gkGameRight">
+	<form onsubmit="return doSubmit();">
+	Chat <input id="chatInput" type="text"></input>
+	<input id="chatSubmit" type="submit" value="submit"/>
+	<div id="chatDiv">
+		<div>
+		<span class="chatUser" id="chatUser_1"></span>
+		<span class="chatMessage" id="chatMessage_1"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_2"></span>
+		<span class="chatMessage" id="chatMessage_2"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_3"></span>
+		<span class="chatMessage" id="chatMessage_3"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_4"></span>
+		<span class="chatMessage" id="chatMessage_4"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_5"></span>
+		<span class="chatMessage" id="chatMessage_5"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_6"></span>
+		<span class="chatMessage" id="chatMessage_6"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_7"></span>
+		<span class="chatMessage" id="chatMessage_7"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_8"></span>
+		<span class="chatMessage" id="chatMessage_8"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_9"></span>
+		<span class="chatMessage" id="chatMessage_9"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_10"></span>
+		<span class="chatMessage" id="chatMessage_10"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_11"></span>
+		<span class="chatMessage" id="chatMessage_11"></span>
+		</div>
+
+		<div>
+		<span class="chatUser" id="chatUser_12"></span>
+		<span class="chatMessage" id="chatMessage_12"></span>
+		</div>
+	</div>
+
+	</form>
+</div>
+
+<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.0.27 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+
 </body>
 {{end}}
 

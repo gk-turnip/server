@@ -28,6 +28,7 @@ function gkWsContextDef() {
 	this.sessionId = null;
 	this.reconnectTries = 0;
 	this.pingId = Math.floor(Math.random() * 32767)
+	this.userName = "unknown"
 }
 
 // the websocket needs to be "initialized" so it can open a connection to the server
@@ -181,7 +182,6 @@ function gkWsSetStatusPingError() {
 }
 
 function gkWsPingRes(jsonData) {
-console.log("ping " + jsonData.pingId + " " + gkWsContext.pingId)
 	if (jsonData.pingId == gkWsContext.pingId) {
 		gkWsSetStatusConnected();
 	} else {
@@ -194,4 +194,36 @@ console.log("ping " + jsonData.pingId + " " + gkWsContext.pingId)
 		gkWsContext.pingaId = 1;
 	}
 }
+
+function gkWsUserNameReq(jsonData) {
+	gkWsContext.userName = jsonData.userName;
+	console.log("got userName: " + gkWsContext.userName);
+}
+
+function gkWsChatReq(jsonData) {
+//	var chatText = document.getElementById("chatDiv");
+//	chatText.innerHTML = chatText.innerHTML + " from: " + jsonData.userName + " " + jsonData.message;
+
+	var i
+	var userSpan1
+	var userSpan2
+	var messageSpan1
+	var messageSpan2
+
+	for (i = 11;i > 0;i--) {
+		userSpan1 = document.getElementById("chatUser_" + i);
+		messageSpan1 = document.getElementById("chatMessage_" + i);
+		userSpan2 = document.getElementById("chatUser_" + (i + 1));
+		messageSpan2 = document.getElementById("chatMessage_" + (i + 1));
+
+		userSpan2.innerHTML = userSpan1.innerHTML;
+		messageSpan2.innerHTML = messageSpan1.innerHTML;
+	}
+
+	userSpan1 = document.getElementById("chatUser_1");
+	userSpan1.innerHTML = jsonData.userName
+	messageSpan1 = document.getElementById("chatMessage_1");
+	messageSpan1.innerHTML = jsonData.message
+}
+
 

@@ -46,6 +46,13 @@ function gkDispatchWsMessage(command, jsonData, data) {
 		break;
 	case "pingRes":
 		gkWsPingRes(jsonData);
+		break;
+	case "userNameReq":
+		gkWsUserNameReq(jsonData);
+		break;
+	case "chatReq":
+		gkWsChatReq(jsonData);
+		break;
 	default:
 		console.log("did not understand command from game server " + command);
 	}

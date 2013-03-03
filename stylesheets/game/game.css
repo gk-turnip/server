@@ -1,0 +1,34 @@
+.gkGameLeft {
+	float: left;
+	width: 45%;
+}
+
+.gkGameRight {
+	float: left;
+	width: 45%;
+}
+
+.gkGameFooter {
+	clear: both;
+}
+
+#chatInput {
+	width: 20em;
+}
+
+#chatDiv {
+	width: 95%;
+	height: 200px;
+	background-color: #efefef;
+	overflow: auto;
+}
+
+.chatUser {
+	background-color: #afafff;
+	width: 10%;
+}
+
+.chatMessage {
+	width: 85%;
+}
+

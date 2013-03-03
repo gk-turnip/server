@@ -5,14 +5,14 @@
 		content="text/html;charset=utf-8" />
 
 	<link rel="stylesheet" type="text/css" 
-		href="/assets/gk/stylesheets/login/login.css" title="default"/>
+		href="/assets/gk/stylesheets/game/game.css" title="default"/>
 
 	<link rel="alternate stylesheet" type="text/css" 
-		href="/assets/gk/stylesheets/login/login_thin.css" title="thin"/>
+		href="/assets/gk/stylesheets/game/game_thin.css" title="thin"/>
 	<link rel="alternate stylesheet" type="text/css" 
-		href="/assets/gk/stylesheets/login/login_normal.css" title="normal"/>
+		href="/assets/gk/stylesheets/game/game_normal.css" title="normal"/>
 	<link rel="alternate stylesheet" type="text/css" 
-		href="/assets/gk/stylesheets/login/login_wide.css" title="wide"/>
+		href="/assets/gk/stylesheets/game/game_wide.css" title="wide"/>
 
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/dynamiclayout.js" type="text/javascript"></script>
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkRain.js" type="text/javascript"></script>
@@ -101,6 +101,14 @@
 			gkAudioVolumeChange(volumeId, value);
 		}
 
+		function doSubmit() {
+		//	var chatText = document.getElementById("chatDiv");
+			var inputText = document.getElementById("chatInput");
+		//	chatText.innerHTML = chatText.innerHTML + " / " + inputText.value
+			var message = inputText.value
+			gkWsSendMessage("chatReq~{ \"userName\": \"" + gkWsContext.userName + "\", \"message\": \"" + message + "\" }~");
+			return false;
+		}
 	</script>
 </head>
 {{end}}

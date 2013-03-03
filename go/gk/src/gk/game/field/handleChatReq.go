@@ -27,27 +27,28 @@ import (
 	"gk/gkerr"
 )
 
-type pingReqDef struct {
-	PingId string
+type chatReqDef struct {
+	UserName string
+	Message string
 }
 
-func (fieldContext *FieldContextDef) handlePingReq(messageFromClient *message.MessageFromClientDef) *gkerr.GkErrDef {
+func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.MessageFromClientDef) *gkerr.GkErrDef {
 
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-	var pingReq pingReqDef
+	var chatReq chatReqDef
 	var gkErr *gkerr.GkErrDef
 	var err error
 
-	err = json.Unmarshal(messageFromClient.JsonData, &pingReq)
+	err = json.Unmarshal(messageFromClient.JsonData, &chatReq)
 	if err != nil {
 		gkErr = gkerr.GenGkErr("json.Unmarshal", err, ERROR_ID_JSON_UNMARSHAL)
 		return gkErr
 	}
 
-	messageToClient.Command = message.PingRes
-	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"pingId\": \"%s\" }", pingReq.PingId))
+	messageToClient.Command = message.ChatReq
+	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"userName\": \"%s\", \"message\": \"%s\" }", chatReq.UserName, chatReq.Message))
 
-	fieldContext.queueMessageToClient(messageFromClient.SessionId, messageToClient)
+	fieldContext.sendMessageToAll(messageToClient)
 
 	return nil
 }

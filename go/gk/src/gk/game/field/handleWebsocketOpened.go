@@ -19,6 +19,7 @@ package field
 
 import (
 	"gk/gkerr"
+	"gk/game/ses"
 )
 
 func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessage WebsocketOpenedMessageDef) *gkerr.GkErrDef {
@@ -40,6 +41,15 @@ func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessag
 	websocketConnectionContext.initQueue()
 
 	fieldContext.websocketConnectionMap[websocketOpenedMessage.SessionId] = websocketConnectionContext
+
+	var singleSession *ses.SingleSessionDef
+	singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
+	var userName string = singleSession.GetUserName()
+
+	gkErr = fieldContext.sendUserName(websocketConnectionContext, userName)
+	if gkErr != nil {
+		return gkErr
+	}
 
 	gkErr = fieldContext.loadTerrain(websocketConnectionContext)
 	if gkErr != nil {

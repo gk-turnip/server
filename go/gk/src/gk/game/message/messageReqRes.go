@@ -35,3 +35,6 @@ const SetTerrainReq = "setTerrainReq"
 const PingReq = "pingReq"
 const PingRes = "pingRes"
 
+const UserNameReq = "userNameReq"
+const ChatReq = "chatReq"
+
