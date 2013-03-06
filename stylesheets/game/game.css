@@ -32,6 +32,11 @@
 	overflow: auto;
 }
 
+.chatTime {
+	background-color: #ffefd5;
+	width: 10%;
+}
+
 .chatUser {
 	background-color: #afafff;
 	width: 10%;

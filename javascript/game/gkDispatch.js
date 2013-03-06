@@ -53,6 +53,9 @@ function gkDispatchWsMessage(command, jsonData, data) {
 	case "chatReq":
 		gkWsChatReq(jsonData);
 		break;
+	case "bandReq":
+		gkWsBandRes(jsonData);
+		break;
 	default:
 		console.log("did not understand command from game server " + command);
 	}
