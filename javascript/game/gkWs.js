@@ -67,7 +67,7 @@ function gkWsDoOpen() {
 //send a ping to the server
 function gkWsSendPing() {
 	var temp = new Date();
-	gkWsContext.pingOutTime = temp.getTime;
+	gkWsContext.pingOutTime = temp.getTime();
 	gkWsSendMessage("pingReq~{ \"pingId\":\"" + gkWsContext.pingId + "\" }~");
 }
 
@@ -195,7 +195,7 @@ function gkWsPingRes(jsonData) {
 	if (jsonData.pingId == gkWsContext.pingId) {
 		gkWsSetStatusConnected();
 		var temp = new Date();
-		var delta = temp.getTime - gkWsContext.pingOutTime
+		var delta = temp.getTime() - gkWsContext.pingOutTime
 		var pingStatus = document.getElementById("wsPingTime");
 		pingStatus.innerHTML=delta + " ms";
 		if (delta <= 3000) {
