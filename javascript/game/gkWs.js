@@ -29,6 +29,8 @@ function gkWsContextDef() {
 	this.reconnectTries = 0;
 	this.pingId = Math.floor(Math.random() * 32767)
 	this.userName = "unknown"
+	this.pingOutTime = null;
+	this.pingInterval = null;
 }
 
 // the websocket needs to be "initialized" so it can open a connection to the server
@@ -58,7 +60,14 @@ function gkWsDoOpen() {
 	console.log("gkWsDoOpen");
 	gkWsSetStatusWaitingPing();
 	gkWsContext.reconnectTries = 0;
+	gkWsSendPing();
+	gkWsContext.pingInterval = setInterval(gkWsSendPing, 15000);
+}
 
+//send a ping to the server
+function gkWsSendPing() {
+	var temp = new Date();
+	gkWsContext.pingOutTime = temp.getTime;
 	gkWsSendMessage("pingReq~{ \"pingId\":\"" + gkWsContext.pingId + "\" }~");
 }
 
@@ -115,8 +124,9 @@ function gkWsDoOnClose() {
 	if (mode == "debug") {
 		alert("The WebSocket connection was closed.");
 	}
+	clearInterval(gkWsContext.pingInterval);
 	gkWsSetStatusNotConnected();
-console.log("reconnectTries: " + gkWsContext.reconnectTries);
+	console.log("reconnectTries: " + gkWsContext.reconnectTries);
 	if (gkWsContext.reconnectTries < 3) {
 		console.log("Attempting to reconnect in 5 seconds");
 		gkWsContext.reconnectTries++;
@@ -184,6 +194,18 @@ function gkWsSetStatusPingError() {
 function gkWsPingRes(jsonData) {
 	if (jsonData.pingId == gkWsContext.pingId) {
 		gkWsSetStatusConnected();
+		var temp = new Date();
+		var delta = temp.getTime - gkWsContext.pingOutTime
+		var pingStatus = document.getElementById("wsPingTime");
+		pingStatus.innerHTML=delta + " ms";
+		if (delta <= 3000) {
+			pingStatus.style.backgroundColor = "green";
+			pingStatus.style.color = "white";
+		}
+		if (delta > 3000) {
+			pingStatus.style.backgroundColor = "darkorange";
+			pingStatus.style.color = "black";
+		}
 	} else {
 		gkWsSetStatusPingError();
 	}
@@ -191,7 +213,7 @@ function gkWsPingRes(jsonData) {
 	gkWsContext.pingId += 1
 
 	if (gkWsContext.pingId > 32767) {
-		gkWsContext.pingaId = 1;
+		gkWsContext.pingId = 1;
 	}
 }
 
