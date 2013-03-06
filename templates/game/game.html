@@ -1,6 +1,7 @@
 {{define "body"}}
 <body style="margin:5px" onload="init();">
 <div onclick="doClick(event);">
+<span id="scrollContainer">
 <svg 
 	id="gkField" 
 	xmlns="http://www.w3.org/2000/svg"
@@ -2892,6 +2893,7 @@
 <g id="gkRainLayer"/>
 <g id="gkAvatarLayer"/>
 </svg>
+</span>
 </div>
 
 <div class="gkGameLeft">
@@ -2909,7 +2911,7 @@
 		<option value="fern">fern</option>
 		<option value="ghostie">ghostie</option>
 	</select>
-	&nbsp;<span id="wsConnectionStatus"></span>
+	&nbsp;<span id="wsConnectionStatus"></span>&nbsp;<span id="wsPingTime"></span>
 	<br/>
 	<span id="canPlay">can play unknown</span><br/>
 	background music volume:
