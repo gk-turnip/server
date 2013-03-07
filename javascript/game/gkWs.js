@@ -31,6 +31,8 @@ function gkWsContextDef() {
 	this.userName = "unknown"
 	this.pingOutTime = null;
 	this.pingInterval = null;
+	this.bandOutTime = null;
+	this.bandInterval = null;
 }
 
 // the websocket needs to be "initialized" so it can open a connection to the server
@@ -61,7 +63,9 @@ function gkWsDoOpen() {
 	gkWsSetStatusWaitingPing();
 	gkWsContext.reconnectTries = 0;
 	gkWsSendPing();
+	gkWsSendBand();
 	gkWsContext.pingInterval = setInterval(gkWsSendPing, 15000);
+	gkWsContext.bandInterval = setInterval(gkWsSendBand, 15000);
 }
 
 //send a ping to the server
@@ -69,6 +73,13 @@ function gkWsSendPing() {
 	var temp = new Date();
 	gkWsContext.pingOutTime = temp.getTime();
 	gkWsSendMessage("pingReq~{ \"pingId\":\"" + gkWsContext.pingId + "\" }~");
+}
+
+//send bandwidth test
+function gkWsSendBand() {
+	var temp = new Date();
+	gkWsContext.bandOutTime = temp.getTime();
+	gkWsSendMessage("bandReq~{ \"bandId\":\"" + gkWsContext.bandId + "\" }~");
 }
 
 // this is called (by the browser) when a new message is received from the server
@@ -125,6 +136,9 @@ function gkWsDoOnClose() {
 		alert("The WebSocket connection was closed.");
 	}
 	clearInterval(gkWsContext.pingInterval);
+	clearInterval(gkWsContext.bandInterval);
+	gkWsContext.pingInterval = null;
+	gkWsContext.bandInterval = null;
 	gkWsSetStatusNotConnected();
 	console.log("reconnectTries: " + gkWsContext.reconnectTries);
 	if (gkWsContext.reconnectTries < 3) {
@@ -191,6 +205,15 @@ function gkWsSetStatusPingError() {
 	connectionStatus.style.color = "black";
 }
 
+function gkWsSetStatusBandError() {
+	var connectionStatus = document.getElementById("wsConnectionStatus");
+	var bandElement = document.getElementById("wsBandwidth");
+	connectionStatus.innerHTML="web socket bandwidth test error";
+	connectionStatus.style.backgroundColor = "red";
+	connectionStatus.style.color = "black";
+	bandElement.innerHTML="";
+}
+
 function gkWsPingRes(jsonData) {
 	if (jsonData.pingId == gkWsContext.pingId) {
 		gkWsSetStatusConnected();
@@ -217,6 +240,26 @@ function gkWsPingRes(jsonData) {
 	}
 }
 
+
+function gkWsBandRes(jsonData) {
+	if (jsonData.pingId == gkWsContext.pingId) {
+		var temp = new Date();
+		var delta = temp.getTime() - gkWsContext.pingOutTime
+		var bandElement = document.getElementById("wsBandwidth");
+		var bandwidth = Math.floor(1000 * jsonData.length / delta);
+		bandElement.innerHTML = bandwidth + " bytes/sec";
+	} else {
+		gkWsSetStatusBandError();
+	}
+
+	gkWsContext.bandId += 1
+
+	if (gkWsContext.bandId > 32767) {
+		gkWsContext.bandId = 1;
+	}
+}
+
+
 function gkWsUserNameReq(jsonData) {
 	gkWsContext.userName = jsonData.userName;
 	console.log("got userName: " + gkWsContext.userName);
@@ -227,21 +270,29 @@ function gkWsChatReq(jsonData) {
 //	chatText.innerHTML = chatText.innerHTML + " from: " + jsonData.userName + " " + jsonData.message;
 
 	var i
+	var timeSpan1
+	var timeSpan2
 	var userSpan1
 	var userSpan2
 	var messageSpan1
 	var messageSpan2
 
 	for (i = 11;i > 0;i--) {
+		timeSpan1 = document.getElementById("chatTime_" + i);
 		userSpan1 = document.getElementById("chatUser_" + i);
 		messageSpan1 = document.getElementById("chatMessage_" + i);
+		timeSpan2 = document.getElementById("chatTime_" + (i + 1));
 		userSpan2 = document.getElementById("chatUser_" + (i + 1));
 		messageSpan2 = document.getElementById("chatMessage_" + (i + 1));
 
+		timeSpan2.innerHTML = timeSpan1.innerHTML;
 		userSpan2.innerHTML = userSpan1.innerHTML;
 		messageSpan2.innerHTML = messageSpan1.innerHTML;
 	}
 
+	var d = new Date();
+	timeSpan1 = document.getElementById("chatUser_1");
+	timeSpan1.innerHTML = d.toLocaleTimeString();
 	userSpan1 = document.getElementById("chatUser_1");
 	userSpan1.innerHTML = jsonData.userName
 	messageSpan1 = document.getElementById("chatMessage_1");

@@ -14,7 +14,6 @@
 
 #scrollContainer {
 	overflow: hidden;
-	position:absolute;
 	left:0px;
 	top:0px;
 	width: 600px;
@@ -30,6 +29,11 @@
 	height: 200px;
 	background-color: #efefef;
 	overflow: auto;
+}
+
+.chatTime {
+	background-color: #ffefd5;
+	width: 10%;
 }
 
 .chatUser {
