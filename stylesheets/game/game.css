@@ -12,15 +12,6 @@
 	clear: both;
 }
 
-#scrollContainer {
-	overflow: hidden;
-	position:absolute;
-	left:0px;
-	top:0px;
-	width: 600px;
-	height: 300px;
-}
-
 #chatInput {
 	width: 20em;
 }

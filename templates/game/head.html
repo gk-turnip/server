@@ -102,11 +102,11 @@
 		}
 
 		function doSubmit() {
-		//	var chatText = document.getElementById("chatDiv");
 			var inputText = document.getElementById("chatInput");
-		//	chatText.innerHTML = chatText.innerHTML + " / " + inputText.value
 			var message = inputText.value
 			gkWsSendMessage("chatReq~{ \"userName\": \"" + gkWsContext.userName + "\", \"message\": \"" + message + "\" }~");
+
+			inputText.value = "";
 			return false;
 		}
 	</script>

@@ -18,14 +18,12 @@
 // handle the game playing field
 // objectMap is a list of objects on the field (dandelions, avatars etc.)
 // avatarId is the id of the current users avatar
-// scrollContainer is the object reference for the scrolling object
 var gkFieldContext = new gkFieldContextDef();
 
 function gkFieldContextDef() {
 	this.objectMap = new Object();
 //	this.avatarId = null;
 	this.avatarDestination = null;
-	this.scrollContainer = document.getElementById("scrollContainer");
 }
 
 function gkFieldInit() {
@@ -154,35 +152,7 @@ function gkFieldSetNewAvatarDestination(isoXYZ) {
 		gkWsSendMessage("moveAvatarSvgReq~{ \"id\":\"" + fieldObject.id + "\", \"x\":\"" + isoXYZ.x + "\", \"y\": \"" + isoXYZ.y + "\", \"z\": \"" + isoXYZ.z + "\" }~");
 	}
 }
-//scroll the screen if needed
-function gkFieldScrollScreen() {
-	if (gkFieldContext.avatarId != undefined) {
-		var fieldObject = gkFieldContext.objectMap[gkFieldContext.avatarId];
-	}
-	if (fieldObject != undefined) {
-		var temp1 = gkFieldContext.scrollContainer.style.left.indexOf("px");
-		var width = gkFieldContext.scrollContainer.style.left.slice(0, temp1 - 1);
-		var temp2 = gkFieldContext.scrollContainer.style.height.indexOf("px");
-		var height = gkFieldContext.scrollContainer.style.height.slice(0, temp2 - 1);
-		var avatarWinXY = fieldObject.isoXYZCurrent.convertToWin();
-		if (avatarWinXY.x < (0.1 * GK_SVG_WIDTH - width)) {
-			var n = width + (0.1 * GK_SVG_WIDTH);
-			gkFieldContext.scrollContainer.style.width = n + "px";
-		}
-		if (avatarWinXY.x > (0.9 * GK_SVG_WIDTH - width)) {
-			var n = width - (0.1 * GK_SVG_WIDTH);
-			gkFieldContext.scrollContainer.style.width = n + "px";
-		}
-		if (avatarWinXY.y < (0.1 * GK_SVG_HEIGHT - height)) {
-			var n = height + (0.1 * GK_SVG_HEIGHT);
-			gkFieldContext.scrollContainer.style.height = n + "px";
-		}
-		if (avatarWinXY.y > (0.9 * GK_SVG_HEIGHT - height)) {
-			var n = height - (0.1 * GK_SVG_HEIGHT);
-			gkFieldContext.scrollContainer.style.height = n + "px";
-		}
-	}
-}
+
 // move all objects closer to their proper destination
 function gkFieldMoveObjects() {
 	gkFieldContext.objectMap
@@ -208,7 +178,6 @@ function gkFieldMoveObjects() {
 					fieldObject.isoXYZCurrent.y -= 1;
 				}
 				gkIsoSetSvgPositionWithOffset(fieldObject.g, fieldObject.isoXYZCurrent, fieldObject.originX, fieldObject.originY);
-				gkFieldScrollScreen();
 			}
 		}
 	}

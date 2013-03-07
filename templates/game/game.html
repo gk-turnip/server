@@ -1,7 +1,6 @@
 {{define "body"}}
 <body style="margin:5px" onload="init();">
 <div onclick="doClick(event);">
-<span id="scrollContainer">
 <svg 
 	id="gkField" 
 	xmlns="http://www.w3.org/2000/svg"
@@ -2893,7 +2892,6 @@
 <g id="gkRainLayer"/>
 <g id="gkAvatarLayer"/>
 </svg>
-</span>
 </div>
 
 <div class="gkGameLeft">
@@ -2911,7 +2909,7 @@
 		<option value="fern">fern</option>
 		<option value="ghostie">ghostie</option>
 	</select>
-	&nbsp;<span id="wsConnectionStatus"></span>&nbsp;<span id="wsPingTime"></span>
+	&nbsp;<span id="wsConnectionStatus"></span>
 	<br/>
 	<span id="canPlay">can play unknown</span><br/>
 	background music volume:
@@ -2947,7 +2945,7 @@
 <div class="gkGameRight">
 	<form onsubmit="return doSubmit();">
 	Chat <input id="chatInput" type="text"></input>
-	<input id="chatSubmit" type="submit" value="submit" onmouseup="function(){var chatBox = document.getElementById("chatInput");chatBox.innerHTML = "";}/>
+	<input id="chatSubmit" type="submit" value="submit"/>
 	<div id="chatDiv">
 		<div>
 		<span class="chatUser" id="chatUser_1"></span>
@@ -3013,7 +3011,7 @@
 	</form>
 </div>
 
-<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.0.27 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.0.29 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 
 </body>
 {{end}}
