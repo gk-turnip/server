@@ -214,25 +214,35 @@ function gkWsChatReq(jsonData) {
 //	chatText.innerHTML = chatText.innerHTML + " from: " + jsonData.userName + " " + jsonData.message;
 
 	var i
+	var timeSpan1
+	var timeSpan2
 	var userSpan1
 	var userSpan2
 	var messageSpan1
 	var messageSpan2
 
 	for (i = 11;i > 0;i--) {
+		timeSpan1 = document.getElementById("chatTime_" + i);
 		userSpan1 = document.getElementById("chatUser_" + i);
 		messageSpan1 = document.getElementById("chatMessage_" + i);
+		timeSpan2 = document.getElementById("chatTime_" + (i + 1));
 		userSpan2 = document.getElementById("chatUser_" + (i + 1));
 		messageSpan2 = document.getElementById("chatMessage_" + (i + 1));
 
+		timeSpan2.innerHTML = timeSpan1.innerHTML;
 		userSpan2.innerHTML = userSpan1.innerHTML;
 		messageSpan2.innerHTML = messageSpan1.innerHTML;
 	}
 
+	var d = new Date();
+	timeSpan1 = document.getElementById("chatTime_1");
+	timeSpan1.innerHTML = d.toLocaleTimeString();
 	userSpan1 = document.getElementById("chatUser_1");
 	userSpan1.innerHTML = jsonData.userName
 	messageSpan1 = document.getElementById("chatMessage_1");
 	messageSpan1.innerHTML = jsonData.message
 }
+
+
 
 
