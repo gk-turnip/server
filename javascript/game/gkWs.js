@@ -217,6 +217,18 @@ function gkWsSetStatusBandError() {
 function gkWsPingRes(jsonData) {
 	if (jsonData.pingId == gkWsContext.pingId) {
 		gkWsSetStatusConnected();
+		var temp = new Date();
+		var delta = temp.getTime() - gkWsContext.pingOutTime
+		var pingStatus = document.getElementById("wsPingTime");
+		pingStatus.innerHTML=delta + " ms";
+		if (delta <= 3000) {
+			pingStatus.style.backgroundColor = "green";
+			pingStatus.style.color = "white";
+		}
+		if (delta > 3000) {
+			pingStatus.style.backgroundColor = "darkorange";
+			pingStatus.style.color = "black";
+		}
 	} else {
 		gkWsSetStatusPingError();
 	}
@@ -224,7 +236,7 @@ function gkWsPingRes(jsonData) {
 	gkWsContext.pingId += 1
 
 	if (gkWsContext.pingId > 32767) {
-		gkWsContext.pingaId = 1;
+		gkWsContext.pingId = 1;
 	}
 }
 
