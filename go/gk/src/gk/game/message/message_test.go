@@ -29,6 +29,7 @@ func TestWs(t *testing.T) {
 	testTrimBetweenMarkers(t)
 	testTrimCrLf(t)
 	testPopulateFromMessage(t)
+	testTrimLeadingSpaces(t)
 }
 
 func testTrimBetweenMarkers(t *testing.T) {
@@ -152,6 +153,49 @@ func testTrimCrLf(t *testing.T) {
 	}
 	if string(trimCrLf([]byte("one\r\ntwo\r\n"))) != "onetwo" {
 		t.Logf("trimCrLf")
+		t.Fail()
+	}
+}
+
+func testTrimLeadingSpaces(t *testing.T) {
+	if string(trimLeadingSpaces([]byte("one\ntwo\nthree"))) != "one\ntwo\nthree" {
+		t.Logf("trimLeadingSpaces")
+		t.Fail()
+	}
+	if string(trimLeadingSpaces([]byte("one\r\ntwo\r\nthree"))) != "one\r\ntwo\r\nthree" {
+		t.Logf("trimLeadingSpaces")
+		t.Fail()
+	}
+	if string(trimLeadingSpaces([]byte("one\n  two\nthree"))) != "one\n  two\nthree" {
+		t.Logf("trimLeadingSpaces")
+		t.Fail()
+	}
+	if string(trimLeadingSpaces([]byte("one\ntwo\nthree\n "))) != "one\ntwo\nthree\n" {
+		t.Logf("trimLeadingSpaces")
+		t.Fail()
+	}
+	if string(trimLeadingSpaces([]byte(" one\ntwo\nthree\n "))) != "one\ntwo\nthree\n" {
+		t.Logf("trimLeadingSpaces")
+		t.Fail()
+	}
+	if string(trimLeadingSpaces([]byte("  "))) != "" {
+		t.Logf("trimLeadingSpaces")
+		t.Fail()
+	}
+	if string(trimLeadingSpaces([]byte(""))) != "" {
+		t.Logf("trimLeadingSpaces")
+		t.Fail()
+	}
+	if string(trimLeadingSpaces([]byte(" one\ntwo   three\nfour\n "))) != "one\ntwo   three\nfour\n" {
+		t.Logf("trimLeadingSpaces")
+		t.Fail()
+	}
+	if string(trimLeadingSpaces([]byte("one\ntwo\nthree   \n"))) != "one\ntwo\nthree   \n" {
+		t.Logf("trimLeadingSpaces")
+		t.Fail()
+	}
+	if string(trimLeadingSpaces([]byte("<g id=\"test\">\r\n </g>\r\n"))) != "<g id=\"test\">\r\n</g>\r\n" {
+		t.Logf("trimLeadingSpaces")
 		t.Fail()
 	}
 }

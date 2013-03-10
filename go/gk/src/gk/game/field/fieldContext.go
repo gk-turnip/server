@@ -269,7 +269,7 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 		if strings.HasPrefix(fileNames[i], "terrain_") {
 			if strings.HasSuffix(fileNames[i], ".json") {
 				var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-				gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.svgDir, message.LoadTerrainReq, fileNames[i][:len(fileNames[i])-5], nil)
+				gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.svgDir, message.SetTerrainSvgReq, fileNames[i][:len(fileNames[i])-5], nil)
 				if gkErr != nil {
 					return gkErr
 				}
@@ -280,7 +280,7 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 
 	{
 		var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-		messageToClient.Command = message.SetTerrainReq
+		messageToClient.Command = message.SetTerrainMapReq
 		var jsonFileName string = fieldContext.svgDir + string(os.PathSeparator) + "map_terrain.json"
 		messageToClient.JsonData, gkErr = gkcommon.GetFileContents(jsonFileName)
 		if gkErr != nil {

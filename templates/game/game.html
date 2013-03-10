@@ -1,5 +1,5 @@
 {{define "body"}}
-<body style="margin:5px" onload="init();">
+<body style="margin-left:5px; margin-top: 10px;" onload="init();">
 <div onclick="doClick(event);">
 <svg 
 	id="gkField" 
@@ -2887,10 +2887,13 @@
 
 </defs>
 
-<g id="gkTerrainBaseLayer"/>
-<g id="gkTerrainObjectLayer"/>
-<g id="gkRainLayer"/>
-<g id="gkAvatarLayer"/>
+<g id="gkView">
+	<g id="gkTerrainBaseLayer"/>
+	<g id="gkTerrainObjectLayer"/>
+	<g id="gkRainLayer"/>
+	<g id="gkAvatarLayer"/>
+</g>
+
 </svg>
 </div>
 
@@ -2940,6 +2943,43 @@
 	<audio id="audio2">Audio Two</audio>
 	<audio id="audio3">Audio Three</audio>
 	<span id="scriptUse"></span>
+<form onsubmit="return doSubmitSkip();">
+
+	zoom: <span id="zoomValue"></span><input id="zoomValueSubmitPlus" type="submit" onclick="doZoomChange(0.1);" value="+1"/>
+	<input id="zoomValueSubmitMinus" type="submit" onclick="doZoomChange(-0.1);" value="-1"/>
+	<br/>
+
+	position X: <span id="posValueX"></span>
+<input id="posValueSubmitPlusX" type="submit" onclick="doPosChangeX(1);" value="+1"/>
+<input id="posValueSubmitPlusX" type="submit" onclick="doPosChangeX(10);" value="+10"/>
+<input id="posValueSubmitMinusX" type="submit" onclick="doPosChangeX(-1);" value="-1"/>
+<input id="posValueSubmitMinusX" type="submit" onclick="doPosChangeX(-10);" value="-10"/>
+	<br/>
+
+	position Y: <span id="posValueY"></span>
+<input id="posValueSubmitPlusY" type="submit" onclick="doPosChangeY(1);" value="+1"/>
+<input id="posValueSubmitPlusY" type="submit" onclick="doPosChangeY(10);" value="+10"/>
+<input id="posValueSubmitMinusY" type="submit" onclick="doPosChangeY(-1);" value="-1"/>
+<input id="posValueSubmitMinusY" type="submit" onclick="doPosChangeY(-10);" value="-10"/>
+	<br/>
+
+	svg width: <span id="svgWidthValue"></span>
+<input id="svgWidthValuePlus" type="submit" onclick="doSvgWidthChange(10);" value="+10"/>
+<input id="svgWidthValueMinus" type="submit" onclick="doSvgWidthChange(-10);" value="-10"/>
+	svg height: <span id="svgHeightValue"></span>
+<input id="svgHeightValuePlus" type="submit" onclick="doSvgHeightChange(10);" value="+10"/>
+<input id="svgHeightValueMinus" type="submit" onclick="doSvgHeightChange(-10);" value="-10"/>
+	<br/>
+
+	fern width: <span id="fernWidthValue"></span>
+<input id="fernWidthValuePlus" type="submit" onclick="doFernWidthChange(1);" value="+1"/>
+<input id="fernWidthValueMinus" type="submit" onclick="doFernWidthChange(-1);" value="-1"/>
+	fern height: <span id="fernHeightValue"></span>
+<input id="fernHeightValuePlus" type="submit" onclick="doFernHeightChange(1);" value="+1"/>
+<input id="fernHeightValueMinus" type="submit" onclick="doFernHeightChange(-1);" value="-1"/>
+	<br/>
+
+</form>
 </div>
 
 <div class="gkGameRight">
@@ -3023,7 +3063,7 @@
 	</form>
 </div>
 
-<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.0.29 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.0.30 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 
 </body>
 {{end}}

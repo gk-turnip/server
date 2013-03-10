@@ -67,7 +67,7 @@ function gkWsDoOpen() {
 // this is called (by the browser) when a new message is received from the server
 // it is decoded and sent to gkDispatch
 function gkWsDoMessage(e) {
-	console.log("gkWsDoMessage");
+//	console.log("gkWsDoMessage");
 	var nlIndex1 = -1;
 	var nlIndex2 = -1;
 

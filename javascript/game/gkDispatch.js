@@ -38,11 +38,11 @@ function gkDispatchWsMessage(command, jsonData, data) {
 	case "moveSvgReq":
 		gkFieldMoveSvg(jsonData);
 		break;
-	case "loadTerrainReq":
-		gkTerrainLoad(jsonData, data);
+	case "setTerrainSvgReq":
+		gkSetTerrainSvg(jsonData, data);
 		break;
-	case "setTerrainReq":
-		gkTerrainSetDiamond(jsonData);
+	case "setTerrainMapReq":
+		gkSetTerrainMap(jsonData);
 		break;
 	case "pingRes":
 		gkWsPingRes(jsonData);

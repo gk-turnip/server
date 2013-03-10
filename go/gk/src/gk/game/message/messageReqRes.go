@@ -29,8 +29,8 @@ const MoveSvgReq = "moveSvgReq"
 const TurnOnRainReq = "turnOnRainReq"
 const TurnOffRainReq = "turnOffRainReq"
 
-const LoadTerrainReq = "loadTerrainReq"
-const SetTerrainReq = "setTerrainReq"
+const SetTerrainSvgReq = "setTerrainSvgReq"
+const SetTerrainMapReq = "setTerrainMapReq"
 
 const PingReq = "pingReq"
 const PingRes = "pingRes"

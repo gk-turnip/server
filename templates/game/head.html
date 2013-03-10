@@ -22,6 +22,7 @@
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkTerrain.js" type="text/javascript"></script>
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkField.js" type="text/javascript"></script>
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkDispatch.js" type="text/javascript"></script>
+	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkView.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
 		var loaded;
@@ -43,9 +44,6 @@
 			s1.selectedIndex = 1;
 
 			gkWsInit(gkDispatchWsMessage, "{{.WebsocketAddressPrefix}}", "{{.WebsocketPath}}", "{{.SessionId}}");
-
-			//gkIsoDrawGridDiamond();
-			//gkRenderMap(Math.floor(Math.random() * 5), 55);
 
 			gkRainStart();
 
@@ -70,18 +68,33 @@
 			//gkAvatarInit();
 			gkFieldInit();
 
+			setValue("zoomValue",gkViewContext.scale);
+			setValue("posValueX",gkViewContext.viewOffsetIsoXYZ.x);
+			setValue("posValueY",gkViewContext.viewOffsetIsoXYZ.y);
+			setValue("svgWidthValue",gkViewContext.svgWidth);
+			setValue("svgHeightValue",gkViewContext.svgHeight);
+			setValue("fernWidthValue",gkViewContext.fernWidth);
+			setValue("fernHeightValue",gkViewContext.fernHeight);
 		}
 
 		function doClick(e) {
 			var x, y
 
-			x = e.pageX - GK_SVG_MARGIN_X;
-			y = e.pageY - GK_SVG_MARGIN_Y;
+			x = e.pageX;
+			y = e.pageY;
 
-			var winXY;
+//			x = e.pageX - GK_SVG_MARGIN_X;
+//			y = e.pageY - GK_SVG_MARGIN_Y;
+//
+//			var winXY;
+//
+//			winXY = new GkWinXYDef(x,y);
+//			//gkAvatarSetNewDestination(winXY.convertToIso(0));
 
-			winXY = new GkWinXYDef(x,y);
-			//gkAvatarSetNewDestination(winXY.convertToIso(0));
+			var isoXYZ = gkViewConvertWinToIso(x,gkViewContext.marginX,y,gkViewContext.marginY, 0);
+			var g = gkIsoCreateSingleDiamond(isoXYZ, "#00ff00", 0.5);
+			var objectLayer = document.getElementById("gkTerrainObjectLayer");
+			objectLayer.appendChild(g);
 
 			gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
 
@@ -109,6 +122,59 @@
 			inputText.value = "";
 			return false;
 		}
+
+		function doSubmitSkip() {
+			return false;
+		}
+
+		function doZoomChange(change) {
+			gkViewContext.scale += change;
+			gkViewContext.scale = Math.round(gkViewContext.scale * 10) / 10;
+			setValue("zoomValue",gkViewContext.scale);
+			gkViewRender();
+		}
+
+		function doPosChangeX(change) {
+			gkViewContext.viewOffsetIsoXYZ.x += change;
+			setValue("posValueX",gkViewContext.viewOffsetIsoXYZ.x);
+			gkViewRender();
+		}
+
+		function doPosChangeY(change) {
+			gkViewContext.viewOffsetIsoXYZ.y += change;
+			setValue("posValueY",gkViewContext.viewOffsetIsoXYZ.y);
+			gkViewRender();
+		}
+
+		function doSvgWidthChange(change) {
+			gkViewContext.svgWidth += change;
+			setValue("svgWidthValue",gkViewContext.svgWidth);
+			gkViewRender();
+		}
+
+		function doSvgHeightChange(change) {
+			gkViewContext.svgHeight += change;
+			setValue("svgHeightValue",gkViewContext.svgHeight);
+			gkViewRender();
+		}
+
+		function doFernWidthChange(change) {
+			gkViewContext.fernWidth += change;
+			setValue("fernWidthValue",gkViewContext.fernWidth);
+			gkViewRender();
+		}
+
+		function doFernHeightChange(change) {
+			gkViewContext.fernHeight += change;
+			setValue("fernHeightValue",gkViewContext.fernHeight);
+			gkViewRender();
+		}
+
+		function setValue(id, value) {
+			var v = document.getElementById(id)
+			v.innerHTML = value
+		}
+
 	</script>
 </head>
 {{end}}

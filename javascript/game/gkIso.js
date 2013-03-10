@@ -24,87 +24,25 @@
 // note: all ISO coordinates are in deciferns or 1/10 of a fern 
 // which is 5 wide and 2.5 high in svg units
 
-var GK_SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-var GK_SVG_MARGIN_X = 5;
-var GK_SVG_MARGIN_Y = 5;
-var GK_SVG_WIDTH = 600;
-var GK_SVG_HEIGHT = 300;
+//var GK_SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+//var GK_SVG_MARGIN_X = 5;
+//var GK_SVG_MARGIN_Y = 5;
+//var GK_SVG_WIDTH = 600;
+//var GK_SVG_HEIGHT = 300;
 
-// draw a diamond grid
-// not called anymore
-function gkIsoDrawGridDiamond() {
-	var line;
-	var gridColour = "#afafaf";
+var gkIsoContext = new gkIsoContextDef();
 
-	field = document.getElementById("gkField");
-
-
-	for (i = 0;i < ((GK_SVG_WIDTH / 10) + 1);i += 10) {
-		line = document.createElementNS(GK_SVG_NAMESPACE,"line");
-		line.setAttribute("x1",(GK_SVG_WIDTH / 2) + (i * 5));
-		line.setAttribute("y1",0 + (i * 2.5));
-		line.setAttribute("x2",0 + (i * 5));
-		line.setAttribute("y2",(GK_SVG_WIDTH / 4) + (i * 2.5));
-		line.setAttribute("stroke", gridColour);
-		line.setAttribute('stroke-width', 1);
-		field.appendChild(line)
-	}
-
-	for (i = 0;i < ((GK_SVG_WIDTH / 10) + 1);i += 10) {
-		line = document.createElementNS(GK_SVG_NAMESPACE,"line");
-		line.setAttribute("x1",0 + (i * 5));
-		line.setAttribute("y1",(GK_SVG_WIDTH / 4) - (i * 2.5));
-		line.setAttribute("x2",(GK_SVG_WIDTH / 2) + (i * 5));
-		line.setAttribute("y2",(GK_SVG_WIDTH / 2) - (i * 2.5));
-		line.setAttribute('stroke', gridColour);
-		line.setAttribute('stroke-width', 1);
-		field.appendChild(line)
-	}
-}
-
-// draw a full grid
-// not called anymore
-function gkIsoDrawGridFull() {
-	var line;
-	var gridColour = "#afafaf";
-
-	field = document.getElementById("gkField");
-
-	var width;
-	if (GK_SVG_WIDTH > GK_SVG_HEIGHT) {
-		width = GK_SVG_WIDTH;
-	} else {
-		width = GK_SVG_HEIGHT;
-	}
-
-	for (i = 0;i < ((width / 2.5) + 1);i += 20) {
-		line = document.createElementNS(GK_SVG_NAMESPACE,"line");
-		line.setAttribute("x1",i * 5);
-		line.setAttribute("y1",0);
-		line.setAttribute("x2",(width / -0.5) + (i * 5));
-		line.setAttribute("y2",width / 1);
-		line.setAttribute("stroke", gridColour);
-		line.setAttribute('stroke-width', 1);
-		field.appendChild(line)
-	}
-
-	for (i = 0;i < ((width / 2.5) + 1);i += 20) {
-		line = document.createElementNS(GK_SVG_NAMESPACE,"line");
-		line.setAttribute("x1",(width / -1) + (i * 5));
-		line.setAttribute("y1",0);
-		line.setAttribute("x2",(width / 1) + (i * 5));
-		line.setAttribute("y2",width / 1);
-		line.setAttribute('stroke', gridColour);
-		line.setAttribute('stroke-width', 1);
-		field.appendChild(line)
-	}
+function gkIsoContextDef() {
+	this.svgNameSpace = "http://www.w3.org/2000/svg";
+	this.winOffsetX = 0;
+	this.winOffsetY = 0;
 }
 
 // create and return a single small diamond (1/10 fern sized)
 function gkIsoCreateSingleDiamond(isoXYZ, colour, opacity) {
 	winXY = isoXYZ.convertToWin();
 
-	diamond = document.createElementNS(GK_SVG_NAMESPACE,"polygon");
+	diamond = document.createElementNS(gkIsoContext.svgNameSpace,"polygon");
 
 	x1 = winXY.x;
 	y1 = winXY.y;
@@ -138,9 +76,9 @@ function gkIsoCreateSingleDiamond(isoXYZ, colour, opacity) {
 // note that sometimes the svg files must be edited to add an extra
 // <g> tag around the entire contents after the <svt>
 // so that the first child is the entire image, minus the <svg>
-function gkIsoCreateSvgDiamond(rawSvgData) {
+function gkIsoCreateSvgObject(rawSvgData) {
 	var g
-	g = document.createElementNS(GK_SVG_NAMESPACE,"g");
+	g = document.createElementNS(gkIsoContext.svgNameSpace,"g");
 	var r1 = new DOMParser().parseFromString(rawSvgData, "text/xml");
 	g.appendChild(document.importNode(r1.documentElement.firstChild,true))
 
@@ -150,14 +88,15 @@ function gkIsoCreateSvgDiamond(rawSvgData) {
 }
 
 // set the position of the object
-function gkIsoSetSvgDiamondPosition(svgDiamond, isoXYZ) {
+function gkIsoSetSvgObjectPosition(svgDiamond, isoXYZ) {
 	var winXY;
 	winXY = isoXYZ.convertToWin();
+console.log("win x,y: " + winXY.x + "," + winXY.y);
 	svgDiamond.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ")");
 }
 
 // set the position of the object, with originX and originY offsets
-function gkIsoSetSvgPositionWithOffset(svgDiamond, isoXYZ, originX, originY) {
+function gkIsoSetSvgObjectPositionWithOffset(svgDiamond, isoXYZ, originX, originY) {
 	var winXY;
 	winXY = isoXYZ.convertToWin();
 	winXY.x -= originX
@@ -171,8 +110,8 @@ function GkWinXYDef(x, y) {
 	this.y = y;
 
 	GkWinXYDef.prototype.convertToIso = function(z) {
-		isoX = Math.floor(((this.y * 2) + this.x - (GK_SVG_WIDTH / 2)) / 10);
-		isoY = Math.floor((this.y - (this.x - (GK_SVG_WIDTH / 2)) / 2) / 5);
+		isoX = Math.floor((((this.y - gkIsoContext.winOffsetY)* 2) + this.x - gkIsoContext.winOffsetX) / 10);
+		isoY = Math.floor(((this.y - gkIsoContext.winOffsetY) - (this.x - gkIsoContext.winOffsetX) / 2) / 5);
 		isoZ = z;
 
 		return new GkIsoXYZDef(isoX, isoY, isoZ);
@@ -193,7 +132,8 @@ function GkIsoXYZDef(x, y, z) {
 
 		winX *= 5;
 		winY *= 2.5;
-		winX += GK_SVG_WIDTH / 2;
+		winX += gkIsoContext.winOffsetX;
+		winY += gkIsoContext.winOffsetY;
 		winY -= this.z * 5;
 
 		return new GkWinXYDef(winX, winY);

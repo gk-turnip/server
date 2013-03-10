@@ -131,9 +131,9 @@ function gkRainLoop() {
 function GkDropDef() {
 	var x, y, z;
 
-	x = Math.floor(Math.random() * GK_SVG_WIDTH)
-	y = Math.floor(Math.random() * GK_SVG_HEIGHT)
-	z = GK_SVG_HEIGHT / 10;
+	x = Math.floor(Math.random() * 200)
+	y = Math.floor(Math.random() * 200)
+	z = 200 / 10;
 
 	var tempWinXY;
 	tempWinXY = new GkWinXYDef(x,y);

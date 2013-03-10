@@ -18,6 +18,7 @@
 package message
 
 import (
+	"fmt"
 	"bytes"
 )
 
@@ -26,8 +27,10 @@ func fixSvgData(svgData []byte) []byte {
 	var result []byte
 	result = trimBetweenMarkers(svgData, "<?", "?>")
 	result = trimBetweenMarkers(result, "<!--", "-->")
+	result = trimLeadingSpaces(result)
 	result = trimCrLf(result)
 
+fmt.Printf("\n\n\n%s\n\n\n",string(result))
 	return result
 }
 
@@ -97,6 +100,50 @@ func trimCrLf(data []byte) []byte {
 			break
 		}
 		curSlice = curSlice[index+1:]
+	}
+
+	return result
+}
+
+// trim leading spaces before start tag '<'
+func trimLeadingSpaces(data []byte) []byte {
+	result := make([]byte, 0, len(data))
+
+	var curSlice []byte
+	var index int
+	var index1 int
+
+	curSlice = data
+
+	index = 0
+	for (index < len(curSlice)) && (curSlice[index] == ' ') {
+		index += 1
+	}
+	if index > 0 {
+		curSlice = curSlice[index:]
+	}
+
+	for {
+		index1 = bytes.IndexByte(curSlice, '\n')
+		if index1 == -1 {
+			result = append(result, curSlice...)
+			break
+		}
+		result = append(result, curSlice[:index1 + 1]...)
+
+		index = index1 + 1
+		for (index < len(curSlice)) && (curSlice[index] == ' ') {
+			index += 1
+		}
+
+		if index >= len(curSlice) {
+			break
+		}
+		if curSlice[index] == '<' {
+			curSlice = curSlice[index:]
+		} else {
+			curSlice = curSlice[index1 + 1:]
+		}
 	}
 
 	return result

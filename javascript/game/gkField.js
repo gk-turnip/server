@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// handle the game playing field
+// handle the game playing field (other than terrain)
 // objectMap is a list of objects on the field (dandelions, avatars etc.)
 // avatarId is the id of the current users avatar
 var gkFieldContext = new gkFieldContextDef();
@@ -49,19 +49,19 @@ function gkFieldObjectDef(id, userName, g, isoXYZCurrent, isoXYZDestination, ori
 function gkFieldAddSvg(jsonData, rawSvgData) {
 //console.log("gkFieldAddSvg id: " + jsonData.id);
 
-	var g = gkIsoCreateSvgDiamond(rawSvgData);
+	var g = gkIsoCreateSvgObject(rawSvgData);
 
 	var isoXYZ = new GkIsoXYZDef(parseInt(jsonData.x), parseInt(jsonData.y), parseInt(jsonData.z))
 	var originX = parseInt(jsonData.origin_x)
 	var originY = parseInt(jsonData.origin_y)
-	gkIsoSetSvgPositionWithOffset(g, isoXYZ, originX, originY);
+	gkIsoSetSvgObjectPositionWithOffset(g, isoXYZ, originX, originY);
 
 	g.setAttribute("id",jsonData.id)
 	if (jsonData.clickFunction != undefined) {
 		g.setAttribute("onClick", jsonData.clickFunction);
 	}
 	if ((jsonData.userName != undefined) && (jsonData.userName.length > 0)) {
-		var text = document.createElementNS(GK_SVG_NAMESPACE, "text");
+		var text = document.createElementNS(gkIsoContext.svgNameSpace, "text");
 		text.setAttribute("stroke","#000000");
 		text.setAttribute("stroke-width","0");
 		text.setAttribute("x","0");
@@ -177,7 +177,7 @@ function gkFieldMoveObjects() {
 				if (destIsoXYZ.y < curIsoXYZ.y) {
 					fieldObject.isoXYZCurrent.y -= 1;
 				}
-				gkIsoSetSvgPositionWithOffset(fieldObject.g, fieldObject.isoXYZCurrent, fieldObject.originX, fieldObject.originY);
+				gkIsoSetSvgObjectPositionWithOffset(fieldObject.g, fieldObject.isoXYZCurrent, fieldObject.originX, fieldObject.originY);
 			}
 		}
 	}
