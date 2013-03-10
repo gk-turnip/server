@@ -2945,22 +2945,9 @@
 	<span id="scriptUse"></span>
 <form onsubmit="return doSubmitSkip();">
 
+	position <span id="posValueX"></span>, <span id="posValueY"></span>, <span id="posValueZ"></span><br/>
 	zoom: <span id="zoomValue"></span><input id="zoomValueSubmitPlus" type="submit" onclick="doZoomChange(0.1);" value="+1"/>
 	<input id="zoomValueSubmitMinus" type="submit" onclick="doZoomChange(-0.1);" value="-1"/>
-	<br/>
-
-	position X: <span id="posValueX"></span>
-<input id="posValueSubmitPlusX" type="submit" onclick="doPosChangeX(1);" value="+1"/>
-<input id="posValueSubmitPlusX" type="submit" onclick="doPosChangeX(10);" value="+10"/>
-<input id="posValueSubmitMinusX" type="submit" onclick="doPosChangeX(-1);" value="-1"/>
-<input id="posValueSubmitMinusX" type="submit" onclick="doPosChangeX(-10);" value="-10"/>
-	<br/>
-
-	position Y: <span id="posValueY"></span>
-<input id="posValueSubmitPlusY" type="submit" onclick="doPosChangeY(1);" value="+1"/>
-<input id="posValueSubmitPlusY" type="submit" onclick="doPosChangeY(10);" value="+10"/>
-<input id="posValueSubmitMinusY" type="submit" onclick="doPosChangeY(-1);" value="-1"/>
-<input id="posValueSubmitMinusY" type="submit" onclick="doPosChangeY(-10);" value="-10"/>
 	<br/>
 
 	svg width: <span id="svgWidthValue"></span>
@@ -2969,14 +2956,6 @@
 	svg height: <span id="svgHeightValue"></span>
 <input id="svgHeightValuePlus" type="submit" onclick="doSvgHeightChange(10);" value="+10"/>
 <input id="svgHeightValueMinus" type="submit" onclick="doSvgHeightChange(-10);" value="-10"/>
-	<br/>
-
-	fern width: <span id="fernWidthValue"></span>
-<input id="fernWidthValuePlus" type="submit" onclick="doFernWidthChange(1);" value="+1"/>
-<input id="fernWidthValueMinus" type="submit" onclick="doFernWidthChange(-1);" value="-1"/>
-	fern height: <span id="fernHeightValue"></span>
-<input id="fernHeightValuePlus" type="submit" onclick="doFernHeightChange(1);" value="+1"/>
-<input id="fernHeightValueMinus" type="submit" onclick="doFernHeightChange(-1);" value="-1"/>
 	<br/>
 
 </form>
@@ -3063,7 +3042,7 @@
 	</form>
 </div>
 
-<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.0.30 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.0.31 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 
 </body>
 {{end}}

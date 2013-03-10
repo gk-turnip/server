@@ -178,6 +178,42 @@ function gkFieldMoveObjects() {
 					fieldObject.isoXYZCurrent.y -= 1;
 				}
 				gkIsoSetSvgObjectPositionWithOffset(fieldObject.g, fieldObject.isoXYZCurrent, fieldObject.originX, fieldObject.originY);
+				gkIsoUpdatePositionDisplay(fieldObject.isoXYZCurrent);
+			}
+		}
+		if (gkFieldContext.avatarId != undefined) {
+			if (gkFieldContext.avatarId == fieldObject.id) {
+
+				var localIsoXYZ = new GkIsoXYZDef(
+					fieldObject.isoXYZCurrent.x,
+					fieldObject.isoXYZCurrent.y,
+					fieldObject.isoXYZCurrent.z);
+
+				localIsoXYZ.x -= gkViewContext.viewOffsetIsoXYZ.x;
+				localIsoXYZ.y -= gkViewContext.viewOffsetIsoXYZ.y;
+				localIsoXYZ.z -= gkViewContext.viewOffsetIsoXYZ.z;
+
+				var winXY = localIsoXYZ.convertToWin();
+				if (winXY.x < gkViewContext.scrollEdgeX) {
+					gkViewContext.viewOffsetIsoXYZ.x -= 1;
+					gkViewContext.viewOffsetIsoXYZ.y += 1;
+					gkViewRender();
+				}
+				if ((winXY.x + gkViewContext.scrollEdgeX) > (gkViewContext.svgWidth / gkViewContext.scale)) {
+					gkViewContext.viewOffsetIsoXYZ.x += 1;
+					gkViewContext.viewOffsetIsoXYZ.y -= 1;
+					gkViewRender();
+				}
+				if (winXY.y < gkViewContext.scrollEdgeY) {
+					gkViewContext.viewOffsetIsoXYZ.x -= 1;
+					gkViewContext.viewOffsetIsoXYZ.y -= 1;
+					gkViewRender();
+				}
+				if ((winXY.y + gkViewContext.scrollEdgeY) > (gkViewContext.svgHeight / gkViewContext.scale)) {
+					gkViewContext.viewOffsetIsoXYZ.x += 1;
+					gkViewContext.viewOffsetIsoXYZ.y += 1;
+					gkViewRender();
+				}
 			}
 		}
 	}
@@ -200,5 +236,16 @@ function gkFieldDelAllObjects() {
 		}
 	}
 	delete gkFieldContext.avatarId;
+}
+
+function gkIsoUpdatePositionDisplay(isoXYZCurrent) {
+	var v;
+
+	v = document.getElementById("posValueX");
+	v.innerHTML = isoXYZCurrent.x;
+	v = document.getElementById("posValueY");
+	v.innerHTML = isoXYZCurrent.y;
+	v = document.getElementById("posValueZ");
+	v.innerHTML = isoXYZCurrent.z;
 }
 

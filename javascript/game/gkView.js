@@ -4,7 +4,7 @@
 var gkViewContext = new gkViewContextDef();
 
 function gkViewContextDef() {
-	this.viewOffsetIsoXYZ = new GkIsoXYZDef(-20, 0, 0);
+	this.viewOffsetIsoXYZ = new GkIsoXYZDef(-20, 20, 0);
 	this.scale = 1.0;
 	this.fernWidth = 6;
 	this.fernHeight = 6;
@@ -13,6 +13,8 @@ function gkViewContextDef() {
 	this.viewMap = new Object();
 	this.marginX = 5;
 	this.marginY = 10;
+	this.scrollEdgeX = 100;
+	this.scrollEdgeY = 100;
 }
 
 function gkViewObjectMapEntryDef(terrainMapMapEntry, terrainSvgMapEntry, g, inUse) {
@@ -31,9 +33,9 @@ function gkViewRender() {
 
 	console.log("gkViewRender");
 
-	gkIsoContext.winOffsetX = 0;
-	gkIsoContext.winOffsetY = 0;
-
+	gkViewContext.fernWidth = Math.round((gkViewContext.svgWidth / 100) / gkViewContext.scale);
+	gkViewContext.fernHeight = Math.round((gkViewContext.svgHeight / 50) / gkViewContext.scale);
+	
 	gkViewSetObjectMapNotUsed();
 
 	var gkField = document.getElementById("gkField");
@@ -54,11 +56,6 @@ function gkViewRender() {
 
 	var gkView = document.getElementById("gkView");
 	gkView.setAttribute("transform","translate(" + (-winXY.x) + "," + (-winXY.y) + ") scale(" + gkViewContext.scale + ")");
-
-//	gkIsoContext.winOffsetX = -winXY.x;
-//	gkIsoContext.winOffsetY = -winXY.y;
-
-//console.log("winOffset: " + gkIsoContext.winOffsetX + "," + gkIsoContext.winOffsetY);
 
 	var start_x, start_y;
 

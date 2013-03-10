@@ -34,8 +34,6 @@ var gkIsoContext = new gkIsoContextDef();
 
 function gkIsoContextDef() {
 	this.svgNameSpace = "http://www.w3.org/2000/svg";
-	this.winOffsetX = 0;
-	this.winOffsetY = 0;
 }
 
 // create and return a single small diamond (1/10 fern sized)
@@ -110,8 +108,8 @@ function GkWinXYDef(x, y) {
 	this.y = y;
 
 	GkWinXYDef.prototype.convertToIso = function(z) {
-		isoX = Math.floor((((this.y - gkIsoContext.winOffsetY)* 2) + this.x - gkIsoContext.winOffsetX) / 10);
-		isoY = Math.floor(((this.y - gkIsoContext.winOffsetY) - (this.x - gkIsoContext.winOffsetX) / 2) / 5);
+		isoX = Math.floor(((this.y * 2) + this.x ) / 10);
+		isoY = Math.floor((this.y - (this.x) / 2) / 5);
 		isoZ = z;
 
 		return new GkIsoXYZDef(isoX, isoY, isoZ);
@@ -132,8 +130,6 @@ function GkIsoXYZDef(x, y, z) {
 
 		winX *= 5;
 		winY *= 2.5;
-		winX += gkIsoContext.winOffsetX;
-		winY += gkIsoContext.winOffsetY;
 		winY -= this.z * 5;
 
 		return new GkWinXYDef(winX, winY);

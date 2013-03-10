@@ -69,12 +69,8 @@
 			gkFieldInit();
 
 			setValue("zoomValue",gkViewContext.scale);
-			setValue("posValueX",gkViewContext.viewOffsetIsoXYZ.x);
-			setValue("posValueY",gkViewContext.viewOffsetIsoXYZ.y);
 			setValue("svgWidthValue",gkViewContext.svgWidth);
 			setValue("svgHeightValue",gkViewContext.svgHeight);
-			setValue("fernWidthValue",gkViewContext.fernWidth);
-			setValue("fernHeightValue",gkViewContext.fernHeight);
 		}
 
 		function doClick(e) {
@@ -129,20 +125,14 @@
 
 		function doZoomChange(change) {
 			gkViewContext.scale += change;
+			if (gkViewContext.scale > 2.0) {
+				gkViewContext.scale = 2.0;
+			}
+			if (gkViewContext.scale < 0.5) {
+				gkViewContext.scale = 0.5;
+			}
 			gkViewContext.scale = Math.round(gkViewContext.scale * 10) / 10;
 			setValue("zoomValue",gkViewContext.scale);
-			gkViewRender();
-		}
-
-		function doPosChangeX(change) {
-			gkViewContext.viewOffsetIsoXYZ.x += change;
-			setValue("posValueX",gkViewContext.viewOffsetIsoXYZ.x);
-			gkViewRender();
-		}
-
-		function doPosChangeY(change) {
-			gkViewContext.viewOffsetIsoXYZ.y += change;
-			setValue("posValueY",gkViewContext.viewOffsetIsoXYZ.y);
 			gkViewRender();
 		}
 
@@ -155,18 +145,6 @@
 		function doSvgHeightChange(change) {
 			gkViewContext.svgHeight += change;
 			setValue("svgHeightValue",gkViewContext.svgHeight);
-			gkViewRender();
-		}
-
-		function doFernWidthChange(change) {
-			gkViewContext.fernWidth += change;
-			setValue("fernWidthValue",gkViewContext.fernWidth);
-			gkViewRender();
-		}
-
-		function doFernHeightChange(change) {
-			gkViewContext.fernHeight += change;
-			setValue("fernHeightValue",gkViewContext.fernHeight);
 			gkViewRender();
 		}
 
