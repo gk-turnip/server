@@ -80,33 +80,6 @@ function gkViewRender() {
 
 	// remove objects still marked as un used
 	gkViewRemoveNotUsed();
-
-	var isoXYZ;
-	var diamond;
-	var layer
-
-	layer = document.getElementById("gkTerrainObjectLayer");
-
-	isoXYZ = new GkIsoXYZDef(0,0,0);
-	diamond = gkIsoCreateSingleDiamond(isoXYZ, "#ff0000", 1.0);
-	layer.appendChild(diamond);
-
-	isoXYZ = new GkIsoXYZDef(-1,0,0);
-	diamond = gkIsoCreateSingleDiamond(isoXYZ, "#ff0000", 0.2);
-	layer.appendChild(diamond);
-
-	isoXYZ = new GkIsoXYZDef(0,-1,0);
-	diamond = gkIsoCreateSingleDiamond(isoXYZ, "#ff0000", 0.2);
-	layer.appendChild(diamond);
-
-	isoXYZ = new GkIsoXYZDef(1,0,0);
-	diamond = gkIsoCreateSingleDiamond(isoXYZ, "#ff0000", 0.2);
-	layer.appendChild(diamond);
-
-	isoXYZ = new GkIsoXYZDef(0,1,0);
-	diamond = gkIsoCreateSingleDiamond(isoXYZ, "#ff0000", 0.2);
-	layer.appendChild(diamond);
-
 }
 
 // called for each position in the viewable area
