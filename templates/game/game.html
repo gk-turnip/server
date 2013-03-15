@@ -1,6 +1,6 @@
 {{define "body"}}
-<body style="margin-left:5px; margin-top: 10px;" onload="init();" onKeydown="doKeyDown(event);" onkeyup="doKeyUp(event);">
-<div onclick="doClick(event);" onkeydown="doKeyDown(event);" onkeyup="doKeyUp(event);">
+<body style="margin-left:5px; margin-top: 10px;" onload="init();">
+<div onclick="doClick(event);" id="container">
 <svg 
 	id="gkField" 
 	xmlns="http://www.w3.org/2000/svg"
@@ -3382,80 +3382,81 @@
 </div>
 
 <div class="gkGameRight">
-	<form onsubmit="return doSubmit();">
-	Chat <input id="chatInput" type="text"></input>
+	<form onsubmit="return doSubmit();" autocomplete="off">
+	<label for="chatInput">Chat </label><input id="chatInput" type="text"></input>
 	<input id="chatSubmit" type="submit" value="submit"/>
 	<div id="chatDiv">
 		<div>
-		<span class="chatTime" id="chatTime_1"></span>
 		<span class="chatUser" id="chatUser_1"></span>
 		<span class="chatMessage" id="chatMessage_1"></span>
+      <span class="chatTime" id="chatTime_1"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_2"></span>
 		<span class="chatUser" id="chatUser_2"></span>
 		<span class="chatMessage" id="chatMessage_2"></span>
+      <span class="chatTime" id="chatTime_2"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_3"></span>
 		<span class="chatUser" id="chatUser_3"></span>
 		<span class="chatMessage" id="chatMessage_3"></span>
+      <span class="chatTime" id="chatTime_3"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_4"></span>
+
 		<span class="chatUser" id="chatUser_4"></span>
 		<span class="chatMessage" id="chatMessage_4"></span>
+      <span class="chatTime" id="chatTime_4"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_5"></span>
 		<span class="chatUser" id="chatUser_5"></span>
 		<span class="chatMessage" id="chatMessage_5"></span>
+      <span class="chatTime" id="chatTime_5"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_6"></span>
 		<span class="chatUser" id="chatUser_6"></span>
 		<span class="chatMessage" id="chatMessage_6"></span>
+      <span class="chatTime" id="chatTime_6"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_7"></span>
 		<span class="chatUser" id="chatUser_7"></span>
 		<span class="chatMessage" id="chatMessage_7"></span>
+		<span class="chatTime" id="chatTime_7"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_8"></span>
 		<span class="chatUser" id="chatUser_8"></span>
 		<span class="chatMessage" id="chatMessage_8"></span>
+		<span class="chatTime" id="chatTime_8"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_9"></span>
 		<span class="chatUser" id="chatUser_9"></span>
 		<span class="chatMessage" id="chatMessage_9"></span>
+		<span class="chatTime" id="chatTime_9"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_10"></span>
 		<span class="chatUser" id="chatUser_10"></span>
 		<span class="chatMessage" id="chatMessage_10"></span>
+		<span class="chatTime" id="chatTime_10"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_11"></span>
 		<span class="chatUser" id="chatUser_11"></span>
 		<span class="chatMessage" id="chatMessage_11"></span>
+		<span class="chatTime" id="chatTime_11"></span>
 		</div>
 
 		<div>
-		<span class="chatTime" id="chatTime_12"></span>
 		<span class="chatUser" id="chatUser_12"></span>
 		<span class="chatMessage" id="chatMessage_12"></span>
+		<span class="chatTime" id="chatTime_12"></span>
 		</div>
 	</div>
 
