@@ -45,6 +45,7 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 		return gkErr
 	}
 
+	gklog.LogTrace(fmt.Sprintf("chat: t: %v u: %s m: %s",time.Now(),chatReq.UserName, chatReq.Message))
 	messageToClient.Command = message.ChatReq
 	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"userName\": \"%s\", \"message\": \"%s\" }", chatReq.UserName, chatReq.Message))
 

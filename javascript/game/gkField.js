@@ -24,6 +24,10 @@ function gkFieldContextDef() {
 	this.objectMap = new Object();
 //	this.avatarId = null;
 	this.avatarDestination = null;
+	this.leftKeyDown = false;
+	this.rightKeyDown = false;
+	this.upKeyDown = false;
+	this.downKeyDown = false;
 }
 
 function gkFieldInit() {
@@ -217,6 +221,20 @@ function gkFieldMoveObjects() {
 			}
 		}
 	}
+
+	if (gkFieldContext.leftKeyDown) {
+		gkFieldSetArrowKeyDestination(-1,1);
+	}
+	if (gkFieldContext.rightKeyDown) {
+		gkFieldSetArrowKeyDestination(1,-1);
+	}
+	if (gkFieldContext.upKeyDown) {
+		gkFieldSetArrowKeyDestination(-1,-1);
+	}
+	if (gkFieldContext.downKeyDown) {
+		gkFieldSetArrowKeyDestination(1,1);
+	}
+
 }
 
 // delete all objects from the field
@@ -238,6 +256,7 @@ function gkFieldDelAllObjects() {
 	delete gkFieldContext.avatarId;
 }
 
+// fix this, an Iso function in the Field javascript file
 function gkIsoUpdatePositionDisplay(isoXYZCurrent) {
 	var v;
 
@@ -247,5 +266,47 @@ function gkIsoUpdatePositionDisplay(isoXYZCurrent) {
 	v.innerHTML = isoXYZCurrent.y;
 	v = document.getElementById("posValueZ");
 	v.innerHTML = isoXYZCurrent.z;
+}
+
+function gkFieldSetArrowKeyDestination(x,y) {
+	if (gkFieldContext.avatarId != undefined) {
+		var fieldObject = gkFieldContext.objectMap[gkFieldContext.avatarId];
+		if (fieldObject != undefined) {
+			fieldObject.isoXYZDestination.x = fieldObject.isoXYZCurrent.x + x;
+			fieldObject.isoXYZDestination.y = fieldObject.isoXYZCurrent.y + y;
+		}
+	}
+}
+
+function gkFieldSetRightKeyDown() {
+	gkFieldContext.rightKeyDown = true;
+}
+
+function gkFieldSetRightKeyUp() {
+	gkFieldContext.rightKeyDown = false;
+}
+
+function gkFieldSetLeftKeyDown() {
+	gkFieldContext.leftKeyDown = true;
+}
+
+function gkFieldSetLeftKeyUp() {
+	gkFieldContext.leftKeyDown = false;
+}
+
+function gkFieldSetUpKeyDown() {
+	gkFieldContext.upKeyDown = true;
+}
+
+function gkFieldSetUpKeyUp() {
+	gkFieldContext.upKeyDown = false;
+}
+
+function gkFieldSetDownKeyDown() {
+	gkFieldContext.downKeyDown = true;
+}
+
+function gkFieldSetDownKeyUp() {
+	gkFieldContext.downKeyDown = false;
 }
 

@@ -1,6 +1,6 @@
 {{define "body"}}
-<body style="margin-left:5px; margin-top: 10px;" onload="init();">
-<div onclick="doClick(event);">
+<body style="margin-left:5px; margin-top: 10px;" onload="init();" onKeydown="doKeyDown(event);" onkeyup="doKeyUp(event);">
+<div onclick="doClick(event);" onkeydown="doKeyDown(event);" onkeyup="doKeyUp(event);">
 <svg 
 	id="gkField" 
 	xmlns="http://www.w3.org/2000/svg"
@@ -3323,7 +3323,6 @@
 		<option value="" selected="selected">-- select avatar --</option>
 		<option value="babyWhatKnot1">babyWhatKnot1</option>
 		<option value="babyWhatKnot2">babyWhatKnot2</option>
-		<option value="babyWhatKnot3">babyWhatKnot3</option>
 		<option value="newbaby_01a">newbaby 01a</option>
 		<option value="newbaby_01b">newbaby 01b</option>
 		<option value="newbaby_01c">newbaby 01c</option>
@@ -3463,7 +3462,7 @@
 	</form>
 </div>
 
-<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.2 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.3 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 
 </body>
 {{end}}
