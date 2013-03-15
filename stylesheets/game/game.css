@@ -1,3 +1,29 @@
+body {
+	font-family: sans-serif;
+}
+
+input[type=text] {
+	border: 1px solid rgba(0, 0, 0, 0.3);
+	border-radius: 5px;
+	padding: 5px;
+	box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+input[type=submit], select {
+	background-color: rgba(0, 0, 0, 0.2);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 5px;
+	padding: 5px;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+}
+input[type=submit]:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+input[type=submit]:active {
+	background-color: rgba(0, 0, 0, 0.25);
+}
+
 .gkGameLeft {
 	float: left;
 	width: 45%;
@@ -21,14 +47,28 @@
 	height: 200px;
 	background-color: #efefef;
 	overflow: auto;
+	margin-top: 5px;
+	border-radius: 5px;
+	padding: 5px;
+}
+
+#chatDiv > div {
+	margin-top: 15px;
+	margin-bottom: 5px;
 }
 
 .chatUser {
 	background-color: #afafff;
 	width: 10%;
+	padding: 5px;
+	border-radius: 5px;
 }
 
 .chatMessage {
 	width: 85%;
 }
 
+.chatTime {
+	float: right;
+	opacity: 0.6;
+}

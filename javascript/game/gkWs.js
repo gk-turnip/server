@@ -213,13 +213,13 @@ function gkWsChatReq(jsonData) {
 //	var chatText = document.getElementById("chatDiv");
 //	chatText.innerHTML = chatText.innerHTML + " from: " + jsonData.userName + " " + jsonData.message;
 
-	var i
-	var timeSpan1
-	var timeSpan2
-	var userSpan1
-	var userSpan2
-	var messageSpan1
-	var messageSpan2
+	var i,
+	    timeSpan1,
+	    timeSpan2,
+	    userSpan1,
+	    userSpan2,
+	    messageSpan1,
+	    messageSpan2;
 
 	for (i = 11;i > 0;i--) {
 		timeSpan1 = document.getElementById("chatTime_" + i);
