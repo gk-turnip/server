@@ -45,8 +45,8 @@ func (fieldContext *FieldContextDef) handleGetAvatarSvgReq(messageFromClient *me
 
 	var svgJsonData *message.SvgJsonDataDef = new(message.SvgJsonDataDef)
 	svgJsonData.Id = fieldContext.getNextObjectId()
-	svgJsonData.IsoXYZ.X = 20
-	svgJsonData.IsoXYZ.Y = 20
+	svgJsonData.IsoXYZ.X = 40
+	svgJsonData.IsoXYZ.Y = 40
 
 	gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.svgDir, message.GetAvatarSvgRes, getSvg.SvgName, svgJsonData)
 	if gkErr != nil {

@@ -112,8 +112,12 @@
 
 		function doSubmit() {
 			var inputText = document.getElementById("chatInput");
-			var message = inputText.value
-			gkWsSendMessage("chatReq~{ \"userName\": \"" + gkWsContext.userName + "\", \"message\": \"" + message + "\" }~");
+			var message = inputText.value.replace("~",".");
+
+			var jsonMessage = JSON.stringify({ userName: gkWsContext.userName, message: message });
+			if (message.length > 0) {
+				gkWsSendMessage("chatReq~" + jsonMessage + "~");
+			}
 
 			inputText.value = "";
 			return false;

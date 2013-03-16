@@ -25,7 +25,7 @@ import (
 	"gk/gkerr"
 )
 
-func TestWs(t *testing.T) {
+func TestMessage(t *testing.T) {
 	testTrimBetweenMarkers(t)
 	testTrimCrLf(t)
 	testPopulateFromMessage(t)

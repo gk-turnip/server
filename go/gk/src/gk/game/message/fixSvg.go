@@ -18,7 +18,6 @@
 package message
 
 import (
-	"fmt"
 	"bytes"
 )
 
@@ -30,7 +29,6 @@ func fixSvgData(svgData []byte) []byte {
 	result = trimLeadingSpaces(result)
 	result = trimCrLf(result)
 
-fmt.Printf("\n\n\n%s\n\n\n",string(result))
 	return result
 }
 

@@ -59,15 +59,15 @@ function gkViewRender() {
 
 	var start_x, start_y;
 
-	start_x = gkViewContext.viewOffsetIsoXYZ.x;
+	start_x = gkViewContext.viewOffsetIsoXYZ.x - 20;
 	start_y = gkViewContext.viewOffsetIsoXYZ.y;
 
-	for (i = 0;i < gkViewContext.fernHeight; i++) {
+	for (i = 0;i < (gkViewContext.fernHeight + 2); i++) {
 		var x, y;
 		x = start_x;
 		y = start_y;
 		gkViewRenderSingleFern(x,y);
-		for (j = 0;j < gkViewContext.fernWidth; j++) {
+		for (j = 0;j < (gkViewContext.fernWidth + 2); j++) {
 			x += 10;
 			gkViewRenderSingleFern(x,y);
 			y -= 10;

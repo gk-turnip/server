@@ -143,6 +143,8 @@ function gkFieldRemoveExistingAvatar() {
 function gkFieldAddAvatar(jsonData, data) {
 	gkFieldContext.avatarId = jsonData.id
 	gkFieldAddSvg(jsonData, data);
+	var fieldObject = gkFieldContext.objectMap[gkFieldContext.avatarId]
+	gkFieldUpdatePositionDisplay(fieldObject.isoXYZCurrent);
 }
 
 // set the current users avatar to a new position
@@ -182,7 +184,11 @@ function gkFieldMoveObjects() {
 					fieldObject.isoXYZCurrent.y -= 1;
 				}
 				gkIsoSetSvgObjectPositionWithOffset(fieldObject.g, fieldObject.isoXYZCurrent, fieldObject.originX, fieldObject.originY);
-				gkIsoUpdatePositionDisplay(fieldObject.isoXYZCurrent);
+				if (gkFieldContext.avatarId != undefined) {
+					if (gkFieldContext.avatarId == fieldObject.id) {
+						gkFieldUpdatePositionDisplay(fieldObject.isoXYZCurrent);
+					}
+				}
 			}
 		}
 		if (gkFieldContext.avatarId != undefined) {
@@ -222,19 +228,28 @@ function gkFieldMoveObjects() {
 		}
 	}
 
+	var moveX, moveY
+	moveX = 0;
+	moveY = 0;
 	if (gkFieldContext.leftKeyDown) {
-		gkFieldSetArrowKeyDestination(-1,1);
+		moveX -= 1;
+		moveY += 1;
 	}
 	if (gkFieldContext.rightKeyDown) {
-		gkFieldSetArrowKeyDestination(1,-1);
+		moveX += 1;
+		moveY -= 1;
 	}
 	if (gkFieldContext.upKeyDown) {
-		gkFieldSetArrowKeyDestination(-1,-1);
+		moveX -= 1;
+		moveY -= 1;
 	}
 	if (gkFieldContext.downKeyDown) {
-		gkFieldSetArrowKeyDestination(1,1);
+		moveX += 1;
+		moveY += 1;
 	}
-
+	if ((gkFieldContext.leftKeyDown) || (gkFieldContext.rightKeyDown) || (gkFieldContext.upKeyDown) || (gkFieldContext.downKeyDown)) {
+		gkFieldSetArrowKeyDestination(moveX, moveY);
+	}
 }
 
 // delete all objects from the field
@@ -257,7 +272,7 @@ function gkFieldDelAllObjects() {
 }
 
 // fix this, an Iso function in the Field javascript file
-function gkIsoUpdatePositionDisplay(isoXYZCurrent) {
+function gkFieldUpdatePositionDisplay(isoXYZCurrent) {
 	var v;
 
 	v = document.getElementById("posValueX");

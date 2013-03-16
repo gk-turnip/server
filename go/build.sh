@@ -48,6 +48,7 @@ then
 	go install gk/gkerr
 	go install gk/gklog
 	go install gk/gktmpl
+	go install gk/gkjson
 	go install pq/pq
 	go install gk/sec
 	go install gk/wf
@@ -63,16 +64,22 @@ then
 	go install gk/database
 	go install gk/gkrand
 
+	go test gk/gkerr
+	go test gk/gklog
+	go test gk/gktmpl
+	go test gk/gkjson
 	go test gk/sec
-	go test gk/gknet
-	go test gk/game/iso
+	go test gk/wf
+	go test gk/login
 	go test gk/game/field
+	go test gk/game/iso
 	go test gk/game/config
 	go test gk/game/message
 	go test gk/game/ses
 	go test gk/game/ws
 	go test gk/game
-	go test gk/login
+	go test gk/gknet
+	go test gk/database
 	go test gk/gkrand
 
 	go build -o gk/bin/wfToJsMain gk/src/gk/main/wfToJsMain.go

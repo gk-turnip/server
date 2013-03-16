@@ -1,6 +1,6 @@
 {{define "body"}}
 <body>
-<h1>Login</h1>
+<h1>Gourdian Knot Game Login</h1>
 {{template "error_list" .}}
 <form action="{{.LoginWebAddressPrefix}}/gk/loginServer" method="post">
 User: <input name="userName" value="{{.UserName}}"/>{{.UserNameError}}<br/>
@@ -10,7 +10,26 @@ Password: <input type="password" name="password"/>{{.PasswordError}}<br/>
 <input type="submit" name="register" value="Register"/>
 <input type="submit" name="forgot_password" value="Forgot Password"/>
 </form>
-<div>Gourdian Knot pre-alpha release 0.1.3 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+<br/>
+<div>
+This is the Gourdian Knot game currently under development.  Please try it out, see how it works, play around.  Check out the <a href="http://www.gourdianknot.com">main site and forum</a> for any questions or if you are interested in helping out or interested in seeing our work in progress.
+</div>
+<div>
+Note: this game is under development, so during testing cycles it gets restarted sometimes several times in a minute, you will know because it will say "web socket not connected" in red, and things might not work quite right.  Don't let it deter you from playing around.<br/><br/>
+Note: this game is tested regularly on recent versions of Chrome and Firefox browsers.  It is also known to work on the IE10 browser, Android Chrome browser on the 4.2.2 version of Android, and the browser on iPhone 5.  It is known not to work on IE8 or IE9 because they do not support websockets.
+</div>
+<br/>
+<div>
+Working browser list:
+<ul>
+<li>Firefox version 19</li>
+<li>Google Chrome version 25</li>
+<li>Internet Explorer 10</li>
+<li>Chrome on Android 4.2.2</li>
+<li>iPhone 5</li>
+</ul>
+</div>
+<div>Gourdian Knot pre-alpha release 0.1.4 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 </body>
 {{end}}
 
