@@ -69,8 +69,11 @@
 			gkFieldInit();
 
 			setValue("zoomValue",gkViewContext.scale);
-			setValue("svgWidthValue",gkViewContext.svgWidth);
-			setValue("svgHeightValue",gkViewContext.svgHeight);
+			var svgWidthInput = document.getElementById("svgWidthInput");
+			var svgHeightInput = document.getElementById("svgHeightInput");
+
+			svgWidthInput.value = gkViewContext.svgWidth;
+			svgHeightInput.value = gkViewContext.svgHeight;
 		}
 
 		function doClick(e) {
@@ -110,7 +113,7 @@
 			gkAudioVolumeChange(volumeId, value);
 		}
 
-		function doSubmit() {
+		function doSubmitChat() {
 			var inputText = document.getElementById("chatInput");
 			var message = inputText.value.replace("~",".");
 
@@ -123,7 +126,22 @@
 			return false;
 		}
 
-		function doSubmitSkip() {
+		function doSvgWidthHeightChange() {
+			var svgWidth = parseInt(document.getElementById("svgWidthInput").value);
+			var svgHeight = parseInt(document.getElementById("svgHeightInput").value);
+
+			if (svgWidth < 120) {
+				svgWidth = 120;
+			}
+			if (svgHeight < 120) {
+				svgHeight = 120;
+			}
+			gkViewContext.svgWidth = svgWidth;
+			gkViewContext.svgHeight = svgHeight;
+			gkViewRender();
+		}
+
+		function doSubmitControls() {
 			return false;
 		}
 
@@ -137,18 +155,6 @@
 			}
 			gkViewContext.scale = Math.round(gkViewContext.scale * 10) / 10;
 			setValue("zoomValue",gkViewContext.scale);
-			gkViewRender();
-		}
-
-		function doSvgWidthChange(change) {
-			gkViewContext.svgWidth += change;
-			setValue("svgWidthValue",gkViewContext.svgWidth);
-			gkViewRender();
-		}
-
-		function doSvgHeightChange(change) {
-			gkViewContext.svgHeight += change;
-			setValue("svgHeightValue",gkViewContext.svgHeight);
 			gkViewRender();
 		}
 
