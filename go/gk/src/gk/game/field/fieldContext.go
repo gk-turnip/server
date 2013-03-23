@@ -70,7 +70,7 @@ type rainContextDef struct {
 	nextRainEvent   time.Time
 }
 
-const MAX_MESSAGES_TO_CLIENT_QUEUE = 5
+const MAX_MESSAGES_TO_CLIENT_QUEUE = 20
 
 type toClientQueueDef struct {
 	messagesChan chan *message.MessageToClientDef
@@ -343,8 +343,11 @@ func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *we
 	}
 
 	var terrainMap struct {
-		SetList []struct {
+		TileList []struct {
 			Terrain string
+		}
+		ObjectList []struct {
+			Object string
 		}
 	}
 	err = json.Unmarshal(jsonData, &terrainMap)
@@ -357,8 +360,25 @@ func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *we
 
 	var terrainSentMap map[string]string = make(map[string]string)
 
-	for i := 0; i < len(terrainMap.SetList); i++ {
-		var terrain string = terrainMap.SetList[i].Terrain
+	for i := 0; i < len(terrainMap.TileList); i++ {
+		var terrain string = terrainMap.TileList[i].Terrain
+		var ok bool
+
+		_, ok = terrainSentMap[terrain]
+		if !ok {
+			var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
+			gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.SetTerrainSvgReq, terrain, nil)
+			if gkErr != nil {
+				return gkErr
+			}
+			fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+
+			terrainSentMap[terrain] = terrain
+		}
+	}
+
+	for i := 0; i < len(terrainMap.ObjectList); i++ {
+		var terrain string = terrainMap.ObjectList[i].Object
 		var ok bool
 
 		_, ok = terrainSentMap[terrain]

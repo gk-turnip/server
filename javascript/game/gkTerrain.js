@@ -44,17 +44,32 @@ function gkSetTerrainMap(jsonData) {
 //console.log("gkSetTerrainMap");
 	var i;
 
-	for (i = 0;i < jsonData.setList.length; i++) {
+console.log("tileList.length: " + jsonData.tileList.length);
+	for (i = 0;i < jsonData.tileList.length; i++) {
 		var x, y, z, terrainName;
-		x = jsonData.setList[i].x;
-		y = jsonData.setList[i].y;
-		z = jsonData.setList[i].z;
-		terrainName = jsonData.setList[i].terrain;
+		x = jsonData.tileList[i].x;
+		y = jsonData.tileList[i].y;
+		z = jsonData.tileList[i].z;
+		terrainName = jsonData.tileList[i].terrain;
 
 		var terrainMapMapEntry = new gkTerrainMapMapEntryDef(x, y, z, terrainName)
 
 		var mapKey = gkTerrainGetMapKey(x, y);
 		gkTerrainContext.terrainMapMap[mapKey] = terrainMapMapEntry;
+	}
+
+console.log("objectList.length: " + jsonData.objectList.length);
+	for (i = 0;i < jsonData.objectList.length; i++) {
+		var x, y, z, objectName;
+		x = jsonData.objectList[i].x;
+		y = jsonData.objectList[i].y;
+		z = jsonData.objectList[i].z;
+		objectName = jsonData.objectList[i].object;
+
+		var objectMapMapEntry = new gkTerrainMapMapEntryDef(x, y, z, objectName)
+
+		var mapKey = gkTerrainGetMapKey(x, y);
+		gkTerrainContext.terrainMapMap[mapKey] = objectMapMapEntry;
 	}
 
 	gkViewRender();
