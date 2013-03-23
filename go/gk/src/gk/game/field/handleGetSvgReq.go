@@ -48,9 +48,8 @@ func (fieldContext *FieldContextDef) handleGetAvatarSvgReq(messageFromClient *me
 	svgJsonData.IsoXYZ.X = 40
 	svgJsonData.IsoXYZ.Y = 40
 
-	gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.svgDir, message.GetAvatarSvgRes, getSvg.SvgName, svgJsonData)
+	gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.avatarSvgDir, message.GetAvatarSvgRes, getSvg.SvgName, svgJsonData)
 	if gkErr != nil {
-		gkErr = gkerr.GenGkErr("messageToClient.BuildSvgMessageToClient", err, ERROR_ID_JSON_UNMARSHAL)
 		return gkErr
 	}
 
@@ -61,7 +60,7 @@ func (fieldContext *FieldContextDef) handleGetAvatarSvgReq(messageFromClient *me
 	fieldObject.fileName = getSvg.SvgName
 	fieldObject.isoXYZ = svgJsonData.IsoXYZ
 	fieldObject.sourceSessionId = messageFromClient.SessionId
-	fieldContext.addFieldObject(fieldObject)
+	fieldContext.addAvatarObject(fieldObject)
 
 	var websocketConnectionContext *websocketConnectionContextDef
 

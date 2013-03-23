@@ -56,7 +56,7 @@ func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessag
 		return gkErr
 	}
 
-	gkErr = fieldContext.sendAllFieldObjects(websocketConnectionContext)
+	gkErr = fieldContext.sendAllAvatarObjects(websocketConnectionContext)
 	if gkErr != nil {
 		return gkErr
 	}

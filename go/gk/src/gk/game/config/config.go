@@ -34,7 +34,8 @@ type GameConfigDef struct {
 	WebsocketPort          int      `xml:"websocketPort"`
 	LogDir                 string   `xml:"logDir"`
 	TemplateDir            string   `xml:"templateDir"`
-	SvgDir                 string   `xml:"svgDir"`
+	AvatarSvgDir           string   `xml:"avatarSvgDir"`
+	TerrainSvgDir          string   `xml:"terrainSvgDir"`
 	WebAddressPrefix       string   `xml:"webAddressPrefix"`
 	WebsocketAddressPrefix string   `xml:"websocketAddressPrefix"`
 	AudioAddressPrefix     string   `xml:"audioAddressPrefix"`

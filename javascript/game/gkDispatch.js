@@ -39,9 +39,11 @@ function gkDispatchWsMessage(command, jsonData, data) {
 		gkFieldMoveSvg(jsonData);
 		break;
 	case "setTerrainSvgReq":
+		console.log("setTerrainSvgReq");
 		gkSetTerrainSvg(jsonData, data);
 		break;
 	case "setTerrainMapReq":
+		console.log("setTerrainMapReq");
 		gkSetTerrainMap(jsonData);
 		break;
 	case "pingRes":

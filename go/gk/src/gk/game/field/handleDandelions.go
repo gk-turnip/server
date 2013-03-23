@@ -51,7 +51,7 @@ func (fieldContext *FieldContextDef) addDandelion() {
 	svgJsonData.IsoXYZ.X = int16(rand.Int31n(50))
 	svgJsonData.IsoXYZ.Y = int16(rand.Int31n(50))
 
-	messageToClient.BuildSvgMessageToClient(fieldContext.svgDir, message.AddSvgReq, fileName, svgJsonData)
+	messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.AddSvgReq, fileName, svgJsonData)
 
 	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
 		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
@@ -61,7 +61,7 @@ func (fieldContext *FieldContextDef) addDandelion() {
 	fieldObject.id = svgJsonData.Id
 	fieldObject.fileName = fileName
 	fieldObject.isoXYZ = svgJsonData.IsoXYZ
-	fieldContext.addFieldObject(fieldObject)
+	fieldContext.addTerrainObject(fieldObject)
 }
 
 func (fieldContext *FieldContextDef) removeDandelion() {
@@ -71,13 +71,13 @@ func (fieldContext *FieldContextDef) removeDandelion() {
 
 	messageToClient.Command = message.DelSvgReq
 
-	for _, fieldObject := range fieldContext.globalFieldObjectMap {
+	for _, fieldObject := range fieldContext.globalTerrainMap {
 		if fieldObject.fileName == fileName {
 			messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
 			for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
 				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 			}
-			fieldContext.delFieldObject(fieldObject)
+			fieldContext.delTerrainObject(fieldObject)
 			break
 		}
 	}

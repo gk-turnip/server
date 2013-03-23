@@ -52,7 +52,7 @@ func (fieldContext *FieldContextDef) handleMoveAvatarSvgReq(messageFromClient *m
 
 	var fieldObject *fieldObjectDef
 	var ok bool
-	fieldObject, ok = fieldContext.globalFieldObjectMap[moveSvg.Id]
+	fieldObject, ok = fieldContext.globalAvatarMap[moveSvg.Id]
 	if ok {
 		var cord int
 		cord, _ = strconv.Atoi(moveSvg.X)

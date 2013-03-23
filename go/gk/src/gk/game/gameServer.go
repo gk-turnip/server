@@ -83,7 +83,7 @@ func GameServerStart() {
 	var wsContext *ws.WsContextDef
 	var fieldContext *field.FieldContextDef
 
-	fieldContext = field.NewFieldContext(gameConfig.SvgDir, sessionContext)
+	fieldContext = field.NewFieldContext(gameConfig.AvatarSvgDir, gameConfig.TerrainSvgDir, sessionContext)
 	wsContext = ws.NewWsContext(gameConfig, sessionContext, fieldContext)
 	ws.SetGlobalWsContext(wsContext)
 

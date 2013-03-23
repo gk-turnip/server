@@ -37,7 +37,7 @@ func (fieldContext *FieldContextDef) handleWebsocketClosed(websocketClosedMessag
 
 	delete(fieldContext.websocketConnectionMap, websocketClosedMessage.SessionId)
 
-	fieldContext.removeAllObjectsBySessionId(websocketClosedMessage.SessionId)
+	fieldContext.removeAllAvatarBySessionId(websocketClosedMessage.SessionId)
 
 	return nil
 }
