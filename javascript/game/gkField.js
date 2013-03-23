@@ -56,8 +56,8 @@ function gkFieldAddSvg(jsonData, rawSvgData) {
 	var g = gkIsoCreateSvgObject(rawSvgData);
 
 	var isoXYZ = new GkIsoXYZDef(parseInt(jsonData.x), parseInt(jsonData.y), parseInt(jsonData.z))
-	var originX = parseInt(jsonData.origin_x)
-	var originY = parseInt(jsonData.origin_y)
+	var originX = parseInt(jsonData.originX)
+	var originY = parseInt(jsonData.originY)
 	gkIsoSetSvgObjectPositionWithOffset(g, isoXYZ, originX, originY);
 
 	g.setAttribute("id",jsonData.id)

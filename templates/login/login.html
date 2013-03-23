@@ -1,5 +1,5 @@
 {{define "body"}}
-<body>
+<body onload="init();">
 <h1>Gourdian Knot Game Login</h1>
 {{template "error_list" .}}
 <form action="{{.LoginWebAddressPrefix}}/gk/loginServer" method="post">
@@ -10,6 +10,8 @@ Password: <input type="password" name="password"/>{{.PasswordError}}<br/>
 <input type="submit" name="register" value="Register"/>
 <input type="submit" name="forgot_password" value="Forgot Password"/>
 </form>
+<br/>
+<span id=browserCompatibleStatus></span>
 <br/>
 <div>
 This is the Gourdian Knot game currently under development.  Please try it out, see how it works, play around.  Check out the <a href="http://www.gourdianknot.com">main site and forum</a> for any questions or if you are interested in helping out or interested in seeing our work in progress.
@@ -34,7 +36,7 @@ Working browser list:
 <li>iPhone 5</li>
 </ul>
 </div>
-<div>Gourdian Knot pre-alpha release 0.1.7 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+<div>Gourdian Knot pre-alpha release 0.1.8 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 </body>
 {{end}}
 

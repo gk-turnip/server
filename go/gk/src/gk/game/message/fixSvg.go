@@ -127,7 +127,7 @@ func trimLeadingSpaces(data []byte) []byte {
 			result = append(result, curSlice...)
 			break
 		}
-		result = append(result, curSlice[:index1 + 1]...)
+		result = append(result, curSlice[:index1+1]...)
 
 		index = index1 + 1
 		for (index < len(curSlice)) && (curSlice[index] == ' ') {
@@ -140,7 +140,7 @@ func trimLeadingSpaces(data []byte) []byte {
 		if curSlice[index] == '<' {
 			curSlice = curSlice[index:]
 		} else {
-			curSlice = curSlice[index1 + 1:]
+			curSlice = curSlice[index1+1:]
 		}
 	}
 

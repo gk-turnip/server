@@ -48,20 +48,29 @@ func (fieldContext *FieldContextDef) addDandelion() {
 	var fileName = "dandelion"
 
 	svgJsonData.Id = fieldContext.getNextObjectId()
-	svgJsonData.IsoXYZ.X = int16(rand.Int31n(50))
-	svgJsonData.IsoXYZ.Y = int16(rand.Int31n(50))
+	//	svgJsonData.IsoXYZ.X = int16(rand.Int31n(50))
+	//	svgJsonData.IsoXYZ.Y = int16(rand.Int31n(50))
 
-	messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.AddSvgReq, fileName, svgJsonData)
+	var index = rand.Int31n(int32(len(fieldContext.terrainMap.jsonMapData.TileList)))
 
-	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
-		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+	if fieldContext.terrainMap.jsonMapData.TileList[index].Terrain == "grass" {
+
+		svgJsonData.IsoXYZ.X = int16(fieldContext.terrainMap.jsonMapData.TileList[index].X)
+		svgJsonData.IsoXYZ.Y = int16(fieldContext.terrainMap.jsonMapData.TileList[index].Y)
+		svgJsonData.IsoXYZ.Z = int16(fieldContext.terrainMap.jsonMapData.TileList[index].Z)
+
+		messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.AddSvgReq, fileName, svgJsonData)
+
+		for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+			fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+		}
+
+		var fieldObject *fieldObjectDef = new(fieldObjectDef)
+		fieldObject.id = svgJsonData.Id
+		fieldObject.fileName = fileName
+		fieldObject.isoXYZ = svgJsonData.IsoXYZ
+		fieldContext.addTerrainObject(fieldObject)
 	}
-
-	var fieldObject *fieldObjectDef = new(fieldObjectDef)
-	fieldObject.id = svgJsonData.Id
-	fieldObject.fileName = fileName
-	fieldObject.isoXYZ = svgJsonData.IsoXYZ
-	fieldContext.addTerrainObject(fieldObject)
 }
 
 func (fieldContext *FieldContextDef) removeDandelion() {

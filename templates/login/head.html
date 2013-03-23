@@ -15,5 +15,14 @@
 		href="/assets/gk/stylesheets/login/login_wide.css" title="wide"/>
 
 	<script src="javascript/dynamiclayout.js" type="text/javascript"></script>
+
+	<script src="{{.LoginWebAddressPrefix}}/assets/gk/javascript/login/gkBrowser.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+		function init() {
+			gkBrowserCheckCompatibility();
+		}
+	</script>
 </head>
 {{end}}
+

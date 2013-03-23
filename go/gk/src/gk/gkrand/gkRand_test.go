@@ -45,4 +45,3 @@ func TestRand(t *testing.T) {
 		t.Fail()
 	}
 }
-

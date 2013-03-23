@@ -41,4 +41,3 @@ func TestJson(t *testing.T) {
 		t.Fail()
 	}
 }
-

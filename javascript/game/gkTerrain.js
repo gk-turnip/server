@@ -21,8 +21,10 @@ function gkTerrainMapMapEntryDef(x, y, z, terrainName) {
 	this.terrainName = terrainName
 }
 
-function gkTerrainSvgMapEntryDef(terrainName, layer, svgSegment) {
+function gkTerrainSvgMapEntryDef(terrainName, originX, originY, layer, svgSegment) {
 	this.terrainName = terrainName;
+	this.originX = originX;
+	this.originY = originY;
 	this.layer = layer;
 	this.svgSegment = svgSegment;
 	this.subTerrainSvgArray = new Array();
@@ -82,11 +84,13 @@ console.log("objectList.length: " + jsonData.objectList.length);
 function gkSetTerrainSvg(jsonData, rawSvgData) {
 //console.log("gkSetTerrainSvg");
 	if (jsonData.terrain != undefined) {
-		var terrainName, layer, svgSegment
+		var terrainName, originX, originY, layer, svgSegment
 
 		terrainName = jsonData.terrain
+		originX = jsonData.originX
+		originY = jsonData.originY
 		layer = jsonData.layer
-		var terrainSvgMapEntry = new gkTerrainSvgMapEntryDef(terrainName, layer, rawSvgData)
+		var terrainSvgMapEntry = new gkTerrainSvgMapEntryDef(terrainName, originX, originY, layer, rawSvgData)
 		gkTerrainContext.terrainSvgMap[jsonData.terrain] = terrainSvgMapEntry
 	}
 

@@ -18,17 +18,42 @@
 
 #chatDiv {
 	width: 95%;
-	height: 200px;
+	height: 250px;
 	background-color: #efefef;
 	overflow: auto;
 }
 
+.chatTime {
+	clear: both;
+	width: 20%;
+	float: left;
+	padding-top: 0.05em;
+	padding-bottom: 0.05em;
+	padding-right: 0.2em;
+	padding-left: 0.2em;
+}
+
 .chatUser {
 	background-color: #afafff;
+	width: 15%;
+	float: left;
+	padding-top: 0.05em;
+	padding-bottom: 0.05em;
+	padding-right: 0.2em;
+	padding-left: 0.2em;
+}
+
+.chatUserBlank {
 	width: 10%;
+	float: left;
 }
 
 .chatMessage {
-	width: 85%;
+	width: 50%;
+	float: left;
+	padding-top: 0.05em;
+	padding-bottom: 0.05em;
+	padding-right: 0.2em;
+	padding-left: 0.2em;
 }
 

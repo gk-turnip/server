@@ -40,7 +40,7 @@ const _tokenRequest = "/gk/tokenServer"
 const _tokenTimeoutSeconds = 60 * 60
 
 type tokenContextDef struct {
-	randContext *gkrand.GkRandContextDef
+	randContext    *gkrand.GkRandContextDef
 	sessionContext *ses.SessionContextDef
 	gameConfig     *config.GameConfigDef
 	tokenMap       map[string]*tokenEntryDef
@@ -155,4 +155,3 @@ func (tokenContext *tokenContextDef) purgeOldTokenEntries() {
 func (tokenContext *tokenContextDef) getSessionToken() string {
 	return tokenContext.randContext.GetRandomString(12)
 }
-

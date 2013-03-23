@@ -18,8 +18,8 @@
 package field
 
 import (
-	"gk/gkerr"
 	"gk/game/ses"
+	"gk/gkerr"
 )
 
 func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessage WebsocketOpenedMessageDef) *gkerr.GkErrDef {

@@ -18,9 +18,9 @@
 package gkjson
 
 func JsonEscape(message string) string {
-	result := make([]byte,0,len(message) + 4)
+	result := make([]byte, 0, len(message)+4)
 
-	for i := 0;i < len(message); i++ {
+	for i := 0; i < len(message); i++ {
 		switch message[i] {
 		case '~':
 			result = append(result, '.')
@@ -33,4 +33,3 @@ func JsonEscape(message string) string {
 
 	return string(result)
 }
-

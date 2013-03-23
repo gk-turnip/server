@@ -22,4 +22,3 @@ type IsoXYZDef struct {
 	Y int16
 	Z int16
 }
-

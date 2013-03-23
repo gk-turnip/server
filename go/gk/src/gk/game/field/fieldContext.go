@@ -20,11 +20,9 @@ package field
 import (
 	"fmt"
 	"os"
-	"io"
 	"strconv"
 	"sync"
 	"time"
-	"encoding/json"
 )
 
 import (
@@ -37,8 +35,8 @@ import (
 )
 
 type FieldContextDef struct {
-	globalAvatarMap   map[string]*fieldObjectDef
-	globalTerrainMap   map[string]*fieldObjectDef
+	globalAvatarMap        map[string]*fieldObjectDef
+	globalTerrainMap       map[string]*fieldObjectDef
 	websocketConnectionMap map[string]*websocketConnectionContextDef
 	sessionContext         *ses.SessionContextDef
 	WebsocketOpenedChan    chan WebsocketOpenedMessageDef
@@ -49,6 +47,7 @@ type FieldContextDef struct {
 	lastObjectId           int64
 	lastObjectIdMutex      sync.Mutex
 	rainContext            rainContextDef
+	terrainMap             *terrainMapDef
 }
 
 type websocketConnectionContextDef struct {
@@ -79,8 +78,9 @@ type toClientQueueDef struct {
 	queueSize    int
 }
 
-func NewFieldContext(avatarSvgDir string, terrainSvgDir string, sessionContext *ses.SessionContextDef) *FieldContextDef {
+func NewFieldContext(avatarSvgDir string, terrainSvgDir string, sessionContext *ses.SessionContextDef) (*FieldContextDef, *gkerr.GkErrDef) {
 	var fieldContext *FieldContextDef = new(FieldContextDef)
+	var gkErr *gkerr.GkErrDef
 
 	fieldContext.avatarSvgDir = avatarSvgDir
 	fieldContext.terrainSvgDir = terrainSvgDir
@@ -92,7 +92,12 @@ func NewFieldContext(avatarSvgDir string, terrainSvgDir string, sessionContext *
 	fieldContext.WebsocketClosedChan = make(chan WebsocketClosedMessageDef)
 	fieldContext.MessageFromClientChan = make(chan *message.MessageFromClientDef)
 
-	return fieldContext
+	fieldContext.terrainMap, gkErr = NewTerrainMap(fieldContext.terrainSvgDir)
+	if gkErr != nil {
+		return nil, gkErr
+	}
+
+	return fieldContext, nil
 }
 
 func (fieldContext *FieldContextDef) getWebsocketConnectionContextById(sessionId string) (*websocketConnectionContextDef, *gkerr.GkErrDef) {
@@ -261,7 +266,7 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 
 	var gkErr *gkerr.GkErrDef
 
-	gkErr = fieldContext.doTerrainSvg(websocketConnectionContext);
+	gkErr = fieldContext.doTerrainSvg(websocketConnectionContext)
 	if gkErr != nil {
 		return gkErr
 	}
@@ -275,93 +280,12 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 }
 
 func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *websocketConnectionContextDef) *gkerr.GkErrDef {
-/*
-	var dir *os.File
-	var err error
-	var gkErr *gkerr.GkErrDef
-
-	dir, err = os.Open(fieldContext.terrainSvgDir)
-	if err != nil {
-		gkErr = gkerr.GenGkErr("could not open svg dir: "+fieldContext.terrainSvgDir, err, ERROR_ID_SVG_DIR_OPEN)
-		return gkErr
-	}
-
-	defer dir.Close()
-
-	var fileNames []string
-	fileNames, err = dir.Readdirnames(0)
-	if err != nil {
-		gkErr = gkerr.GenGkErr("could not open svg dir: "+fieldContext.terrainSvgDir, err, ERROR_ID_SVG_DIR_READ)
-		return gkErr
-	}
-
-	for i := 0; i < len(fileNames); i++ {
-		if strings.HasPrefix(fileNames[i], "terrain_") {
-			if strings.HasSuffix(fileNames[i], ".json") {
-				var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-				gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.SetTerrainSvgReq, fileNames[i][:len(fileNames[i])-5], nil)
-				if gkErr != nil {
-					return gkErr
-				}
-				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
-			}
-		}
-	}
-
-;zzz
-*/
-
-	var jsonFileName string = fieldContext.terrainSvgDir + string(os.PathSeparator) + "map_terrain.json"
-
-	var jsonFile *os.File
-	var err error
-	var gkErr *gkerr.GkErrDef
-	var jsonData []byte = make([]byte, 0, 256)
-
-	jsonFile, err = os.Open(jsonFileName)
-	if err != nil {
-		gkErr = gkerr.GenGkErr("could not open: " + jsonFileName, err, ERROR_ID_OPEN_TERRAIN_MAP)
-		return gkErr
-	}
-	defer jsonFile.Close()
-
-	var buf []byte
-	var readCount int
-	for {
-		buf = make([]byte, 128, 128)
-		readCount, err = jsonFile.Read(buf)
-		if readCount > 0 {
-			jsonData = append(jsonData, buf[:readCount]...)
-		}
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			gkErr = gkerr.GenGkErr("could not read " + jsonFileName, err, ERROR_ID_READ_TERRAIN_MAP)
-			return gkErr
-		}
-	}
-
-	var terrainMap struct {
-		TileList []struct {
-			Terrain string
-		}
-		ObjectList []struct {
-			Object string
-		}
-	}
-	err = json.Unmarshal(jsonData, &terrainMap)
-	if err != nil {
-		gkErr = gkerr.GenGkErr("json.Unmarshal", err, ERROR_ID_JSON_UNMARSHAL)
-		return gkErr
-	}
-
-	//gklog.LogTrace(fmt.Sprintf("terrainMap: %+v",terrainMap))
 
 	var terrainSentMap map[string]string = make(map[string]string)
+	var gkErr *gkerr.GkErrDef
 
-	for i := 0; i < len(terrainMap.TileList); i++ {
-		var terrain string = terrainMap.TileList[i].Terrain
+	for i := 0; i < len(fieldContext.terrainMap.jsonMapData.TileList); i++ {
+		var terrain string = fieldContext.terrainMap.jsonMapData.TileList[i].Terrain
 		var ok bool
 
 		_, ok = terrainSentMap[terrain]
@@ -377,8 +301,8 @@ func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *we
 		}
 	}
 
-	for i := 0; i < len(terrainMap.ObjectList); i++ {
-		var terrain string = terrainMap.ObjectList[i].Object
+	for i := 0; i < len(fieldContext.terrainMap.jsonMapData.ObjectList); i++ {
+		var terrain string = fieldContext.terrainMap.jsonMapData.ObjectList[i].Object
 		var ok bool
 
 		_, ok = terrainSentMap[terrain]
@@ -417,7 +341,7 @@ func (fieldContext *FieldContextDef) doTerrainMap(websocketConnectionContext *we
 func (fieldContext *FieldContextDef) sendUserName(websocketConnectionContext *websocketConnectionContextDef, userName string) *gkerr.GkErrDef {
 
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-	messageToClient.Command = message.UserNameReq;
+	messageToClient.Command = message.UserNameReq
 	messageToClient.JsonData = []byte("{ \"userName\": \"" + userName + "\" }")
 	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 

@@ -28,9 +28,9 @@ import (
 )
 
 type SessionContextDef struct {
-	sessionMutex  sync.Mutex
-	sessionMap    map[string]*SingleSessionDef
-	randContext *gkrand.GkRandContextDef
+	sessionMutex sync.Mutex
+	sessionMap   map[string]*SingleSessionDef
+	randContext  *gkrand.GkRandContextDef
 }
 
 type SingleSessionDef struct {
@@ -166,4 +166,3 @@ func (singleSession *SingleSessionDef) GetUserName() string {
 func (sessionContext *SessionContextDef) genSessionString() string {
 	return sessionContext.randContext.GetRandomString(12)
 }
-

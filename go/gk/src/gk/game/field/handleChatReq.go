@@ -18,21 +18,21 @@
 package field
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
-	"encoding/json"
 )
 
 import (
 	"gk/game/message"
 	"gk/gkerr"
-	"gk/gklog"
 	"gk/gkjson"
+	"gk/gklog"
 )
 
 type chatReqDef struct {
 	UserName string
-	Message string
+	Message  string
 }
 
 func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.MessageFromClientDef) *gkerr.GkErrDef {
@@ -48,7 +48,7 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 		return gkErr
 	}
 
-	gklog.LogTrace(fmt.Sprintf("chat: t: %v u: %s m: %s",time.Now(),chatReq.UserName, chatReq.Message))
+	gklog.LogTrace(fmt.Sprintf("chat: t: %v u: %s m: %s", time.Now(), chatReq.UserName, chatReq.Message))
 	messageToClient.Command = message.ChatReq
 	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"userName\": \"%s\", \"message\": \"%s\" }", chatReq.UserName, gkjson.JsonEscape(chatReq.Message)))
 

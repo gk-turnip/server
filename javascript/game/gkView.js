@@ -120,8 +120,10 @@ function gkViewAddObjectMapEntry(mapKey, terrainMapMapEntry, terrainSvgMapEntry)
 	var x = viewObjectMapEntry.terrainMapMapEntry.x
 	var y = viewObjectMapEntry.terrainMapMapEntry.y
 	var z = viewObjectMapEntry.terrainMapMapEntry.z
+	var originX = terrainSvgMapEntry.originX;
+	var originY = terrainSvgMapEntry.originY;
 	var isoXYZ = new GkIsoXYZDef(x,y,z);
-	gkIsoSetSvgObjectPositionWithOffset(g, isoXYZ, gkTerrainContext.terrainDiamondOffsetX, gkTerrainContext.terrainDiamondOffsetY);
+	gkIsoSetSvgObjectPositionWithOffset(g, isoXYZ, originX, originY);
 	layer.appendChild(g);
 }
 

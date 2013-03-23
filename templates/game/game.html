@@ -5565,6 +5565,7 @@
 
 <g id="gkView">
 	<g id="gkTerrainBaseLayer"/>
+	<g id="gkTerrainDandelionLayer"/>
 	<g id="gkTerrainObjectLayer"/>
 	<g id="gkRainLayer"/>
 	<g id="gkAvatarLayer"/>
@@ -5624,7 +5625,7 @@
 	<audio id="audio2">Audio Two</audio>
 	<audio id="audio3">Audio Three</audio>
 	<span id="scriptUse"></span>
-<form onsubmit="return doSubmitControls();">
+<form onsubmit="return gkChatSubmit();">
 
 	position <span id="posValueX"></span>, <span id="posValueY"></span>, <span id="posValueZ"></span><br/>
 	zoom: <span id="zoomValue"></span><input id="zoomValueSubmitPlus" type="submit" onclick="doZoomChange(0.1);" value="+1"/>
@@ -5639,87 +5640,15 @@ Height: <input id="svgHeightInput" type="text" size="4"/>
 </div>
 
 <div class="gkGameRight">
-	<form onsubmit="return doSubmitChat();">
+	<form onsubmit="return gkChatSubmit();">
 	Chat <input id="chatInput" type="text"></input>
 	<input id="chatSubmit" type="submit" value="submit"/>
-	<div id="chatDiv">
-		<div>
-		<span class="chatTime" id="chatTime_1"></span>
-		<span class="chatUser" id="chatUser_1"></span>
-		<span class="chatMessage" id="chatMessage_1"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_2"></span>
-		<span class="chatUser" id="chatUser_2"></span>
-		<span class="chatMessage" id="chatMessage_2"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_3"></span>
-		<span class="chatUser" id="chatUser_3"></span>
-		<span class="chatMessage" id="chatMessage_3"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_4"></span>
-		<span class="chatUser" id="chatUser_4"></span>
-		<span class="chatMessage" id="chatMessage_4"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_5"></span>
-		<span class="chatUser" id="chatUser_5"></span>
-		<span class="chatMessage" id="chatMessage_5"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_6"></span>
-		<span class="chatUser" id="chatUser_6"></span>
-		<span class="chatMessage" id="chatMessage_6"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_7"></span>
-		<span class="chatUser" id="chatUser_7"></span>
-		<span class="chatMessage" id="chatMessage_7"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_8"></span>
-		<span class="chatUser" id="chatUser_8"></span>
-		<span class="chatMessage" id="chatMessage_8"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_9"></span>
-		<span class="chatUser" id="chatUser_9"></span>
-		<span class="chatMessage" id="chatMessage_9"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_10"></span>
-		<span class="chatUser" id="chatUser_10"></span>
-		<span class="chatMessage" id="chatMessage_10"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_11"></span>
-		<span class="chatUser" id="chatUser_11"></span>
-		<span class="chatMessage" id="chatMessage_11"></span>
-		</div>
-
-		<div>
-		<span class="chatTime" id="chatTime_12"></span>
-		<span class="chatUser" id="chatUser_12"></span>
-		<span class="chatMessage" id="chatMessage_12"></span>
-		</div>
-	</div>
+	<div id="chatDiv"></div>
 
 	</form>
 </div>
 
-<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.7 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.8 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 
 </body>
 {{end}}

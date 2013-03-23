@@ -22,8 +22,8 @@ package gkrand
 import (
 	c_rand "crypto/rand"
 	m_rand "math/rand"
-	"time"
 	"sync"
+	"time"
 )
 
 import (
@@ -35,17 +35,17 @@ const validDataSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345
 
 type GkRandContextDef struct {
 	mRandContext *m_rand.Rand
-	mutex sync.Mutex
+	mutex        sync.Mutex
 }
 
-func NewGkRandContext() (*GkRandContextDef) {
+func NewGkRandContext() *GkRandContextDef {
 	var gkRandContext *GkRandContextDef = new(GkRandContextDef)
 	var seed int64
 	var err error
 	var gkErr *gkerr.GkErrDef
 
 	seed = time.Now().UnixNano()
-	buf := make([]byte,6,6)
+	buf := make([]byte, 6, 6)
 	_, err = c_rand.Read(buf)
 	if err != nil {
 		// log the error
@@ -67,25 +67,25 @@ func NewGkRandContext() (*GkRandContextDef) {
 }
 
 func (gkRandContext *GkRandContextDef) GetRandomString(length int) string {
-	result := make([]byte,0,length)
+	result := make([]byte, 0, length)
 
 	gkRandContext.mutex.Lock()
 	defer gkRandContext.mutex.Unlock()
 
 	for len(result) < length {
 		var r int64
-		buf := make([]byte,6,6)
+		buf := make([]byte, 6, 6)
 		r = gkRandContext.mRandContext.Int63()
 		r ^= int64(buf[0]) << 16
 		r ^= int64(buf[1]) << 24
 		r ^= int64(buf[2]) << 32
 		r ^= int64(buf[3]) << 40
 
-		for i := 0; i < 10;i++ {
+		for i := 0; i < 10; i++ {
 			var c int
 			c = int(r & 0x3f)
 			if c < len(validDataSet) {
-				result = append(result,validDataSet[c])
+				result = append(result, validDataSet[c])
 				if len(result) >= length {
 					break
 				}
@@ -96,4 +96,3 @@ func (gkRandContext *GkRandContextDef) GetRandomString(length int) string {
 
 	return string(result)
 }
-

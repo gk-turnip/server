@@ -23,6 +23,7 @@
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkField.js" type="text/javascript"></script>
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkDispatch.js" type="text/javascript"></script>
 	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkView.js" type="text/javascript"></script>
+	<script src="{{.WebAddressPrefix}}/assets/gk/javascript/game/gkChat.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
 		var loaded;
@@ -34,6 +35,8 @@
 			var loader = document.createTextNode("Loaded!");
 			var loaded = scriptUse.appendChild(loader);
 			var loader;
+
+			gkChatInit();
 			
 			var s1
 			s1 = document.getElementById("selectAvatar");
@@ -113,6 +116,7 @@
 			gkAudioVolumeChange(volumeId, value);
 		}
 
+/*
 		function doSubmitChat() {
 			var inputText = document.getElementById("chatInput");
 			var message = inputText.value.replace("~",".");
@@ -125,6 +129,7 @@
 			inputText.value = "";
 			return false;
 		}
+*/
 
 		function doSvgWidthHeightChange() {
 			var svgWidth = parseInt(document.getElementById("svgWidthInput").value);
