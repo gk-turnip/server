@@ -28,6 +28,7 @@ function gkFieldContextDef() {
 	this.rightKeyDown = false;
 	this.upKeyDown = false;
 	this.downKeyDown = false;
+	this.lastIntervalTime = 0;
 }
 
 function gkFieldInit() {
@@ -161,7 +162,9 @@ function gkFieldSetNewAvatarDestination(isoXYZ) {
 
 // move all objects closer to their proper destination
 function gkFieldMoveObjects() {
-	gkFieldContext.objectMap
+	//gkFieldContext.objectMap
+
+	var moveFlag = false;
 
 	for (var prop in gkFieldContext.objectMap) {
 		var fieldObject;
@@ -171,6 +174,7 @@ function gkFieldMoveObjects() {
 			var destIsoXYZ = fieldObject.isoXYZDestination
 			if ((curIsoXYZ.x != destIsoXYZ.x) ||
 				(curIsoXYZ.y != destIsoXYZ.y)) {
+	
 				if (destIsoXYZ.x > curIsoXYZ.x) {
 					fieldObject.isoXYZCurrent.x += 1;
 				}
@@ -189,6 +193,7 @@ function gkFieldMoveObjects() {
 						gkFieldUpdatePositionDisplay(fieldObject.isoXYZCurrent);
 					}
 				}
+				moveFlag = true;
 			}
 		}
 		if (gkFieldContext.avatarId != undefined) {
@@ -203,26 +208,36 @@ function gkFieldMoveObjects() {
 				localIsoXYZ.y -= gkViewContext.viewOffsetIsoXYZ.y;
 				localIsoXYZ.z -= gkViewContext.viewOffsetIsoXYZ.z;
 
+				var renderFlag = false;
+
 				var winXY = localIsoXYZ.convertToWin();
 				if (winXY.x < gkViewContext.scrollEdgeX) {
 					gkViewContext.viewOffsetIsoXYZ.x -= 1;
 					gkViewContext.viewOffsetIsoXYZ.y += 1;
+					renderFlag = true;
 					gkViewRender();
 				}
 				if ((winXY.x + gkViewContext.scrollEdgeX) > (gkViewContext.svgWidth / gkViewContext.scale)) {
 					gkViewContext.viewOffsetIsoXYZ.x += 1;
 					gkViewContext.viewOffsetIsoXYZ.y -= 1;
+					renderFlag = true;
 					gkViewRender();
 				}
 				if (winXY.y < gkViewContext.scrollEdgeY) {
 					gkViewContext.viewOffsetIsoXYZ.x -= 1;
 					gkViewContext.viewOffsetIsoXYZ.y -= 1;
+					renderFlag = true;
 					gkViewRender();
 				}
 				if ((winXY.y + gkViewContext.scrollEdgeY) > (gkViewContext.svgHeight / gkViewContext.scale)) {
 					gkViewContext.viewOffsetIsoXYZ.x += 1;
 					gkViewContext.viewOffsetIsoXYZ.y += 1;
+					renderFlag = true;
 					gkViewRender();
+				}
+
+				if (renderFlag) {
+					moveFlag = true;
 				}
 			}
 		}
@@ -249,7 +264,20 @@ function gkFieldMoveObjects() {
 	}
 	if ((gkFieldContext.leftKeyDown) || (gkFieldContext.rightKeyDown) || (gkFieldContext.upKeyDown) || (gkFieldContext.downKeyDown)) {
 		gkFieldSetArrowKeyDestination(moveX, moveY);
+		moveFlag = true;
 	}
+
+	var endTime = (new Date()).getTime();
+
+	if (moveFlag) {
+		if (gkFieldContext.lastIntervalTime > 0) {
+			var duration = endTime - gkFieldContext.lastIntervalTime;
+			var frameRate = document.getElementById("frameRate");
+			frameRate.innerHTML = "fps: " + (1000.0 / duration).toFixed(2);
+		}
+	}
+
+	gkFieldContext.lastIntervalTime = endTime;
 }
 
 // delete all objects from the field
