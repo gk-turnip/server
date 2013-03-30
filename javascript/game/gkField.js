@@ -33,6 +33,7 @@ function gkFieldContextDef() {
 	this.duration1 = 0;
 	this.duration2 = 0;
 	this.duration3 = 0;
+	this.inFocus = true;
 }
 
 function gkFieldInit() {
@@ -288,7 +289,7 @@ function gkFieldMoveObjects() {
 		moveX += 1;
 		moveY += 1;
 	}
-	if ((gkFieldContext.leftKeyDown) || (gkFieldContext.rightKeyDown) || (gkFieldContext.upKeyDown) || (gkFieldContext.downKeyDown)) {
+	if ((gkFieldContext.inFocus) && ((gkFieldContext.leftKeyDown) || (gkFieldContext.rightKeyDown) || (gkFieldContext.upKeyDown) || (gkFieldContext.downKeyDown))) {
 		gkFieldSetArrowKeyDestination(moveX, moveY);
 		moveFlag = true;
 	}
@@ -380,5 +381,21 @@ function gkFieldSetDownKeyDown() {
 
 function gkFieldSetDownKeyUp() {
 	gkFieldContext.downKeyDown = false;
+}
+
+function gkFieldGetFocus() {
+	var inFocus = document.getElementById("inFocus");
+	inFocus.innerHTML="game in focus";
+	inFocus.style.backgroundColor = "green";
+	inFocus.style.color = "white";
+	gkFieldContext.inFocus = true;
+}
+
+function gkFieldLoseFocus() {
+	var inFocus = document.getElementById("inFocus");
+	inFocus.innerHTML="game not in focus";
+	inFocus.style.backgroundColor = "red";
+	inFocus.style.color = "white";
+	gkFieldContext.inFocus = false;
 }
 

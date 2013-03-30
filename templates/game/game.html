@@ -35,7 +35,7 @@
 </svg>
 </div>
 
-<div class="gkGameLeft">
+<div class="gkGameLeft" onfocus="gkFieldGetFocus();" onblur="gkFieldLoseFocus();">
 	<h4>click within grid to move your whatknot, or use the arrow keys</h4>
 	<br/>
 	<select id="selectAvatar" onchange="changeAvatar();">
@@ -99,6 +99,7 @@ Height: <input id="svgHeightInput" type="text" size="4"/>
 
 </form>
 <span id="frameRate"></span>
+<span id="inFocus"></span>
 </div>
 
 <div class="gkGameRight">
