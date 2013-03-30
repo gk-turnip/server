@@ -1,6 +1,6 @@
 {{define "body"}}
 <body style="margin-left:5px; margin-top: 10px;" onload="init();" onKeydown="doKeyDown(event);" onkeyup="doKeyUp(event);">
-<div onclick="doClick(event);" onkeydown="doKeyDown(event);" onkeyup="doKeyUp(event);">
+<div onclick="doClick(event);" onkeydown="doKeyDown(event);" onkeyup="doKeyUp(event);" onfocus="gkFieldGetFocus();" onblur="gkFieldLoseFocus();" tabindex="0">
 <svg 
 	id="gkField" 
 	xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +35,7 @@
 </svg>
 </div>
 
-<div class="gkGameLeft" onfocus="gkFieldGetFocus();" onblur="gkFieldLoseFocus();">
+<div class="gkGameLeft">
 	<h4>click within grid to move your whatknot, or use the arrow keys</h4>
 	<br/>
 	<select id="selectAvatar" onchange="changeAvatar();">
