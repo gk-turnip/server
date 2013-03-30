@@ -49,6 +49,7 @@ then
 	go install gk/gklog
 	go install gk/gktmpl
 	go install gk/gkjson
+	go install gk/gksvg
 	go install pq/pq
 	go install gk/sec
 	go install gk/wf
@@ -68,6 +69,7 @@ then
 	go test gk/gklog
 	go test gk/gktmpl
 	go test gk/gkjson
+	go test gk/gksvg
 	go test gk/sec
 	go test gk/wf
 	go test gk/login

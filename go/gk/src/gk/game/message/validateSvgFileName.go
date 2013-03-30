@@ -17,9 +17,20 @@
 
 package message
 
-const (
-	ERROR_ID_TEMPLATE_PARSE = 0xa000 + iota
-	ERROR_ID_TEMPLATE_EXECUTE
-	ERROR_ID_UNKNOWN_WEBSOCKET_INPUT
-	ERROR_ID_INVALID_SVG_FILENAME
-)
+func validateSvgFileName(fileName string) bool {
+	if len(fileName) < 1 || len(fileName) > 20 {
+		return false
+	}
+
+	for i := 0;i < len(fileName); i++ {
+		if (fileName[i] < '0' || fileName[i] > '9') &&
+			(fileName[i] < 'a' || fileName[i] > 'z') &&
+			(fileName[i] < 'A' || fileName[i] > 'Z') &&
+			(fileName[i] != '-') &&
+			(fileName[i] != '_') {
+			return false
+		}
+	}
+	return true
+}
+

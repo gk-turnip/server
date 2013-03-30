@@ -266,6 +266,7 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 
 	var gkErr *gkerr.GkErrDef
 
+	// the terrain svg must be done before the terrain map
 	gkErr = fieldContext.doTerrainSvg(websocketConnectionContext)
 	if gkErr != nil {
 		return gkErr

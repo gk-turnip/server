@@ -26,6 +26,7 @@ import (
 import (
 	"gk/game/iso"
 	"gk/gkcommon"
+	"gk/gksvg"
 	"gk/gkerr"
 )
 
@@ -44,6 +45,11 @@ type SvgJsonDataDef struct {
 func (messageToClient *MessageToClientDef) BuildSvgMessageToClient(svgDir string, command string, fileName string, svgJsonData *SvgJsonDataDef) *gkerr.GkErrDef {
 	var gkErr *gkerr.GkErrDef
 
+	if !validateSvgFileName(fileName) {
+		gkErr = gkerr.GenGkErr("invalid svg fileName", nil, ERROR_ID_INVALID_SVG_FILENAME)
+		return gkErr
+	}
+
 	messageToClient.Command = command
 
 	jsonFileName := svgDir + string(os.PathSeparator) + fileName + ".json"
@@ -57,7 +63,10 @@ func (messageToClient *MessageToClientDef) BuildSvgMessageToClient(svgDir string
 	if gkErr != nil {
 		return gkErr
 	}
-	messageToClient.Data = fixSvgData(messageToClient.Data)
+	messageToClient.Data, gkErr = gksvg.FixSvgData(messageToClient.Data, fileName)
+	if gkErr != nil {
+		return gkErr
+	}
 
 	if svgJsonData != nil {
 		messageToClient.JsonData, gkErr = templateTranslateJsonData(messageToClient.JsonData, svgJsonData)

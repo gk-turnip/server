@@ -21,20 +21,11 @@ function gkTerrainMapMapEntryDef(x, y, z, terrainName) {
 	this.terrainName = terrainName
 }
 
-function gkTerrainSvgMapEntryDef(terrainName, originX, originY, layer, svgSegment) {
+function gkTerrainSvgMapEntryDef(terrainName, originX, originY, layer) {
 	this.terrainName = terrainName;
 	this.originX = originX;
 	this.originY = originY;
 	this.layer = layer;
-	this.svgSegment = svgSegment;
-	this.subTerrainSvgArray = new Array();
-}
-
-function gkSubTerrainSvgArrayEntryDef(terrainName, fillCount, layer, svgSegment) {
-	this.terrainName = terrainName;
-	this.fillCount = fillCount;
-	this.layer = layer;
-	this.svgSegment = svgSegment;
 }
 
 function gkTerrainInit() {
@@ -42,10 +33,12 @@ function gkTerrainInit() {
 
 // called as a request from the server
 // to set the entire pod terran map
+// the terrain svg must be done before the terrain map
 function gkSetTerrainMap(jsonData) {
 //console.log("gkSetTerrainMap");
 	var i;
 
+console.log("this should be second");
 console.log("tileList.length: " + jsonData.tileList.length);
 	for (i = 0;i < jsonData.tileList.length; i++) {
 		var x, y, z, terrainName;
@@ -58,6 +51,20 @@ console.log("tileList.length: " + jsonData.tileList.length);
 
 		var mapKey = gkTerrainGetMapKey(x, y);
 		gkTerrainContext.terrainMapMap[mapKey] = terrainMapMapEntry;
+
+		var baseLayer = document.getElementById("gkTerrainBaseLayer");
+		var g = document.createElementNS(gkIsoContext.svgNameSpace,"g");
+
+		var isoXYZ = new GkIsoXYZDef(x,y,z);
+		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(x,y);
+
+		if (terrainSvgMapEntry != undefined) {
+			gkIsoSetSvgObjectPositionWithOffset(g, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY);
+			var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
+			ref.setAttributeNS("http://www.w3.org/1999/xlink","href","#t_" + terrainName);
+			g.appendChild(ref);
+			baseLayer.appendChild(g);
+		}
 	}
 
 console.log("objectList.length: " + jsonData.objectList.length);
@@ -74,36 +81,31 @@ console.log("objectList.length: " + jsonData.objectList.length);
 		gkTerrainContext.terrainMapMap[mapKey] = objectMapMapEntry;
 	}
 
+
 	gkViewRender();
 }
 
 // called as a request from the server
 // to set all the svg files for the require terrain
-// this function assumes that the terrain entry is processed
-// before any of that terrain's sub terrain entry
 function gkSetTerrainSvg(jsonData, rawSvgData) {
 //console.log("gkSetTerrainSvg");
+console.log("this should be first");
 	if (jsonData.terrain != undefined) {
-		var terrainName, originX, originY, layer, svgSegment
+		var terrainName, originX, originY, layer;
 
-		terrainName = jsonData.terrain
-		originX = jsonData.originX
-		originY = jsonData.originY
-		layer = jsonData.layer
-		var terrainSvgMapEntry = new gkTerrainSvgMapEntryDef(terrainName, originX, originY, layer, rawSvgData)
-		gkTerrainContext.terrainSvgMap[jsonData.terrain] = terrainSvgMapEntry
-	}
+		terrainName = jsonData.terrain;
+		originX = jsonData.originX;
+		originY = jsonData.originY;
+		layer = jsonData.layer;
+		var terrainSvgMapEntry = new gkTerrainSvgMapEntryDef(terrainName, originX, originY, layer);
+		gkTerrainContext.terrainSvgMap[jsonData.terrain] = terrainSvgMapEntry;
 
-	if (jsonData.subTerrain != undefined) {
-		var terrainName, layer, svgSegment
+		var gkDefs = document.getElementById("gkDefs");
 
-		terrainName = jsonData.subTerrain
-		fillCount = jsonData.fillCount
-		layer = jsonData.layer
+		g = gkIsoCreateSvgObject(rawSvgData);
+		g.setAttribute("id","t_" + jsonData.terrain);
 
-		var subTerrainSvgArrayEntry = new gkSubTerrainSvgArrayEntryDef(terrainName, fillCount, layer, rawSvgData)
-
-		gkTerrainContext.terrainSvgMap[terrainName].subTerrainSvgArray.push(subTerrainSvgArrayEntry);
+		gkDefs.appendChild(g);
 	}
 }
 

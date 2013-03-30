@@ -10,19 +10,21 @@ function gkViewContextDef() {
 	this.fernHeight = 6;
 	this.svgWidth = 600;
 	this.svgHeight = 300;
-	this.viewMap = new Object();
+//	this.viewMap = new Object();
 	this.marginX = 5;
 	this.marginY = 10;
 	this.scrollEdgeX = 100;
 	this.scrollEdgeY = 100;
 }
 
+/*
 function gkViewObjectMapEntryDef(terrainMapMapEntry, terrainSvgMapEntry, g, inUse) {
 	this.terrainMapMapEntry = terrainMapMapEntry
 	this.terrainSvgMapEntry = terrainSvgMapEntry
 	this.g = g
 	this.inUse = inUse;
 }
+*/
 
 // mark every object as not in use
 // traverse every viwable coordiate, fern units at a time
@@ -36,7 +38,7 @@ function gkViewRender() {
 	gkViewContext.fernWidth = Math.round((gkViewContext.svgWidth / 100) / gkViewContext.scale);
 	gkViewContext.fernHeight = Math.round((gkViewContext.svgHeight / 50) / gkViewContext.scale);
 	
-	gkViewSetObjectMapNotUsed();
+//	gkViewSetObjectMapNotUsed();
 
 	var gkField = document.getElementById("gkField");
 
@@ -57,6 +59,7 @@ function gkViewRender() {
 	var gkView = document.getElementById("gkView");
 	gkView.setAttribute("transform","translate(" + (-winXY.x) + "," + (-winXY.y) + ") scale(" + gkViewContext.scale + ")");
 
+/*
 	var start_x, start_y;
 
 	start_x = gkViewContext.viewOffsetIsoXYZ.x - 20;
@@ -80,10 +83,12 @@ function gkViewRender() {
 
 	// remove objects still marked as un used
 	gkViewRemoveNotUsed();
+*/
 }
 
 // called for each position in the viewable area
 // keeps track of which viewMap entries are in use
+/*
 function gkViewRenderSingleFern(rawX, rawY) {
 
 	x = Math.round(rawX / 10) * 10;
@@ -138,13 +143,16 @@ function gkViewRemoveNotUsed() {
 		}
 	}
 }
+*/
 
+/*
 function gkViewSetObjectMapNotUsed() {
 	for (var mapKey in gkViewContext.viewMap) {
 		var objectMapEntry = gkViewContext.viewMap[mapKey]
 		objectMapEntry.inUse = false;
 	}
 }
+*/
 
 function gkViewConvertWinToIso(x, marginX, y, marginY, z) {
 	var winXY = new GkWinXYDef(x - marginX, y - marginY);

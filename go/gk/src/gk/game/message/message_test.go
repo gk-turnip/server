@@ -26,12 +26,14 @@ import (
 )
 
 func TestMessage(t *testing.T) {
-	testTrimBetweenMarkers(t)
-	testTrimCrLf(t)
+//	testTrimBetweenMarkers(t)
+//	testTrimCrLf(t)
 	testPopulateFromMessage(t)
-	testTrimLeadingSpaces(t)
+//	testTrimLeadingSpaces(t)
+	testValidateFileName(t)
 }
 
+/*
 func testTrimBetweenMarkers(t *testing.T) {
 	if string(trimBetweenMarkers(
 		[]byte("one two three four five"), "two", "three")) !=
@@ -199,6 +201,7 @@ func testTrimLeadingSpaces(t *testing.T) {
 		t.Fail()
 	}
 }
+*/
 
 func testPopulateFromMessage(t *testing.T) {
 	//	var command string
@@ -282,3 +285,43 @@ func testPopulateFromMessage(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func testValidateFileName(t *testing.T) {
+	if validateSvgFileName("a/b") {
+		t.Logf("file should be invalid")
+		t.Fail()
+	}
+	if validateSvgFileName("a.b") {
+		t.Logf("file should be invalid")
+		t.Fail()
+	}
+	if validateSvgFileName("~~~") {
+		t.Logf("file should be invalid")
+		t.Fail()
+	}
+	if validateSvgFileName("") {
+		t.Logf("file should be invalid")
+		t.Fail()
+	}
+	if validateSvgFileName("abcdefghijklmnopqrstu") {
+		t.Logf("file should be invalid")
+		t.Fail()
+	}
+	if !validateSvgFileName("ABCDEFGHIJKLMNOPQRST") {
+		t.Logf("file should not be invalid")
+		t.Fail()
+	}
+	if !validateSvgFileName("UVWXYZabcdefghijklmn") {
+		t.Logf("file should not be invalid")
+		t.Fail()
+	}
+	if !validateSvgFileName("opqrstuvwxyz01234567") {
+		t.Logf("file should not be invalid")
+		t.Fail()
+	}
+	if !validateSvgFileName("89_-") {
+		t.Logf("file should not be invalid")
+		t.Fail()
+	}
+}
+
