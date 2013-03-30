@@ -88,6 +88,7 @@ then
 
 	go build -o gk/bin/loginServerMain gk/src/gk/main/loginServerMain.go
 	go build -o gk/bin/gameServerMain gk/src/gk/main/gameServerMain.go
+	go build -o gk/bin/fixSvgMain gk/src/gk/main/fixSvgMain.go
 
 fi
 
