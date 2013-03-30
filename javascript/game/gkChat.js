@@ -52,6 +52,13 @@ function gkChatInit() {
 function gkChatSubmit() {
 	var inputText = document.getElementById("chatInput");
 	var message = inputText.value.replace("~",".");
+	if (message.search("<") + message.search(">") != -2) {
+		if (confirm("Your message may contain HTML tags. These tags, if any, will be shown in their plaintext form. If you want to submit your message as-is, press OK. Press Cancel to edit your message.") == false) {
+			return false;
+		}
+		message = message.replace("<", "&lt;");
+		message = message.replace(">", "&gt;");
+	}
 
 	var jsonMessage = JSON.stringify({ userName: gkWsContext.userName, message: message });
 	if (message.length > 0) {
