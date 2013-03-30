@@ -22,6 +22,7 @@ var gkFieldContext = new gkFieldContextDef();
 
 function gkFieldContextDef() {
 	this.objectMap = new Object();
+	this.refObjectMap = new Object();
 //	this.avatarId = null;
 	this.avatarDestination = null;
 	this.leftKeyDown = false;
@@ -29,23 +30,39 @@ function gkFieldContextDef() {
 	this.upKeyDown = false;
 	this.downKeyDown = false;
 	this.lastIntervalTime = 0;
+	this.duration1 = 0;
+	this.duration2 = 0;
+	this.duration3 = 0;
 }
 
 function gkFieldInit() {
 	setInterval(gkFieldMoveObjects,50)
 }
 
-// the attributes for a single object on the field
-function gkFieldObjectDef(id, userName, g, isoXYZCurrent, isoXYZDestination, originX, originY) {
+// the attributes for a single object on the field <g> tag put into <defs>
+function gkFieldObjectDef(id, g) {
+	this.id = id
+	this.g = g
+//	this.isoXYZCurrent = isoXYZCurrent
+//	this.isoXYZDestination = isoXYZDestination
+//	this.originX = originX
+//	this.originY = originY
+
+//	gkFieldObjectDef.prototype.setDestination = function (isoXYZ) {
+//		this.isoXYZDestination = isoXYZ
+//	}
+}
+
+// the attributes for a single reference on the field <use> tag
+function gkFieldRefObjectDef(id, userName, isoXYZCurrent, isoXYZDestination, originX, originY) {
 	this.id = id
 	this.userName = userName
-	this.g = g
 	this.isoXYZCurrent = isoXYZCurrent
 	this.isoXYZDestination = isoXYZDestination
 	this.originX = originX
 	this.originY = originY
 
-	gkFieldObjectDef.prototype.setDestination = function (isoXYZ) {
+	gkFieldRefObjectDef.prototype.setDestination = function (isoXYZ) {
 		this.isoXYZDestination = isoXYZ
 	}
 }
@@ -54,61 +71,71 @@ function gkFieldObjectDef(id, userName, g, isoXYZCurrent, isoXYZDestination, ori
 function gkFieldAddSvg(jsonData, rawSvgData) {
 //console.log("gkFieldAddSvg id: " + jsonData.id);
 
-	var g = gkIsoCreateSvgObject(rawSvgData);
+	var fieldObject = gkFieldContext.objectMap[jsonData.id];
+	if (fieldObject == undefined) {
+		var g = gkIsoCreateSvgObject(rawSvgData);
+		g.setAttribute("id",jsonData.id);
+		var gkDefs = document.getElementById("gkDefs");
+		gkDefs.appendChild(g);
+		var fieldObject = new gkFieldObjectDef(jsonData.id, g)
+		gkFieldContext.objectMap[fieldObject.id] = fieldObject
+	}
 
+	var g2 = document.createElementNS(gkIsoContext.svgNameSpace,"g");
+
+	var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
+	ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#" + jsonData.id);
 	var isoXYZ = new GkIsoXYZDef(parseInt(jsonData.x), parseInt(jsonData.y), parseInt(jsonData.z))
 	var originX = parseInt(jsonData.originX)
 	var originY = parseInt(jsonData.originY)
-	gkIsoSetSvgObjectPositionWithOffset(g, isoXYZ, originX, originY);
+	gkIsoSetSvgObjectPositionWithOffset(g2, isoXYZ, originX, originY);
+	g2.setAttribute("id","ref_" + jsonData.id)
 
-	g.setAttribute("id",jsonData.id)
-	if (jsonData.clickFunction != undefined) {
-		g.setAttribute("onClick", jsonData.clickFunction);
-	}
 	if ((jsonData.userName != undefined) && (jsonData.userName.length > 0)) {
 		var text = document.createElementNS(gkIsoContext.svgNameSpace, "text");
 		text.setAttribute("stroke","#000000");
 		text.setAttribute("stroke-width","0");
-		text.setAttribute("x","0");
-		text.setAttribute("y",originY);
+		text.setAttribute("x","40");
+		text.setAttribute("y",originY + 50);
 		text.setAttribute("font-size","24");
+		text.setAttribute("style","text-anchor: middle");
 		text.setAttribute("id",jsonData.id + "_userName");
 		var userNameText = document.createTextNode(jsonData.userName);
 		text.appendChild(userNameText)
 
-		g.appendChild(text)
+		g2.appendChild(text)
 	}
 
+	g2.appendChild(ref);
 	var layer;
 	layer = document.getElementById(jsonData.layer);
-	layer.appendChild(g)
+	layer.appendChild(g2)
 
 	var destIsoXYZ = new GkIsoXYZDef(isoXYZ.x, isoXYZ.y, isoXYZ.z)
-	var fieldObject = new gkFieldObjectDef(jsonData.id, jsonData.userName, g, isoXYZ, destIsoXYZ, originX, originY)
-	gkFieldContext.objectMap[fieldObject.id] = fieldObject
-
+	var refObject = new gkFieldRefObjectDef(jsonData.id, jsonData.userName, isoXYZ, destIsoXYZ, originX, originY);
+	gkFieldContext.refObjectMap[refObject.id] = refObject
 	//console.log("got new field object userName: " + jsonData.userName + " id: " + jsonData.id);
 }
 
 // delete an svg object from the field
 function gkFieldDelSvg(jsonData) {
 //console.log("gkFieldDelSvg id: " + jsonData.id);
-	var fieldObject = gkFieldContext.objectMap[jsonData.id];
-	if (fieldObject != undefined) {
-		var g = document.getElementById(fieldObject.id);
-		g.parentNode.removeChild(g);
-		delete gkFieldContext.objectMap[jsonData.id];
+	var refObject = gkFieldContext.refObjectMap[jsonData.id];
+	if (refObject != undefined) {
+		var ref = document.getElementById("ref_" + refObject.id);
+		ref.parentNode.removeChild(ref);
+		delete gkFieldContext.refObjectMap[jsonData.id];
 	}
 }
 
 // move the svg object in the field
 function gkFieldMoveSvg(jsonData) {
 //console.log("gkFieldMoveSvg id: " + jsonData.id);
-	var fieldObject = gkFieldContext.objectMap[jsonData.id];
-	if (fieldObject != undefined) {
-		fieldObject.isoXYZDestination.x = parseInt(jsonData.x)
-		fieldObject.isoXYZDestination.y = parseInt(jsonData.y)
-		fieldObject.isoXYZDestination.z = parseInt(jsonData.z)
+	var refObject = gkFieldContext.refObjectMap[jsonData.id];
+	if (refObject != undefined) {
+		refObject.isoXYZDestination.x = parseInt(jsonData.x)
+		refObject.isoXYZDestination.y = parseInt(jsonData.y)
+		refObject.isoXYZDestination.z = parseInt(jsonData.z)
 	}
 }
 
@@ -124,16 +151,16 @@ function gkFieldLoadNewAvatar(avatarName) {
 // if there is an avarar already, remove it
 function gkFieldRemoveExistingAvatar() {
 	if (gkFieldContext.avatarId != undefined) {
-		var fieldObject = gkFieldContext.objectMap[gkFieldContext.avatarId];
-		if (fieldObject == undefined) {
+		var refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId];
+		if (refObject == undefined) {
 			console.error("ERROR undefined fieldObject trying to remove avatar");
 		} else {
-			var g = document.getElementById(fieldObject.id);
-			if (g == undefined) {
+			var ref = document.getElementById("ref_" + refObject.id);
+			if (ref == undefined) {
 				console.error("ERROR undefined g trying to remove avatar");
 			} else {
-				g.parentNode.removeChild(g);
-				delete gkFieldContext.objectMap[fieldObject.id];
+				ref.parentNode.removeChild(ref);
+				delete gkFieldContext.refObjectMap[refObject.id];
 				delete gkFieldContext.avatarId;
 			}
 		}
@@ -144,19 +171,19 @@ function gkFieldRemoveExistingAvatar() {
 function gkFieldAddAvatar(jsonData, data) {
 	gkFieldContext.avatarId = jsonData.id
 	gkFieldAddSvg(jsonData, data);
-	var fieldObject = gkFieldContext.objectMap[gkFieldContext.avatarId]
-	gkFieldUpdatePositionDisplay(fieldObject.isoXYZCurrent);
+	var refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId]
+	gkFieldUpdatePositionDisplay(refObject.isoXYZCurrent);
 }
 
 // set the current users avatar to a new position
 function gkFieldSetNewAvatarDestination(isoXYZ) {
-	var fieldObject
+	var refObject
 	if (gkFieldContext.avatarId != undefined) {
-		fieldObject = gkFieldContext.objectMap[gkFieldContext.avatarId]
+		refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId]
 	}
-	if (fieldObject != undefined) {
-		fieldObject.setDestination(isoXYZ)
-		gkWsSendMessage("moveAvatarSvgReq~{ \"id\":\"" + fieldObject.id + "\", \"x\":\"" + isoXYZ.x + "\", \"y\": \"" + isoXYZ.y + "\", \"z\": \"" + isoXYZ.z + "\" }~");
+	if (refObject != undefined) {
+		refObject.setDestination(isoXYZ)
+		gkWsSendMessage("moveAvatarSvgReq~{ \"id\":\"" + refObject.id + "\", \"x\":\"" + isoXYZ.x + "\", \"y\": \"" + isoXYZ.y + "\", \"z\": \"" + isoXYZ.z + "\" }~");
 	}
 }
 
@@ -166,43 +193,45 @@ function gkFieldMoveObjects() {
 
 	var moveFlag = false;
 
-	for (var prop in gkFieldContext.objectMap) {
-		var fieldObject;
-		fieldObject = gkFieldContext.objectMap[prop];
-		if (fieldObject.id != undefined) {
-			var curIsoXYZ = fieldObject.isoXYZCurrent
-			var destIsoXYZ = fieldObject.isoXYZDestination
+	for (var prop in gkFieldContext.refObjectMap) {
+		var refObject;
+		refObject = gkFieldContext.refObjectMap[prop];
+		if (refObject.id != undefined) {
+			var curIsoXYZ = refObject.isoXYZCurrent
+			var destIsoXYZ = refObject.isoXYZDestination
 			if ((curIsoXYZ.x != destIsoXYZ.x) ||
 				(curIsoXYZ.y != destIsoXYZ.y)) {
 	
 				if (destIsoXYZ.x > curIsoXYZ.x) {
-					fieldObject.isoXYZCurrent.x += 1;
+					refObject.isoXYZCurrent.x += 1;
 				}
 				if (destIsoXYZ.x < curIsoXYZ.x) {
-					fieldObject.isoXYZCurrent.x -= 1;
+					refObject.isoXYZCurrent.x -= 1;
 				}
 				if (destIsoXYZ.y > curIsoXYZ.y) {
-					fieldObject.isoXYZCurrent.y += 1;
+					refObject.isoXYZCurrent.y += 1;
 				}
 				if (destIsoXYZ.y < curIsoXYZ.y) {
-					fieldObject.isoXYZCurrent.y -= 1;
+					refObject.isoXYZCurrent.y -= 1;
 				}
-				gkIsoSetSvgObjectPositionWithOffset(fieldObject.g, fieldObject.isoXYZCurrent, fieldObject.originX, fieldObject.originY);
+				var ref = document.getElementById("ref_" + refObject.id);
+
+				gkIsoSetSvgObjectPositionWithOffset(ref, refObject.isoXYZCurrent, refObject.originX, refObject.originY);
 				if (gkFieldContext.avatarId != undefined) {
-					if (gkFieldContext.avatarId == fieldObject.id) {
-						gkFieldUpdatePositionDisplay(fieldObject.isoXYZCurrent);
+					if (gkFieldContext.avatarId == refObject.id) {
+						gkFieldUpdatePositionDisplay(refObject.isoXYZCurrent);
 					}
 				}
 				moveFlag = true;
 			}
 		}
 		if (gkFieldContext.avatarId != undefined) {
-			if (gkFieldContext.avatarId == fieldObject.id) {
+			if (gkFieldContext.avatarId == refObject.id) {
 
 				var localIsoXYZ = new GkIsoXYZDef(
-					fieldObject.isoXYZCurrent.x,
-					fieldObject.isoXYZCurrent.y,
-					fieldObject.isoXYZCurrent.z);
+					refObject.isoXYZCurrent.x,
+					refObject.isoXYZCurrent.y,
+					refObject.isoXYZCurrent.z);
 
 				localIsoXYZ.x -= gkViewContext.viewOffsetIsoXYZ.x;
 				localIsoXYZ.y -= gkViewContext.viewOffsetIsoXYZ.y;
@@ -215,29 +244,26 @@ function gkFieldMoveObjects() {
 					gkViewContext.viewOffsetIsoXYZ.x -= 1;
 					gkViewContext.viewOffsetIsoXYZ.y += 1;
 					renderFlag = true;
-					gkViewRender();
 				}
 				if ((winXY.x + gkViewContext.scrollEdgeX) > (gkViewContext.svgWidth / gkViewContext.scale)) {
 					gkViewContext.viewOffsetIsoXYZ.x += 1;
 					gkViewContext.viewOffsetIsoXYZ.y -= 1;
 					renderFlag = true;
-					gkViewRender();
 				}
 				if (winXY.y < gkViewContext.scrollEdgeY) {
 					gkViewContext.viewOffsetIsoXYZ.x -= 1;
 					gkViewContext.viewOffsetIsoXYZ.y -= 1;
 					renderFlag = true;
-					gkViewRender();
 				}
 				if ((winXY.y + gkViewContext.scrollEdgeY) > (gkViewContext.svgHeight / gkViewContext.scale)) {
 					gkViewContext.viewOffsetIsoXYZ.x += 1;
 					gkViewContext.viewOffsetIsoXYZ.y += 1;
 					renderFlag = true;
-					gkViewRender();
 				}
 
 				if (renderFlag) {
 					moveFlag = true;
+					gkViewRender();
 				}
 			}
 		}
@@ -272,8 +298,11 @@ function gkFieldMoveObjects() {
 	if (moveFlag) {
 		if (gkFieldContext.lastIntervalTime > 0) {
 			var duration = endTime - gkFieldContext.lastIntervalTime;
+			gkFieldContext.duration3 = gkFieldContext.duration2;
+			gkFieldContext.duration2 = gkFieldContext.duration1;
+			gkFieldContext.duration1 = duration;
 			var frameRate = document.getElementById("frameRate");
-			frameRate.innerHTML = "fps: " + (1000.0 / duration).toFixed(2);
+			frameRate.innerHTML = "fps: " + (3000.0 / (gkFieldContext.duration1 + gkFieldContext.duration2 + gkFieldContext.duration3)).toFixed(2);
 		}
 	}
 
@@ -283,17 +312,17 @@ function gkFieldMoveObjects() {
 // delete all objects from the field
 // called if we lose communications from the server
 function gkFieldDelAllObjects() {
-	for (var prop in gkFieldContext.objectMap) {
-		var fieldObject;
-		fieldObject = gkFieldContext.objectMap[prop];
-		if (fieldObject.id != undefined) {
-			var g = document.getElementById(fieldObject.id);
-			if (g == undefined) {
+	for (var prop in gkFieldContext.refObjectMap) {
+		var refObject;
+		refObject = gkFieldContext.refObjectMap[prop];
+		if (refObject.id != undefined) {
+			var ref = document.getElementById("ref_" + refObject.id);
+			if (ref == undefined) {
 				console.error("ERROR did not find g in delete all id: " + fieldObject.id);
 			} else {
-				g.parentNode.removeChild(g);
+				ref.parentNode.removeChild(ref);
 			}
-			delete gkFieldContext.objectMap[fieldObject.id];
+			delete gkFieldContext.refObjectMap[refObject.id];
 		}
 	}
 	delete gkFieldContext.avatarId;
@@ -313,10 +342,10 @@ function gkFieldUpdatePositionDisplay(isoXYZCurrent) {
 
 function gkFieldSetArrowKeyDestination(x,y) {
 	if (gkFieldContext.avatarId != undefined) {
-		var fieldObject = gkFieldContext.objectMap[gkFieldContext.avatarId];
-		if (fieldObject != undefined) {
-			fieldObject.isoXYZDestination.x = fieldObject.isoXYZCurrent.x + x;
-			fieldObject.isoXYZDestination.y = fieldObject.isoXYZCurrent.y + y;
+		var refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId];
+		if (refObject != undefined) {
+			refObject.isoXYZDestination.x = refObject.isoXYZCurrent.x + x;
+			refObject.isoXYZDestination.y = refObject.isoXYZCurrent.y + y;
 		}
 	}
 }

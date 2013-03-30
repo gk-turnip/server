@@ -24,16 +24,11 @@
 // note: all ISO coordinates are in deciferns or 1/10 of a fern 
 // which is 5 wide and 2.5 high in svg units
 
-//var GK_SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-//var GK_SVG_MARGIN_X = 5;
-//var GK_SVG_MARGIN_Y = 5;
-//var GK_SVG_WIDTH = 600;
-//var GK_SVG_HEIGHT = 300;
-
 var gkIsoContext = new gkIsoContextDef();
 
 function gkIsoContextDef() {
 	this.svgNameSpace = "http://www.w3.org/2000/svg";
+	this.xlinkNameSpace = "http://www.w3.org/1999/xlink";
 }
 
 // create and return a single small diamond (1/10 fern sized)
@@ -100,6 +95,16 @@ function gkIsoSetSvgObjectPositionWithOffset(svgDiamond, isoXYZ, originX, origin
 	winXY.x -= originX
 	winXY.y -= originY
 	svgDiamond.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ")");
+}
+
+// set the position of the <use>, with originX and originY offsets
+function gkIsoSetSvgUsePositionWithOffset(useObj, isoXYZ, originX, originY) {
+	var winXY;
+	winXY = isoXYZ.convertToWin();
+	winXY.x -= originX;
+	winXY.y -= originY;
+	useObj.setAttribute("x",winXY.x);
+	useObj.setAttribute("y",winXY.y);
 }
 
 // a windows x,y object

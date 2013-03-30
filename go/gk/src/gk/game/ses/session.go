@@ -30,7 +30,7 @@ import (
 type SessionContextDef struct {
 	sessionMutex sync.Mutex
 	sessionMap   map[string]*SingleSessionDef
-	randContext  *gkrand.GkRandContextDef
+	RandContext  *gkrand.GkRandContextDef
 }
 
 type SingleSessionDef struct {
@@ -45,7 +45,7 @@ func NewSessionContext(randContext *gkrand.GkRandContextDef) *SessionContextDef 
 	var sessionContext *SessionContextDef = new(SessionContextDef)
 
 	sessionContext.sessionMap = make(map[string]*SingleSessionDef)
-	sessionContext.randContext = randContext
+	sessionContext.RandContext = randContext
 
 	return sessionContext
 }
@@ -164,5 +164,5 @@ func (singleSession *SingleSessionDef) GetUserName() string {
 }
 
 func (sessionContext *SessionContextDef) genSessionString() string {
-	return sessionContext.randContext.GetRandomString(12)
+	return sessionContext.RandContext.GetRandomString(12)
 }

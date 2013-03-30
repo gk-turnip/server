@@ -38,7 +38,6 @@ function gkSetTerrainMap(jsonData) {
 //console.log("gkSetTerrainMap");
 	var i;
 
-console.log("this should be second");
 console.log("tileList.length: " + jsonData.tileList.length);
 	for (i = 0;i < jsonData.tileList.length; i++) {
 		var x, y, z, terrainName;
@@ -53,17 +52,15 @@ console.log("tileList.length: " + jsonData.tileList.length);
 		gkTerrainContext.terrainMapMap[mapKey] = terrainMapMapEntry;
 
 		var baseLayer = document.getElementById("gkTerrainBaseLayer");
-		var g = document.createElementNS(gkIsoContext.svgNameSpace,"g");
 
 		var isoXYZ = new GkIsoXYZDef(x,y,z);
 		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(x,y);
 
 		if (terrainSvgMapEntry != undefined) {
-			gkIsoSetSvgObjectPositionWithOffset(g, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY);
 			var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
-			ref.setAttributeNS("http://www.w3.org/1999/xlink","href","#t_" + terrainName);
-			g.appendChild(ref);
-			baseLayer.appendChild(g);
+			ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#t_" + terrainName);
+			gkIsoSetSvgUsePositionWithOffset(ref, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY);
+			baseLayer.appendChild(ref);
 		}
 	}
 
@@ -79,6 +76,18 @@ console.log("objectList.length: " + jsonData.objectList.length);
 
 		var mapKey = gkTerrainGetMapKey(x, y);
 		gkTerrainContext.terrainMapMap[mapKey] = objectMapMapEntry;
+
+		var objectLayer = document.getElementById("gkTerrainObjectLayer");
+
+		var isoXYZ = new GkIsoXYZDef(x,y,z);
+		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(x,y);
+
+		if (terrainSvgMapEntry != undefined) {
+			var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
+			ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#t_" + objectName);
+			gkIsoSetSvgUsePositionWithOffset(ref, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY);
+			objectLayer.appendChild(ref);
+		}
 	}
 
 
@@ -89,10 +98,10 @@ console.log("objectList.length: " + jsonData.objectList.length);
 // to set all the svg files for the require terrain
 function gkSetTerrainSvg(jsonData, rawSvgData) {
 //console.log("gkSetTerrainSvg");
-console.log("this should be first");
 	if (jsonData.terrain != undefined) {
 		var terrainName, originX, originY, layer;
 
+console.log("gkSetTerrainSvg name: " + jsonData.terrain);
 		terrainName = jsonData.terrain;
 		originX = jsonData.originX;
 		originY = jsonData.originY;

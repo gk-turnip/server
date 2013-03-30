@@ -74,7 +74,17 @@ func (gkRandContext *GkRandContextDef) GetRandomString(length int) string {
 
 	for len(result) < length {
 		var r int64
+		var err error
+		var gkErr *gkerr.GkErrDef
+
 		buf := make([]byte, 6, 6)
+		_, err = c_rand.Read(buf)
+		if err != nil {
+			// log the error
+			// but this error is not fatal
+			gkErr = gkerr.GenGkErr("c_rand.Read", err, ERROR_ID_RAND_READ)
+			gklog.LogGkErr("", gkErr)
+		}
 		r = gkRandContext.mRandContext.Int63()
 		r ^= int64(buf[0]) << 16
 		r ^= int64(buf[1]) << 24
@@ -96,3 +106,26 @@ func (gkRandContext *GkRandContextDef) GetRandomString(length int) string {
 
 	return string(result)
 }
+
+func (gkRandContext *GkRandContextDef) GetRandomByte() byte {
+	gkRandContext.mutex.Lock()
+	defer gkRandContext.mutex.Unlock()
+
+	var err error
+	var gkErr *gkerr.GkErrDef
+
+	buf := make([]byte, 1, 1)
+	_, err = c_rand.Read(buf)
+	if err != nil {
+		// log the error
+		// but this error is not fatal
+		gkErr = gkerr.GenGkErr("c_rand.Read", err, ERROR_ID_RAND_READ)
+		gklog.LogGkErr("", gkErr)
+	}
+	var r int64
+	r = gkRandContext.mRandContext.Int63()
+	r ^= int64(buf[0])
+
+	return byte(r)
+}
+

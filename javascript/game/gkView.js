@@ -17,20 +17,7 @@ function gkViewContextDef() {
 	this.scrollEdgeY = 100;
 }
 
-/*
-function gkViewObjectMapEntryDef(terrainMapMapEntry, terrainSvgMapEntry, g, inUse) {
-	this.terrainMapMapEntry = terrainMapMapEntry
-	this.terrainSvgMapEntry = terrainSvgMapEntry
-	this.g = g
-	this.inUse = inUse;
-}
-*/
-
-// mark every object as not in use
-// traverse every viwable coordiate, fern units at a time
-// display the entry and mark it as used
-// and then remove any viewMap objects that were not used
-// since they should be objects that have scrolled off screen
+// change the offset and scale of the view
 function gkViewRender() {
 
 	console.log("gkViewRender");
@@ -38,8 +25,6 @@ function gkViewRender() {
 	gkViewContext.fernWidth = Math.round((gkViewContext.svgWidth / 100) / gkViewContext.scale);
 	gkViewContext.fernHeight = Math.round((gkViewContext.svgHeight / 50) / gkViewContext.scale);
 	
-//	gkViewSetObjectMapNotUsed();
-
 	var gkField = document.getElementById("gkField");
 
 	gkField.setAttribute("width",gkViewContext.svgWidth);
@@ -59,100 +44,7 @@ function gkViewRender() {
 	var gkView = document.getElementById("gkView");
 	gkView.setAttribute("transform","translate(" + (-winXY.x) + "," + (-winXY.y) + ") scale(" + gkViewContext.scale + ")");
 
-/*
-	var start_x, start_y;
-
-	start_x = gkViewContext.viewOffsetIsoXYZ.x - 20;
-	start_y = gkViewContext.viewOffsetIsoXYZ.y;
-
-	for (i = 0;i < (gkViewContext.fernHeight + 2); i++) {
-		var x, y;
-		x = start_x;
-		y = start_y;
-		gkViewRenderSingleFern(x,y);
-		for (j = 0;j < (gkViewContext.fernWidth + 2); j++) {
-			x += 10;
-			gkViewRenderSingleFern(x,y);
-			y -= 10;
-			gkViewRenderSingleFern(x,y);
-		}
-
-		start_x += 10;
-		start_y += 10;
-	}
-
-	// remove objects still marked as un used
-	gkViewRemoveNotUsed();
-*/
 }
-
-// called for each position in the viewable area
-// keeps track of which viewMap entries are in use
-/*
-function gkViewRenderSingleFern(rawX, rawY) {
-
-	x = Math.round(rawX / 10) * 10;
-	y = Math.round(rawY / 10) * 10;
-	var mapKey = gkTerrainGetMapKey(x, y);
-
-	var viewObjectMapEntry = gkViewContext.viewMap[mapKey]
-
-	if (viewObjectMapEntry == null) {
-		var terrainMapMapEntry = gkTerrainGetMapMapEntry(x, y);
-		// possibly undefined because the render loop went outside the terrain map
-		if (terrainMapMapEntry == undefined) {
-//			console.error("terrainMapMapEntry undefined for x,y: " + x + "," + y);
-		} else {
-			var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(x, y);
-
-			if (terrainSvgMapEntry == undefined) {
-//				console.error("terranSvgMapEntry undefined for x,y: " + x + "," + y);
-			} else {
-				gkViewAddObjectMapEntry(mapKey, terrainMapMapEntry, terrainSvgMapEntry)
-				viewObjectMapEntry = gkViewContext.viewMap[mapKey]
-			}
-		}
-	} else {
-		viewObjectMapEntry.inUse = true;
-	}
-}
-
-function gkViewAddObjectMapEntry(mapKey, terrainMapMapEntry, terrainSvgMapEntry) {
-	g = gkIsoCreateSvgObject(terrainSvgMapEntry.svgSegment);
-	var viewObjectMapEntry = new gkViewObjectMapEntryDef(terrainMapMapEntry, terrainSvgMapEntry, g, true);
-	gkViewContext.viewMap[mapKey] = viewObjectMapEntry;
-	var layer = document.getElementById(terrainSvgMapEntry.layer);
-	var x = viewObjectMapEntry.terrainMapMapEntry.x
-	var y = viewObjectMapEntry.terrainMapMapEntry.y
-	var z = viewObjectMapEntry.terrainMapMapEntry.z
-	var originX = terrainSvgMapEntry.originX;
-	var originY = terrainSvgMapEntry.originY;
-	var isoXYZ = new GkIsoXYZDef(x,y,z);
-	gkIsoSetSvgObjectPositionWithOffset(g, isoXYZ, originX, originY);
-	layer.appendChild(g);
-}
-
-function gkViewRemoveNotUsed() {
-	for (var mapKey in gkViewContext.viewMap) {
-		if (!gkViewContext.viewMap[mapKey].inUse) {
-			// delete from gkField
-			var g = gkViewContext.viewMap[mapKey].g
-			g.parentNode.removeChild(g);
-			// delete from viewMap
-			delete gkViewContext.viewMap[mapKey];
-		}
-	}
-}
-*/
-
-/*
-function gkViewSetObjectMapNotUsed() {
-	for (var mapKey in gkViewContext.viewMap) {
-		var objectMapEntry = gkViewContext.viewMap[mapKey]
-		objectMapEntry.inUse = false;
-	}
-}
-*/
 
 function gkViewConvertWinToIso(x, marginX, y, marginY, z) {
 	var winXY = new GkWinXYDef(x - marginX, y - marginY);
