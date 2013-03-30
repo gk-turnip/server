@@ -18,6 +18,7 @@
 package field
 
 import (
+	"strings"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -41,6 +42,7 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 	var chatReq chatReqDef
 	var gkErr *gkerr.GkErrDef
 	var err error
+	var msgIn string
 
 	err = json.Unmarshal(messageFromClient.JsonData, &chatReq)
 	if err != nil {
@@ -48,7 +50,14 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 		return gkErr
 	}
 
+	msgIn = chatReq.Message
 	gklog.LogTrace(fmt.Sprintf("chat: t: %v u: %s m: %s", time.Now(), chatReq.UserName, chatReq.Message))
+	chatReq.Message = strings.Replace(chatReq.Message, "<", "&lt;", -1)
+	chatReq.Message = strings.Replace(chatReq.Message, ">", "&gt;", -1)
+	if msgIn != chatReq.Message {
+		gklog.LogTrace("Previous message scrubbed")
+	}
+
 	messageToClient.Command = message.ChatReq
 	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"userName\": \"%s\", \"message\": \"%s\" }", chatReq.UserName, gkjson.JsonEscape(chatReq.Message)))
 
