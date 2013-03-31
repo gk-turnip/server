@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<script src="http://www.gourdianknot.com/assets/gk/javascript/game/gkIso.js" type="text/javascript"></script>
+		
+		<script type="text/javascript">
+			function init() {
+				console.log("init");
+			}
+
+			var gkToolContext = new gkToolContextDef();
+
+			function gkToolContextDef() {
+				this.svgMap = new Object();
+			}
+
+			function gkToolSvgEntryDef(fileName, rawSvgData) {
+				this.fileName = fileName;
+				this.rawSvgData = rawSvgData;
+			}
+
+		function init() {
+			var browserCompatible = document.getElementById("browserCompatible");
+			if (window.File && window.FileReader && window.FileList && window.Blob) {
+				browserCompatible.innerHTML = "is compatible";
+			} else {
+				browserCompatible.innerHTML = "is not compatible";
+			}
+
+			document.getElementById("files").addEventListener('change', handleFileSelect, false);
+		}
+
+		function handleFileSelect(event) {
+			var i
+			files = event.target.files;
+			for (i = 0;i < files.length;i++) {
+				var localFile = files[i];
+
+				console.log(localFile);
+
+				var reader = new FileReader();
+				reader.onprogress = doFileProgress;
+//				reader.onload = doFileLoad;
+				reader.onerror = doFileError;
+				reader.readAsText(localFile, "UTF-8");
+
+				console.log("localFile.name: " + localFile.name);
+
+				reader.onload = (
+						function (fileName) {
+						return function (evt) {
+						gotFile(fileName,evt.target.result);
+						};
+					}(localFile.name)
+						);
+			}
+		}
+
+		function doFileProgress(evt) {
+			console.log("progress: loaded: " + evt.loaded + " total: " + evt.total);
+		}
+
+		function doFileError(evt) {
+			console.log("error: " + evt.target.error.name);
+		}
+
+		function gotFile(fileName, rawSvgData) {
+			console.log("got file: " + fileName);
+			var shortFileName = fileName.substring(0, fileName.length - 4)
+
+			var svgEntry = new gkToolSvgEntryDef(shortFileName, rawSvgData);
+			gkToolContext.svgMap[svgEntry.fileName] = svgEntry
+
+			var oldEntry = document.getElementById(shortFileName);
+			if (oldEntry != undefined) {
+				oldEntry.parentNode.removeChild(oldEntry);
+			}
+
+			var g = gkIsoCreateSvgObject(rawSvgData);
+			g.setAttribute("id",shortFileName);
+			var isoXYZ = new GkIsoXYZDef(10, 10, 0);
+			gkIsoSetSvgObjectPosition(g, isoXYZ);
+			var field = document.getElementById("gkField");
+			field.appendChild(g)
+
+			var oldLi = document.getElementById("li_" + shortFileName)
+			if (oldLi != undefined) {
+				oldLi.parentNode.removeChild(oldLi);
+			}
+			var newLi = document.createElement("li");
+			newLi.setAttribute("id","li_" + shortFileName);
+			newLi.innerHTML = shortFileName;
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","del");
+			newSubmit.onclick = function() { doClick(shortFileName) };
+			newSubmit.setAttribute("name","name goes here");
+			newLi.appendChild(newSubmit);
+
+			var ulObjects = document.getElementById("ulObjects");
+			ulObjects.appendChild(newLi);
+		}
+
+		function doClick(id) {
+			console.log("do click id: " + id);
+		}
+
+	</script>
+
+	</head>
+
+	<body onload="init();">
+<svg
+    id="gkField"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    version="1.1"
+    inkscape:version="0.48.2 r9819"
+    sodipodi:docname="baby whatnot slice setup.svg"
+    xmlns:i="http://ns.adobe.com/AdobeIllustrator/10.0/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    x="0px"
+    y="0px"
+    width="600"
+    height="300"
+    xml:space="preserve">
+</svg>		
+	<br/>
+		<span id="browserCompatible">one</span>
+		<input type="file" id="files" name="files[]" multiple/>
+
+		<form onsubmit="return false;">
+		<div>
+			<ul id="ulObjects">
+			</ul>
+		</div>
+		</form>
+	</body>
+
+</html>
+
