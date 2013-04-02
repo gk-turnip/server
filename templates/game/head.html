@@ -28,6 +28,7 @@
 	<script type="text/javascript">
 		var loaded;
 		var mode;
+		var moveMarker;
 		function init() {
 			console.log("calling init");
 
@@ -101,6 +102,11 @@
 			gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
 
 			gkAudioStartAudio(2, "boing");
+
+			if (moveMarker) {
+				objectLayer.removeChild(moveMarker);
+			}
+			moveMarker = g;
 		}
 
 		function changeAvatar() {
