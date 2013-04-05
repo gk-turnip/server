@@ -15,11 +15,23 @@
 
 			function gkToolContextDef() {
 				this.svgMap = new Object();
+				this.assembleMap = new Object();
+				this.animateMap = new Object();
+				this.liSvgPrefix = "lis_";
+				this.liAssemblePrefix = "lias_";
+				this.liAnimatePrefix = "lian_";
+				this.assemblePrix = "asm_";
+				this.animiatePrix = "ani_";
 			}
 
 			function gkToolSvgEntryDef(fileName, rawSvgData) {
 				this.fileName = fileName;
 				this.rawSvgData = rawSvgData;
+			}
+
+			function gkToolAssembleEntryDef(id, assembleObject) {
+				this.id = id;
+				this.assembleObject = assembleObject;
 			}
 
 		function init() {
@@ -39,11 +51,8 @@
 			for (i = 0;i < files.length;i++) {
 				var localFile = files[i];
 
-				console.log(localFile);
-
 				var reader = new FileReader();
 				reader.onprogress = doFileProgress;
-//				reader.onload = doFileLoad;
 				reader.onerror = doFileError;
 				reader.readAsText(localFile, "UTF-8");
 
@@ -69,44 +78,272 @@
 
 		function gotFile(fileName, rawSvgData) {
 			console.log("got file: " + fileName);
-			var shortFileName = fileName.substring(0, fileName.length - 4)
+			if (fileName.length > 4) {
+				var suffix = fileName.substring(fileName.length - 3, fileName.length);
+				suffix = suffix.toLowerCase();
+				if (suffix == "svg") {
+					var shortFileName = fileName.substring(0, fileName.length - 4);
+					gotSvgFile(shortFileName, rawSvgData);
+				}
+			}
+			if (fileName.length > 5) {
+				var suffix = fileName.substring(fileName.length - 4, fileName.length);
+				suffix = suffix.toLowerCase();
+				if (suffix == "json") {
+					var shortFileName = fileName.substring(0, fileName.length -5);
+					gotJsonFile(shortFileName, rawSvgData);
+				}
+			}
+		}
 
-			var svgEntry = new gkToolSvgEntryDef(shortFileName, rawSvgData);
+		function gotSvgFile(id, rawSvgData) {
+
+			var svgEntry = new gkToolSvgEntryDef(id, rawSvgData);
 			gkToolContext.svgMap[svgEntry.fileName] = svgEntry
 
-			var oldEntry = document.getElementById(shortFileName);
+			var oldEntry = document.getElementById(id);
 			if (oldEntry != undefined) {
 				oldEntry.parentNode.removeChild(oldEntry);
 			}
 
 			var g = gkIsoCreateSvgObject(rawSvgData);
-			g.setAttribute("id",shortFileName);
+			g.setAttribute("id",id);
+			//g.setAttributeNS(gkIsoContext.svgNameSpace,"id",id);
 			var isoXYZ = new GkIsoXYZDef(10, 10, 0);
 			gkIsoSetSvgObjectPosition(g, isoXYZ);
-			var field = document.getElementById("gkField");
+			var field = document.getElementById("piecesGroup");
 			field.appendChild(g)
 
-			var oldLi = document.getElementById("li_" + shortFileName)
+			var oldLi = document.getElementById(gkToolContext.liSvgPrefix + id)
 			if (oldLi != undefined) {
 				oldLi.parentNode.removeChild(oldLi);
 			}
 			var newLi = document.createElement("li");
-			newLi.setAttribute("id","li_" + shortFileName);
-			newLi.innerHTML = shortFileName;
+			newLi.setAttribute("id",gkToolContext.liSvgPrefix + id);
+			newLi.innerHTML = id;
 
 			var newSubmit = document.createElement("input");
 			newSubmit.setAttribute("type","submit");
 			newSubmit.setAttribute("value","del");
-			newSubmit.onclick = function() { doClick(shortFileName) };
-			newSubmit.setAttribute("name","name goes here");
+			newSubmit.onclick = function() { doDeleteSvg(id) };
 			newLi.appendChild(newSubmit);
 
-			var ulObjects = document.getElementById("ulObjects");
-			ulObjects.appendChild(newLi);
+			var svgObjects = document.getElementById("svgObjects");
+			svgObjects.appendChild(newLi);
 		}
 
-		function doClick(id) {
-			console.log("do click id: " + id);
+		function gotJsonFile(id, rawJsonData) {
+			var jsonObject = JSON.parse(rawJsonData, null);
+			if (jsonObject != undefined) {
+				if (jsonObject.type != undefined) {
+					if (jsonObject.type == "assemble") {
+						gotAssembleFile(id, jsonObject);
+					}
+					if (jsonObject.type == "animate") {
+						gotAnimateFile(id, jsonObject);
+					}
+				}
+			}
+		}
+
+		function gotAssembleFile(id, assembleObject) {
+console.log("got assemble file: " + id);
+			var oldEntry = document.getElementById(gkToolContext.assemblePrefix + id);
+			if (oldEntry != undefined) {
+				oldEntry.parentNode.removeChild(oldEntry);
+			}
+
+			var oldLi = document.getElementById(gkToolContext.liAssemblePrefix + id)
+			if (oldLi != undefined) {
+				oldLi.parentNode.removeChild(oldLi);
+			}
+			var newLi = document.createElement("li");
+			newLi.setAttribute("id",gkToolContext.liAssemblePrefix + id);
+			newLi.innerHTML = id;
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","del");
+			newSubmit.onclick = function() { doDeleteAssemble(id) };
+			newLi.appendChild(newSubmit);
+
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","run");
+			newSubmit.onclick = function() { doRunAssemble(id) };
+			newLi.appendChild(newSubmit);
+
+			var assembleObjects = document.getElementById("assembleObjects");
+			assembleObjects.appendChild(newLi);
+
+			var assembleEntry = new gkToolAssembleEntryDef(id, assembleObject);
+			gkToolContext.assembleMap[id] = assembleEntry;
+		}
+
+		function gotAnimateFile(id, animateObject) {
+console.log("got animate file: " + id);
+		}
+
+		function doDeleteSvg(id) {
+			var oldEntry = document.getElementById(id);
+			if (oldEntry != undefined) {
+				oldEntry.parentNode.removeChild(oldEntry);
+			}
+
+			oldEntry = document.getElementById(gkToolContext.liSvgPrefix + id);
+			if (oldEntry != undefined) {
+				oldEntry.parentNode.removeChild(oldEntry);
+			}
+
+			delete gkToolContext.svgMap[id];
+		}
+
+		function doDeleteAssemble(id) {
+			var oldEntry = document.getElementById(gkToolContext.liAssemblePrefix + id);
+			if (oldEntry != undefined) {
+				oldEntry.parentNode.removeChild(oldEntry);
+			}
+
+			delete gkToolContext.assembleMap[id];
+		}
+
+		function doRunAssemble(id) {
+console.log("doRunAssemble: " + id);
+			var assembleEntry = gkToolContext.assembleMap[id];
+
+			if (assembleEntry != undefined) {
+console.log("got proper assembleEntry");
+				//clearSvg();
+				assembleSvg(assembleEntry.id, assembleEntry.assembleObject);
+			}
+		}
+
+		function clearSvg() {
+			for (var prop in gkToolContext.svgMap) {
+				var oldEntry = document.getElementById(prop);
+				if (oldEntry != undefined) {
+					oldEntry.parentNode.removeChild(oldEntry);
+				}
+			}
+		}
+
+		function assembleSvg(id, assembleObject) {
+			assembleGroup = document.getElementById("assembleGroup");
+
+			for (var prop in assembleObject) {
+console.log("assembleSvg prop: " + prop);
+				if (prop == "group") {
+					assembleSvgGroup(assembleObject[prop], assembleGroup);
+				}
+				if (prop == "piecesList") {
+					assembleSvgPiecesList(assembleObject[prop], assembleGroup);
+				}
+			}
+		}
+
+		function assembleSvgGroup(group, currentGroup) {
+			console.log("group: " + group.id);
+
+			//var childGroup = document.createElement("g");
+			var childGroup = document.createElementNS(gkIsoContext.svgNameSpace,"g");
+			currentGroup.appendChild(childGroup);
+			for (var prop in group) {
+				if (prop == "transformList") {
+					var transformObject = new Object();
+					transformObject.transform = "";
+					assembleSvgTransformList(group[prop], transformObject);
+					childGroup.setAttribute("transform",transformObject.transform);
+					//childGroup.setAttributeNS(gkIsoContext.svgNameSpace,"transform",transformObject.transform);
+				}
+				if (prop == "piecesList") {
+					assembleSvgPiecesList(group[prop], childGroup);
+				}
+			}
+		}
+
+		function assembleSvgPiecesList(piecesList, currentGroup) {
+			console.log("piecesList: " + piecesList.length);
+
+			//var childGroup = document.createElement("g");
+			var childGroup = document.createElementNS(gkIsoContext.svgNameSpace,"g");
+			currentGroup.appendChild(childGroup);
+			var i;
+			for (i = 0;i < piecesList.length;i++) {
+				var pieceEntry = piecesList[i];
+
+				for (var prop in pieceEntry) {
+console.log("pieceList: " + i + " " + prop);
+					if (prop == "group") {
+						assembleSvgGroup(pieceEntry[prop], childGroup);
+					}
+					if (prop == "piece") {
+						assembleSvgPiece(pieceEntry[prop], childGroup);
+					}
+				}
+			}
+		}
+
+		function assembleSvgPiece(piece, currentGroup) {
+			console.log("piece: " + piece.id);
+
+			//var childGroup = document.createElement("g");
+			var childGroup = document.createElementNS(gkIsoContext.svgNameSpace,"g");
+			currentGroup.appendChild(childGroup);
+
+			if (piece.transformList != undefined) {
+				var transformObject = new Object();
+				transformObject.transform = "";
+				assembleSvgTransformList(piece.transformList, transformObject);
+
+				childGroup.setAttribute("transform",transformObject.transform);
+				//childGroup.setAttributeNS(gkIsoContext.svgNameSpace,"transform",transformObject.transform);
+			}
+
+			var id = piece.id;
+			var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
+			ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#" + id);
+			//var ref = document.createElementNS("http://www.w3.org/2000/svg","use");
+			//ref.setAttributeNS("http://www.w3.org/1999/xlink","href","#" + id);
+			childGroup.appendChild(ref);
+		}
+
+		function assembleSvgTransformList(transformList, transformObject) {
+			console.log("transformList: " + transformList.length);
+			var i;
+			for (i = 0;i < transformList.length;i++) {
+				assembleSvgTransform(transformList[i].transform, transformObject);
+			}
+			console.log("transform set: " + transformObject.transform);
+		}
+
+		function assembleSvgTransform(transform, transformObject) {
+			console.log("transform type: " + transform.type);
+			console.log("transform x: " + transform.x);
+			console.log("transform y: " + transform.y);
+			console.log("transform angle: " + transform.angle);
+
+			var tran = "";
+
+			if (transform.type == "translate") {
+				tran = "translate(" + transform.x + "," + transform.y + ")";
+			}
+			if (transform.type == "rotate") {
+				tran = "rotate(" + transform.angle + "," + transform.x + "," + transform.y + ")";
+			}
+			if (transform.type == "scale") {
+				tran = "scale(" + transform.x + "," + transform.y + ")";
+			}
+			if (transform.type == "skewX") {
+				tran = "skewX(" + transform.x + ")";
+			}
+			if (transform.type == "skewY") {
+				tran = "skewY(" + transform.y + ")";
+			}
+			if (transformObject.transform != "") {
+				transformObject.transform = transformObject.transform + " ";
+			}
+
+			transformObject.transform = transformObject.transform + tran;
 		}
 
 	</script>
@@ -130,9 +367,15 @@
     xmlns:xlink="http://www.w3.org/1999/xlink"
     x="0px"
     y="0px"
-    width="600"
-    height="300"
+    width="800"
+    height="500"
     xml:space="preserve">
+
+<defs id="piecesGroup">
+</defs>
+
+<g id="assembleGroup"></g>
+
 </svg>		
 	<br/>
 		<span id="browserCompatible">one</span>
@@ -140,10 +383,15 @@
 
 		<form onsubmit="return false;">
 		<div>
-			<ul id="ulObjects">
+			<ul id="svgObjects">
+			</ul>
+		</div>
+		<div>
+			<ul id="assembleObjects">
 			</ul>
 		</div>
 		</form>
+<p>The svg sanitizer tool can be found <a href="http://www.gourdianknot.com/gktool/utils">here</a>.</p>
 	</body>
 
 </html>
