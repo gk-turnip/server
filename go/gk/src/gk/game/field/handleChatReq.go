@@ -54,6 +54,7 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 	gklog.LogTrace(fmt.Sprintf("chat: t: %v u: %s m: %s", time.Now(), chatReq.UserName, chatReq.Message))
 	chatReq.Message = strings.Replace(chatReq.Message, "<", "&lt;", -1)
 	chatReq.Message = strings.Replace(chatReq.Message, ">", "&gt;", -1)
+	chatReq.Message = strings.Replace(chatReq.Message, "\\", "&#92;", -1)
 	if msgIn != chatReq.Message {
 		gklog.LogTrace("Previous message scrubbed")
 	}
