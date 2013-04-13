@@ -20,8 +20,10 @@
 				this.liSvgPrefix = "lis_";
 				this.liAssemblePrefix = "lias_";
 				this.liAnimatePrefix = "lian_";
-				this.assemblePrix = "asm_";
-				this.animiatePrix = "ani_";
+				this.assemblePrefix = "asm_";
+				this.animiatePrefix = "ani_";
+				this.selectPrefix = "sel_";
+				this.nextId = 1;
 			}
 
 			function gkToolSvgEntryDef(fileName, rawSvgData) {
@@ -36,10 +38,10 @@
 
 		function init() {
 			var browserCompatible = document.getElementById("browserCompatible");
-			if (window.File && window.FileReader && window.FileList && window.Blob) {
-				browserCompatible.innerHTML = "is compatible";
+			if (window.File && window.FileReader && window.FileList && window.Blob && window.URL && window.URL.createObjectURL) {
+				browserCompatible.innerHTML = "your browser is compatible";
 			} else {
-				browserCompatible.innerHTML = "is not compatible";
+				browserCompatible.innerHTML = "your browser is not compatible";
 			}
 
 			document.getElementById("files").addEventListener('change', handleFileSelect, false);
@@ -173,6 +175,18 @@ console.log("got assemble file: " + id);
 			newSubmit.onclick = function() { doRunAssemble(id) };
 			newLi.appendChild(newSubmit);
 
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","save");
+			newSubmit.onclick = function() { doSaveAssemble(id) };
+			newLi.appendChild(newSubmit);
+
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","select");
+			newSubmit.onclick = function() { doSelectAssemble(id) };
+			newLi.appendChild(newSubmit);
+
 			var assembleObjects = document.getElementById("assembleObjects");
 			assembleObjects.appendChild(newLi);
 
@@ -209,12 +223,35 @@ console.log("got animate file: " + id);
 
 		function doRunAssemble(id) {
 console.log("doRunAssemble: " + id);
+			clearAssembleGroup();
 			var assembleEntry = gkToolContext.assembleMap[id];
 
 			if (assembleEntry != undefined) {
-console.log("got proper assembleEntry");
 				//clearSvg();
 				assembleSvg(assembleEntry.id, assembleEntry.assembleObject);
+			}
+		}
+
+		function doSaveAssemble(id) {
+			var assembleEntry = gkToolContext.assembleMap[id];
+			if (assembleEntry != undefined) {
+				var serialized = [JSON.stringify(assembleEntry.assembleObject)]
+				var b = new Blob(serialized, { type: "application/octet-binary"});
+				var objectURL = window.URL.createObjectURL(b);
+
+				var downloadAssemble = document.getElementById("downloadAssemble");
+				downloadAssemble.href = objectURL;
+			}
+		}
+
+		function clearAssembleGroup() {
+			var assembleGroup = document.getElementById("assembleGroup");
+
+			var childNodes = assembleGroup.childNodes
+			var i;
+			for (i = 0;i < childNodes.length;i++) {
+				var node = childNodes[i];
+				node.parentNode.removeChild(node);
 			}
 		}
 
@@ -231,7 +268,6 @@ console.log("got proper assembleEntry");
 			assembleGroup = document.getElementById("assembleGroup");
 
 			for (var prop in assembleObject) {
-console.log("assembleSvg prop: " + prop);
 				if (prop == "group") {
 					assembleSvgGroup(assembleObject[prop], assembleGroup);
 				}
@@ -242,9 +278,6 @@ console.log("assembleSvg prop: " + prop);
 		}
 
 		function assembleSvgGroup(group, currentGroup) {
-			console.log("group: " + group.id);
-
-			//var childGroup = document.createElement("g");
 			var childGroup = document.createElementNS(gkIsoContext.svgNameSpace,"g");
 			currentGroup.appendChild(childGroup);
 			for (var prop in group) {
@@ -262,9 +295,6 @@ console.log("assembleSvg prop: " + prop);
 		}
 
 		function assembleSvgPiecesList(piecesList, currentGroup) {
-			console.log("piecesList: " + piecesList.length);
-
-			//var childGroup = document.createElement("g");
 			var childGroup = document.createElementNS(gkIsoContext.svgNameSpace,"g");
 			currentGroup.appendChild(childGroup);
 			var i;
@@ -272,7 +302,6 @@ console.log("assembleSvg prop: " + prop);
 				var pieceEntry = piecesList[i];
 
 				for (var prop in pieceEntry) {
-console.log("pieceList: " + i + " " + prop);
 					if (prop == "group") {
 						assembleSvgGroup(pieceEntry[prop], childGroup);
 					}
@@ -308,20 +337,13 @@ console.log("pieceList: " + i + " " + prop);
 		}
 
 		function assembleSvgTransformList(transformList, transformObject) {
-			console.log("transformList: " + transformList.length);
 			var i;
 			for (i = 0;i < transformList.length;i++) {
 				assembleSvgTransform(transformList[i].transform, transformObject);
 			}
-			console.log("transform set: " + transformObject.transform);
 		}
 
 		function assembleSvgTransform(transform, transformObject) {
-			console.log("transform type: " + transform.type);
-			console.log("transform x: " + transform.x);
-			console.log("transform y: " + transform.y);
-			console.log("transform angle: " + transform.angle);
-
 			var tran = "";
 
 			if (transform.type == "translate") {
@@ -346,7 +368,565 @@ console.log("pieceList: " + i + " " + prop);
 			transformObject.transform = transformObject.transform + tran;
 		}
 
+		function doCreateAssemble() {
+			var id
+			var createAssembleId = document.getElementById("createAssembleId");
+			id = createAssembleId.value;
+			var jsonObject = { "type": "assemble" };
+			gotAssembleFile(id, jsonObject);
+		}
+
+		function doSelectAssemble(id) {
+			var assembleEntry = gkToolContext.assembleMap[id];
+			if (assembleEntry != undefined) {
+				clearAssembleList();
+				setAssembleListId(id);
+			}
+		}
+
+		function clearAssembleList() {
+			var assembleList = document.getElementById("assembleList");
+
+			var childNodes = assembleList.childNodes
+			var i;
+			for (i = (childNodes.length - 1);i >= 0;i--) {
+				var node = childNodes[i];
+				node.parentNode.removeChild(node);
+			}
+		}
+
+		function setAssembleListId(id) {
+			var newUl = document.createElement("ul");
+
+			var newLi = document.createElement("li");
+			newUl.appendChild(newLi);
+
+			var newSpan = document.createElement("span");
+			newSpan.innerHTML = id;
+			newLi.appendChild(newSpan);
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","select");
+			newSubmit.onclick = function() { addGroupControlsSet(id, [], -1) };
+			newLi.appendChild(newSubmit);
+
+			var assembleList = document.getElementById("assembleList");
+			assembleList.appendChild(newUl);
+
+			var assembleEntry = gkToolContext.assembleMap[id];
+			var node = assembleEntry.assembleObject;
+
+			var stack = new Array();
+
+			addNodeSelect(id, node, stack, newUl);
+		}
+
+		function addNodeSelect(id, node, stack, newUl) {
+			if (node.group != undefined) {
+				stack.push("group");
+
+				var newLi = document.createElement("li");
+				newLi.setAttribute("id",gkToolContext.liSvgPrefix + id);
+				newUl.appendChild(newLi);
+
+				var newSpan = document.createElement("span");
+				newSpan.innerHTML = getStackSpacing(stack, 0) + "group: " + node.group.id;
+				newLi.appendChild(newSpan);
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","submit");
+				newSubmit.setAttribute("value","select");
+console.log("adding stack: " + stack.toString());
+				newSubmit.onclick = function() { addGroupControlsSet(id, stack.toString(), -1) };
+				newLi.appendChild(newSubmit);
+				stack.pop();
+			}
+			if (node.transformList != undefined) {
+				stack.push("transformList");
+				addTransformListControlsSelect(id, node.transformList, stack, -1, newUl);
+				var i
+				for (i = 0;i < node.transformList.length;i++) {
+					stack.push(i);
+					stack.push("transform");
+					addTransformListControlsSelect(id, node.transformList, stack, i, newUl);
+					stack.pop();
+					stack.pop();
+				}
+				stack.pop();
+			}
+			if (node.piecesList != undefined) {
+				stack.push("piecesList");
+				addPiecesListControlsSelect(id, node.piecesList, stack, -1, newUl);
+				var i
+				for (i = 0;i < node.piecesList.length;i++) {
+					stack.push(i);
+					stack.push("piece");
+					addPiecesListControlsSelect(id, node.piecesList[i], stack, i, newUl);
+					stack.pop();
+					stack.pop();
+				}
+				stack.pop();
+			}
+
+			if (node.group != undefined) {
+				stack.push("group");
+				addNodeSelect(id, node.group, stack, newUl);
+				stack.pop();
+			}
+		}
+
+		function addGroupControlsSet(id, stack) {
+console.log("addGroupControlsSet " + id + " <" + stack + ">");
+			doClearControls();
+
+			var currentControls = document.getElementById("currentControls");
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","text");
+			newSubmit.setAttribute("id","groupId");
+			currentControls.appendChild(newSubmit);
+
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","new group");
+			newSubmit.onclick = function() { doControlNewGroup(id) };
+			currentControls.appendChild(newSubmit);
+
+			var newBr = document.createElement("br");
+			currentControls.appendChild(newBr);
+
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","new pieces list");
+			newSubmit.onclick = function() { doControlNewPiecesList(id) };
+			currentControls.appendChild(newSubmit);
+
+//			newSubmit = document.createElement("input");
+//			newSubmit.setAttribute("type","submit");
+//			newSubmit.setAttribute("value","new transform list");
+//			newSubmit.onclick = function() { doControlNewTransformList(id) };
+//			currentControls.appendChild(newSubmit);
+		}
+
+		function addPiecesControlsSet(id, stack, index) {
+console.log("addPiecesControlsSet " + id + " <" + stack + "> index: " + index);
+			doClearControls();
+
+			var currentControls = document.getElementById("currentControls");
+
+			if (index == -1) {
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","submit");
+				newSubmit.setAttribute("value","new piece");
+				localStack = stack.toString();
+				newSubmit.onclick = function() { doControlNewPiece(id, localStack, index) };
+				currentControls.appendChild(newSubmit);
+			} else {
+				var node = getNodeFromStack(id, stack, index);
+console.log("got node: node.piece.id: " + node.piece.id);
+				var newSelect = document.createElement("select");
+				currentControls.appendChild(newSelect);
+
+				if (node.piece.id == "unknown") {
+					var newOption = document.createElement("option");
+					newOption.value = "unknown";
+					newOption.innerHTML = "unknown";
+					newSelect.appendChild(newOption);
+				}
+
+				var newOption;
+				for (var prop in gkToolContext.svgMap) {
+					var newOption = document.createElement("option");
+					newOption.value = prop;
+					newOption.innerHTML = prop;
+					if (prop == node.piece.id) {
+						newOption.selected = "selected"
+					}
+					newSelect.appendChild(newOption);
+				}
+			
+				var localStack
+				localStack = stack.toString();
+				newSelect.id = gkToolContext.selectPrefix + gkToolContext.nextId;
+				gkToolContext.nextId += 1;
+				newSelect.onchange = function() { doControlChangePieceId(id, localStack, index, newSelect.id) };
+
+				currentControls.appendChild(newSelect);
+
+				if (node.piece.transformList == undefined) {
+					var newSubmit = document.createElement("input");
+					newSubmit.setAttribute("type","submit");
+					newSubmit.setAttribute("value","create transform list");
+					localStack = stack.toString();
+					newSubmit.onclick = function() { doControlNewTransformList(id, localStack, index) };
+					currentControls.appendChild(newSubmit);
+				}
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","submit");
+				newSubmit.setAttribute("value","del");
+				localStack = stack.toString();
+				newSubmit.onclick = function() { doControlDeletePiece(id, localStack, index) };
+				currentControls.appendChild(newSubmit);
+			}
+		}
+
+		function doControlChangePieceId(id, stack, index, selectId) {
+			console.log("doControlChangePieceId " + stack);
+
+			var node = getNodeFromStack(id, stack, index);
+
+			var select = document.getElementById(selectId);
+
+			node.piece.id = select.value;
+
+			doSelectAssemble(id);
+		}
+
+		function doControlDeletePiece(id, stack, index) {
+			console.log("doControlDeletePiece " + stack);
+
+			var node = getNodeFromStack(id, stack, -1);
+
+			var i
+
+			if (node.length < 2) {
+				node = new Array();
+			} else {
+				for (i = index; i < (node.length - 1);i++) {
+					node[i] = node[i + 1];
+				}
+				node.pop();
+			}
+
+			doClearControls();
+			doSelectAssemble(id);
+		}
+
+		function doControlNewTransformList(id, stack, index) {
+			console.log("doControlNewTransformList " + stack);
+
+			var node = getNodeFromStack(id, stack, index);
+
+			node.piece.transformList = new Array();
+
+			doSelectAssemble(id);
+		}
+
+		function getNodeFromStack(id, stack, index) {
+			var assembleEntry = gkToolContext.assembleMap[id];
+
+			var stackWords = stack.split(",")
+console.log("stack words " + stackWords);
+
+			var node = assembleEntry.assembleObject;
+
+			dumpNode("start node: ", node);
+			for (var i = 0;i < stackWords.length;i++) {
+console.log("stack entry: " + stackWords[i]);
+				if (/^\d+$/.test(stackWords[i])) {
+					var j
+					j = parseInt(stackWords[i]);
+console.log(" push into numeric: " + j);
+					node = node[j];
+				} else {
+console.log(" push into stackEntry: " + stackWords[i]);
+					node = node[stackWords[i]];
+				}
+				dumpNode(" new node at: " + i + " ", node);
+			}
+			console.log(" ");
+
+//			if (index != -1) {
+//				node = node[index];
+//			}
+
+			return node;
+		}
+
+		function dumpNode(string, node) {
+
+			if (node == undefined) {
+				console.log("dumpNode undefined");
+			} else {
+				var nodeType = " type of: " + typeof(node) + " " + Object.prototype.toString.call(node);
+				var nodeHas = "";
+				if (node.hasOwnProperty("group")) {
+					nodeHas = " has group";
+				}
+				if (node.hasOwnProperty("id")) {
+					nodeHas = " has id of: " + node.id;
+				}
+				if (node.hasOwnProperty("transformList")) {
+					nodeHas = " has transformList";
+				}
+				if (node.hasOwnProperty("piecesList")) {
+					nodeHas = " has piecesList";
+				}
+				if (node.hasOwnProperty("piece")) {
+					nodeHas = " has piece";
+				}
+				if (node.hasOwnProperty("transform")) {
+					nodeHas = " has transform";
+				}
+				if (node.hasOwnProperty("x")) {
+					nodeHas = " has x: " + node.x;
+				}
+				if (node.hasOwnProperty("y")) {
+					nodeHas = " has y: " + node.y;
+				}
+
+				console.log("dumpNode " + string + nodeType + " " + nodeHas);
+			}
+		}
+
+		function addTransformControlsSet(id, stack, index) {
+console.log("addTransformControlsSet " + id + " <" + stack + "> index: " + index);
+			doClearControls();
+
+			var currentControls = document.getElementById("currentControls");
+			var node = getNodeFromStack(id, stack, index);
+
+			if (index == -1) {
+				newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","submit");
+				newSubmit.setAttribute("value","new transform");
+				var localStack = stack.toString();
+				newSubmit.onclick = function() { doControlNewTransformEntry(id, localStack, index) };
+				currentControls.appendChild(newSubmit);
+
+			} else {
+dumpNode("in transform: ", node);
+				var newSelect = document.createElement("select");
+				currentControls.appendChild(newSelect);
+
+				var newOption = document.createElement("option");
+				newOption.value = "translate";
+				newOption.innerHTML = "translate";
+				newSelect.appendChild(newOption);
+
+				newOption = document.createElement("option");
+				newOption.value = "rotate";
+				newOption.innerHTML = "rotate";
+				if (node.type == "rotate") {
+					newOption.selected = "selected";
+				}
+				newSelect.appendChild(newOption);
+
+				newOption = document.createElement("option");
+				newOption.value = "scale";
+				newOption.innerHTML = "scale";
+				if (node.type == "scale") {
+					newOption.selected = "selected";
+				}
+				newSelect.appendChild(newOption);
+
+				newOption = document.createElement("option");
+				newOption.value = "skewX";
+				newOption.innerHTML = "skewX";
+				if (node.type == "skewX") {
+					newOption.selected = "selected";
+				}
+				newSelect.appendChild(newOption);
+
+				newOption = document.createElement("option");
+				newOption.value = "skewY";
+				newOption.innerHTML = "skewY";
+				if (node.type == "skewY") {
+					newOption.selected = "selected";
+				}
+				newSelect.appendChild(newOption);
+
+				var newSpan = document.createElement("span");
+				newSpan.innerHTML = "x";
+				currentControls.appendChild(newSpan);
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","text");
+				newSubmit.setAttribute("value",node.x);
+				currentControls.appendChild(newSubmit);
+
+				var newSpan = document.createElement("span");
+				newSpan.innerHTML = "y";
+				currentControls.appendChild(newSpan);
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","text");
+				newSubmit.setAttribute("value",node.y);
+				currentControls.appendChild(newSubmit);
+
+				var newSpan = document.createElement("span");
+				newSpan.innerHTML = "angle";
+				currentControls.appendChild(newSpan);
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","text");
+				newSubmit.setAttribute("value",node.angle);
+				currentControls.appendChild(newSubmit);
+			}
+		}
+
+		function addTransformListControlsSelect(id, node, stack, index, newUl) {
+			var newLi = document.createElement("li");
+			newLi.setAttribute("id",gkToolContext.liSvgPrefix + id);
+			newUl.appendChild(newLi);
+
+			var newSpan = document.createElement("span");
+			newSpan.innerHTML = getStackSpacing(stack, index) + "transformList";
+			if (index != -1) {
+				newSpan.innerHTML += " " + index;
+			}
+			newLi.appendChild(newSpan);
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","select");
+
+			var localStack = stack.toString();
+			newSubmit.onclick = function() { addTransformControlsSet(id, localStack, index) };
+			newLi.appendChild(newSubmit);
+		}
+
+		function addPiecesListControlsSelect(id, node, stack, index, newUl) {
+			var newLi = document.createElement("li");
+			newLi.setAttribute("id",gkToolContext.liSvgPrefix + id);
+			newUl.appendChild(newLi);
+
+			var newSpan = document.createElement("span");
+			if (index == -1) {
+				newSpan.innerHTML = getStackSpacing(stack, index) + "pieces list";
+			} else {
+				newSpan.innerHTML = getStackSpacing(stack, index) + "piece " + node.piece.id + " " + index;
+			}
+			newLi.appendChild(newSpan);
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","select");
+
+			var localStack = stack.toString();
+			newSubmit.onclick = function() { addPiecesControlsSet(id, localStack, index) };
+			newLi.appendChild(newSubmit);
+
+			if (index != -1) {
+				if (node.piece.transformList != undefined) {
+					stack.push("transformList");
+					addTransformListControlsSelect(id, node.piece.transformList, stack, -1, newUl);
+					var i
+					for (i = 0;i < node.piece.transformList.length;i++) {
+						stack.push(i);
+						stack.push("transform");
+						addTransformListControlsSelect(id, node.piece.transformList, stack, i, newUl);
+						stack.pop();
+						stack.pop();
+					}
+					stack.pop();
+				}
+			}
+		}
+
+		function getStackSpacing(stack, index) {
+			var spacing = "";
+			var i;
+			for (i = 0;i < stack.length;i++) {
+				spacing = spacing + ".";
+			}
+			if (index != -1) {
+				spacing = spacing + ".";
+			}
+			return spacing;
+		}
+
+		function doControlNewGroup(id) {
+			console.log("doControlNewGroup");
+			var assembleEntry = gkToolContext.assembleMap[id];
+
+			var group = new Object();
+			var groupIdInput = document.getElementById("groupId");
+			group.id = groupIdInput.value;
+			assembleEntry.assembleObject.group = group
+			doSelectAssemble(id);
+		}
+
+		function doControlNewPiecesList(id) {
+			console.log("doControlNewPiecesList");
+			var assembleEntry = gkToolContext.assembleMap[id];
+
+			assembleEntry.assembleObject.piecesList = new Array();
+			doSelectAssemble(id);
+		}
+
+		function doControlNewPiece(id, stack, index) {
+			console.log("doControlNewPiece " + stack.toString() + " " + stack.length);
+
+			var node = getNodeFromStack(id, stack, index);
+
+			var pieceListEntry = new Object();
+			var piece = new Object();
+			piece.id = "unknown";
+			pieceListEntry.piece = piece
+			node.push(pieceListEntry);
+
+			doSelectAssemble(id);
+		}
+
+		function doControlNewTransformEntry(id, stack, index) {
+			console.log("doControlNewTransformEntry " + stack.toString() + " " + stack.length);
+
+			var node = getNodeFromStack(id, stack, index);
+
+			var ListEntry = new Object();
+			var transform = new Object();
+			transform.type = "translate";
+			transform.x = "0";
+			transform.y = "0";
+	
+			node.push(transform);
+
+			doSelectAssemble(id);
+		}
+
+		function doClearControls() {
+			var currentControls = document.getElementById("currentControls");
+
+			var childNodes = currentControls.childNodes
+			var i;
+			for (i = (childNodes.length - 1);i >= 0;i--) {
+				var node = childNodes[i];
+				node.parentNode.removeChild(node);
+			}
+		}
+
 	</script>
+
+	<style type="text/css">
+		.whole {
+			width: 95%;
+		}
+		#currentControls {
+			width: 95%;
+			background-color: #efefef;
+		}
+		#assembleList {
+			width: 32%;
+			float: left;
+			background-color: #efffef;
+		}
+		.svgObjects {
+			width: 32%;
+			float: left;
+			background-color: #efefff;
+		}
+		.assembleObjects {
+			width: 32%;
+			float: left;
+			background-color: #ffefef;
+		}
+		.trailer {
+			clear: both;
+		}
+	</style>
 
 	</head>
 
@@ -371,27 +951,35 @@ console.log("pieceList: " + i + " " + prop);
     height="500"
     xml:space="preserve">
 
-<defs id="piecesGroup">
-</defs>
-
+<defs id="piecesGroup"></defs>
 <g id="assembleGroup"></g>
 
 </svg>		
 	<br/>
 		<span id="browserCompatible">one</span>
 		<input type="file" id="files" name="files[]" multiple/>
+		<a id="downloadAssemble">download saved assembly</a>
 
 		<form onsubmit="return false;">
-		<div>
-			<ul id="svgObjects">
-			</ul>
+		<div id="currentControls">
 		</div>
-		<div>
-			<ul id="assembleObjects">
-			</ul>
+		<div class="whole">
+			<div id="assembleList">
+			</div>
+			<div class="assembleObjects">
+				<input id="createAssembleId" size="8" type="text"/><input type="submit" onclick="doCreateAssemble();" value="Create Assembly"/><br/>
+				<ul id="assembleObjects">
+				</ul>
+			</div>
+			<div class="svgObjects">
+				<ul id="svgObjects"></ul>
+			</div>
 		</div>
 		</form>
+		<div class="trailer">
 <p>The svg sanitizer tool can be found <a href="http://www.gourdianknot.com/gktool/utils">here</a>.</p>
+		</div>
+	<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.14 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 	</body>
 
 </html>
