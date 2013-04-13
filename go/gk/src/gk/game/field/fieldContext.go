@@ -330,7 +330,6 @@ func (fieldContext *FieldContextDef) doTerrainMap(websocketConnectionContext *we
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 	messageToClient.Command = message.SetTerrainMapReq
 	var jsonFileName string = fieldContext.terrainSvgDir + string(os.PathSeparator) + "map_terrain.json"
-	var jsonTemp string
 	messageToClient.JsonData, gkErr = gkcommon.GetFileContents(jsonFileName)
 	if gkErr != nil {
 		return gkErr
@@ -338,8 +337,7 @@ func (fieldContext *FieldContextDef) doTerrainMap(websocketConnectionContext *we
 	var jsonTemp string = string(messageToClient.JsonData)
 	jsonTemp = strings.Replace(jsonTemp, "\n", "", -1)
 	jsonTemp = strings.Replace(jsonTemp, " ", "", -1)
-	jsonTemp = strings.Replace(jsonTemp, "	", "", -1)
-//	believe it or not, the above actually replaces tab
+	jsonTemp = strings.Replace(jsonTemp, "\t", "", -1)
 	messageToClient.JsonData = []byte(jsonTemp)
 	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 

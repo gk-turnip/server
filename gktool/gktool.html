@@ -519,16 +519,16 @@ console.log("addPiecesControlsSet " + id + " <" + stack + "> index: " + index);
 				var newSubmit = document.createElement("input");
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","new piece");
-				localStack = stack.toString();
+				var localStack = stack.toString();
 				newSubmit.onclick = function() { doControlNewPiece(id, localStack, index) };
 				currentControls.appendChild(newSubmit);
 			} else {
 				var node = getNodeFromStack(id, stack, index);
-console.log("got node: node.piece.id: " + node.piece.id);
+console.log("got node: node.id: " + node.id);
 				var newSelect = document.createElement("select");
 				currentControls.appendChild(newSelect);
 
-				if (node.piece.id == "unknown") {
+				if (node.id == "unknown") {
 					var newOption = document.createElement("option");
 					newOption.value = "unknown";
 					newOption.innerHTML = "unknown";
@@ -540,35 +540,50 @@ console.log("got node: node.piece.id: " + node.piece.id);
 					var newOption = document.createElement("option");
 					newOption.value = prop;
 					newOption.innerHTML = prop;
-					if (prop == node.piece.id) {
+					if (prop == node.id) {
 						newOption.selected = "selected"
 					}
 					newSelect.appendChild(newOption);
 				}
 			
-				var localStack
-				localStack = stack.toString();
+				var localStack_id;
+				localStack_id = stack.toString();
 				newSelect.id = gkToolContext.selectPrefix + gkToolContext.nextId;
 				gkToolContext.nextId += 1;
-				newSelect.onchange = function() { doControlChangePieceId(id, localStack, index, newSelect.id) };
+				newSelect.onchange = function() { doControlChangePieceId(id, localStack_id, index, newSelect.id) };
 
 				currentControls.appendChild(newSelect);
 
-				if (node.piece.transformList == undefined) {
+				if (node.transformList == undefined) {
 					var newSubmit = document.createElement("input");
 					newSubmit.setAttribute("type","submit");
 					newSubmit.setAttribute("value","create transform list");
-					localStack = stack.toString();
-					newSubmit.onclick = function() { doControlNewTransformList(id, localStack, index) };
+					var localStack_tr = stack.toString();
+					newSubmit.onclick = function() { doControlNewTransformList(id, localStack_tr, index) };
 					currentControls.appendChild(newSubmit);
 				}
 
 				var newSubmit = document.createElement("input");
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","del");
-				localStack = stack.toString();
-				newSubmit.onclick = function() { doControlDeletePiece(id, localStack, index) };
+				var localStack_del = dropTwoOffStack(stack.toString());
+				newSubmit.onclick = function() { doControlDeletePiece(id, localStack_del, index) };
 				currentControls.appendChild(newSubmit);
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","submit");
+				newSubmit.setAttribute("value","move up");
+				var localStack_move_up = dropTwoOffStack(stack.toString());
+				newSubmit.onclick = function() { doControlMovePiece(id, localStack_move_up, index, -1) };
+				currentControls.appendChild(newSubmit);
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","submit");
+				newSubmit.setAttribute("value","move down");
+				var localStack_move_down = dropTwoOffStack(stack.toString());
+				newSubmit.onclick = function() { doControlMovePiece(id, localStack_move_down, index, 1) };
+				currentControls.appendChild(newSubmit);
+
 			}
 		}
 
@@ -579,9 +594,34 @@ console.log("got node: node.piece.id: " + node.piece.id);
 
 			var select = document.getElementById(selectId);
 
-			node.piece.id = select.value;
+			node.id = select.value;
 
 			doSelectAssemble(id);
+			doRunAssemble(id);
+		}
+
+		function doControlChangeTransform(id, stack, index, selectId, changeType) {
+			console.log("doControlChangeTransform selectId: " + selectId);
+
+			var comp = document.getElementById(selectId);
+			var value = comp.value;
+			console.log("comp value: " + value);
+
+			var node = getNodeFromStack(id, stack, index);
+
+			if (changeType == "type") {
+				node.type = value;
+			}
+			if (changeType == "angle") {
+				node.angle = value;
+			}
+			if (changeType == "x") {
+				node.x = value;
+			}
+			if (changeType == "y") {
+				node.y = value;
+			}
+			doRunAssemble(id);
 		}
 
 		function doControlDeletePiece(id, stack, index) {
@@ -592,7 +632,7 @@ console.log("got node: node.piece.id: " + node.piece.id);
 			var i
 
 			if (node.length < 2) {
-				node = new Array();
+				node.pop();
 			} else {
 				for (i = index; i < (node.length - 1);i++) {
 					node[i] = node[i + 1];
@@ -602,6 +642,50 @@ console.log("got node: node.piece.id: " + node.piece.id);
 
 			doClearControls();
 			doSelectAssemble(id);
+			doRunAssemble(id);
+		}
+
+		function doControlMovePiece(id, stack, index, moveDir) {
+			console.log("doControlMovePiece " + stack);
+
+			var node = getNodeFromStack(id, stack, -1);
+
+			if (node.length > (index + moveDir)) {
+				if ((index + moveDir) >= 0) {
+					var n1
+					n1 = node[index];
+					node[index] = node[index + moveDir];
+					node[index + moveDir] = n1;
+console.log("fix this stack: " + stack);
+					addPiecesControlsSet(id, stack + "," + (index + moveDir) + ",piece", index + moveDir);
+					doSelectAssemble(id);
+					doRunAssemble(id);
+				}
+			}
+		}
+
+		function doControlDeleteTransformEntry(id, stack, index) {
+			console.log("doControlDeleteTransformEntry " + stack);
+
+			var node = getNodeFromStack(id, stack, -1);
+
+
+			dumpNode("got node for delete transform: ", node);
+
+			var i
+
+			if (node.length < 2) {
+				node.pop();
+			} else {
+				for (i = index; i < (node.length - 1);i++) {
+					node[i] = node[i + 1];
+				}
+				node.pop();
+			}
+
+			doClearControls();
+			doSelectAssemble(id);
+			doRunAssemble(id);
 		}
 
 		function doControlNewTransformList(id, stack, index) {
@@ -609,9 +693,10 @@ console.log("got node: node.piece.id: " + node.piece.id);
 
 			var node = getNodeFromStack(id, stack, index);
 
-			node.piece.transformList = new Array();
+			node.transformList = new Array();
 
 			doSelectAssemble(id);
+			doRunAssemble(id);
 		}
 
 		function getNodeFromStack(id, stack, index) {
@@ -622,25 +707,21 @@ console.log("stack words " + stackWords);
 
 			var node = assembleEntry.assembleObject;
 
-			dumpNode("start node: ", node);
+//			dumpNode("start node: ", node);
 			for (var i = 0;i < stackWords.length;i++) {
-console.log("stack entry: " + stackWords[i]);
+//console.log("stack entry: " + stackWords[i]);
 				if (/^\d+$/.test(stackWords[i])) {
 					var j
 					j = parseInt(stackWords[i]);
-console.log(" push into numeric: " + j);
+//console.log(" push into numeric: " + j);
 					node = node[j];
 				} else {
-console.log(" push into stackEntry: " + stackWords[i]);
+//console.log(" push into stackEntry: " + stackWords[i]);
 					node = node[stackWords[i]];
 				}
-				dumpNode(" new node at: " + i + " ", node);
+//				dumpNode(" new node at: " + i + " ", node);
 			}
 			console.log(" ");
-
-//			if (index != -1) {
-//				node = node[index];
-//			}
 
 			return node;
 		}
@@ -689,7 +770,7 @@ console.log("addTransformControlsSet " + id + " <" + stack + "> index: " + index
 			var node = getNodeFromStack(id, stack, index);
 
 			if (index == -1) {
-				newSubmit = document.createElement("input");
+				var newSubmit = document.createElement("input");
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","new transform");
 				var localStack = stack.toString();
@@ -697,8 +778,13 @@ console.log("addTransformControlsSet " + id + " <" + stack + "> index: " + index
 				currentControls.appendChild(newSubmit);
 
 			} else {
-dumpNode("in transform: ", node);
+//dumpNode("in transform: ", node);
 				var newSelect = document.createElement("select");
+				var localStack = stack.toString();
+				newSelect.id = gkToolContext.selectPrefix + gkToolContext.nextId;
+				gkToolContext.nextId += 1;
+console.log("type id: " + newSelect.id);
+				newSelect.onchange = function() { doControlChangeTransform(id, localStack, index, newSelect.id, "type") };
 				currentControls.appendChild(newSelect);
 
 				var newOption = document.createElement("option");
@@ -745,6 +831,12 @@ dumpNode("in transform: ", node);
 				var newSubmit = document.createElement("input");
 				newSubmit.setAttribute("type","text");
 				newSubmit.setAttribute("value",node.x);
+				var localStack = stack.toString();
+				newSubmit.id = gkToolContext.selectPrefix + gkToolContext.nextId;
+console.log("x id: " + newSubmit.id);
+				var id_x = newSubmit.id;
+				gkToolContext.nextId += 1;
+				newSubmit.onchange = function() { doControlChangeTransform(id, localStack, index, id_x, "x") };
 				currentControls.appendChild(newSubmit);
 
 				var newSpan = document.createElement("span");
@@ -754,6 +846,12 @@ dumpNode("in transform: ", node);
 				var newSubmit = document.createElement("input");
 				newSubmit.setAttribute("type","text");
 				newSubmit.setAttribute("value",node.y);
+				var localStack = stack.toString();
+				newSubmit.id = gkToolContext.selectPrefix + gkToolContext.nextId;
+console.log("y id: " + newSubmit.id);
+				var id_y = newSubmit.id;
+				gkToolContext.nextId += 1;
+				newSubmit.onchange = function() { doControlChangeTransform(id, localStack, index, id_y, "y") };
 				currentControls.appendChild(newSubmit);
 
 				var newSpan = document.createElement("span");
@@ -763,8 +861,37 @@ dumpNode("in transform: ", node);
 				var newSubmit = document.createElement("input");
 				newSubmit.setAttribute("type","text");
 				newSubmit.setAttribute("value",node.angle);
+				var localStack = stack.toString();
+				newSubmit.id = gkToolContext.selectPrefix + gkToolContext.nextId;
+console.log("angle id: " + newSubmit.id);
+				var id_angle = newSubmit.id;
+				gkToolContext.nextId += 1;
+				newSubmit.onchange = function() { doControlChangeTransform(id, localStack, index, id_angle, "angle") };
+				currentControls.appendChild(newSubmit);
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","submit");
+				newSubmit.setAttribute("value","del");
+				var localStack = dropTwoOffStack(stack.toString());
+				newSubmit.onclick = function() { doControlDeleteTransformEntry(id, localStack, index) };
 				currentControls.appendChild(newSubmit);
 			}
+		}
+
+		function dropTwoOffStack(localStack) {
+			var index = localStack.lastIndexOf(",");
+			if (index == -1) {
+				return localStack;
+			}
+			localStack = localStack.slice(0,index);
+
+			var index = localStack.lastIndexOf(",");
+			if (index == -1) {
+				return localStack;
+			}
+			localStack = localStack.slice(0,index);
+
+			return localStack;
 		}
 
 		function addTransformListControlsSelect(id, node, stack, index, newUl) {
@@ -847,6 +974,7 @@ dumpNode("in transform: ", node);
 			group.id = groupIdInput.value;
 			assembleEntry.assembleObject.group = group
 			doSelectAssemble(id);
+			doRunAssemble(id);
 		}
 
 		function doControlNewPiecesList(id) {
@@ -855,6 +983,7 @@ dumpNode("in transform: ", node);
 
 			assembleEntry.assembleObject.piecesList = new Array();
 			doSelectAssemble(id);
+			doRunAssemble(id);
 		}
 
 		function doControlNewPiece(id, stack, index) {
@@ -869,6 +998,7 @@ dumpNode("in transform: ", node);
 			node.push(pieceListEntry);
 
 			doSelectAssemble(id);
+			doRunAssemble(id);
 		}
 
 		function doControlNewTransformEntry(id, stack, index) {
@@ -876,15 +1006,17 @@ dumpNode("in transform: ", node);
 
 			var node = getNodeFromStack(id, stack, index);
 
-			var ListEntry = new Object();
+			var listEntry = new Object();
 			var transform = new Object();
 			transform.type = "translate";
 			transform.x = "0";
 			transform.y = "0";
 	
-			node.push(transform);
+			listEntry.transform = transform
+			node.push(listEntry);
 
 			doSelectAssemble(id);
+			doRunAssemble(id);
 		}
 
 		function doClearControls() {
@@ -896,6 +1028,14 @@ dumpNode("in transform: ", node);
 				var node = childNodes[i];
 				node.parentNode.removeChild(node);
 			}
+		}
+
+		function doMouseDown(evt) {
+			console.log("mouse down " + evt.clientX + "," + evt.clientY);
+		}
+
+		function doMouseMove(evt) {
+			console.log("mouse move " + evt.clientX + "," + evt.clientY);
 		}
 
 	</script>
@@ -931,6 +1071,7 @@ dumpNode("in transform: ", node);
 	</head>
 
 	<body onload="init();">
+<div onmousedown="doMouseDown(event);" onmousemove="doMouseMove(event);">
 <svg
     id="gkField"
     xmlns="http://www.w3.org/2000/svg"
@@ -955,6 +1096,7 @@ dumpNode("in transform: ", node);
 <g id="assembleGroup"></g>
 
 </svg>		
+</div>
 	<br/>
 		<span id="browserCompatible">one</span>
 		<input type="file" id="files" name="files[]" multiple/>
@@ -979,7 +1121,7 @@ dumpNode("in transform: ", node);
 		<div class="trailer">
 <p>The svg sanitizer tool can be found <a href="http://www.gourdianknot.com/gktool/utils">here</a>.</p>
 		</div>
-	<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.14 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+	<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.15 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 	</body>
 
 </html>
