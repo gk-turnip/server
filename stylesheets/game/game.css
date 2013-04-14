@@ -12,6 +12,15 @@
 	clear: both;
 }
 
+#svgSpacer {
+	position: fixed;
+	left: 50%;
+	top: 0px;
+	width: 0px;
+	height: 300px;
+	cursor: default;
+} 
+
 #chatInput {
 	width: 20em;
 }
