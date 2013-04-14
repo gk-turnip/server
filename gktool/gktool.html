@@ -233,7 +233,7 @@ console.log("got animate file: " + id);
 		}
 
 		function doRunAssemble(id) {
-console.log("doRunAssemble: " + id);
+//console.log("doRunAssemble: " + id);
 			clearAssembleGroup();
 			var assembleEntry = gkToolContext.assembleMap[id];
 
@@ -534,8 +534,8 @@ console.log("addPiecesControlsSet " + id + " <" + stack + "> index: " + index);
 				newSubmit.onclick = function() { doControlNewPiece(id, localStack, index) };
 				currentControls.appendChild(newSubmit);
 			} else {
-				var node = getNodeFromStack(id, stack, index);
-console.log("got node: node.id: " + node.id);
+				var node = getNodeFromStack(id, stack);
+//console.log("got node: node.id: " + node.id);
 				var newSelect = document.createElement("select");
 				currentControls.appendChild(newSelect);
 
@@ -601,7 +601,7 @@ console.log("got node: node.id: " + node.id);
 		function doControlChangePieceId(id, stack, index, selectId) {
 			console.log("doControlChangePieceId " + stack);
 
-			var node = getNodeFromStack(id, stack, index);
+			var node = getNodeFromStack(id, stack);
 
 			var select = document.getElementById(selectId);
 
@@ -618,7 +618,7 @@ console.log("got node: node.id: " + node.id);
 			var value = comp.value;
 console.log("comp value: " + value);
 
-			var node = getNodeFromStack(id, stack, index);
+			var node = getNodeFromStack(id, stack);
 
 dumpNode("got node for transform: ", node);
 			if (changeType == "type") {
@@ -639,7 +639,7 @@ dumpNode("got node for transform: ", node);
 		function doControlDeletePiece(id, stack, index) {
 			console.log("doControlDeletePiece " + stack);
 
-			var node = getNodeFromStack(id, stack, -1);
+			var node = getNodeFromStack(id, stack);
 
 			var i
 
@@ -660,7 +660,7 @@ dumpNode("got node for transform: ", node);
 		function doControlMovePiece(id, stack, index, moveDir) {
 			console.log("doControlMovePiece " + stack);
 
-			var node = getNodeFromStack(id, stack, -1);
+			var node = getNodeFromStack(id, stack);
 
 			if (node.length > (index + moveDir)) {
 				if ((index + moveDir) >= 0) {
@@ -679,7 +679,7 @@ console.log("fix this stack: " + stack);
 		function doControlDeleteTransformEntry(id, stack, index) {
 			console.log("doControlDeleteTransformEntry " + stack);
 
-			var node = getNodeFromStack(id, stack, -1);
+			var node = getNodeFromStack(id, stack);
 
 
 			dumpNode("got node for delete transform: ", node);
@@ -703,7 +703,7 @@ console.log("fix this stack: " + stack);
 		function doControlNewTransformList(id, stack, index) {
 			console.log("doControlNewTransformList " + stack);
 
-			var node = getNodeFromStack(id, stack, index);
+			var node = getNodeFromStack(id, stack);
 
 			node.transformList = new Array();
 
@@ -711,29 +711,22 @@ console.log("fix this stack: " + stack);
 			doRunAssemble(id);
 		}
 
-		function getNodeFromStack(id, stack, index) {
+		function getNodeFromStack(id, stack) {
 			var assembleEntry = gkToolContext.assembleMap[id];
 
 			var stackWords = stack.split(",")
-console.log("stack words " + stackWords);
 
 			var node = assembleEntry.assembleObject;
 
-//			dumpNode("start node: ", node);
 			for (var i = 0;i < stackWords.length;i++) {
-//console.log("stack entry: " + stackWords[i]);
 				if (/^\d+$/.test(stackWords[i])) {
 					var j
 					j = parseInt(stackWords[i]);
-//console.log(" push into numeric: " + j);
 					node = node[j];
 				} else {
-//console.log(" push into stackEntry: " + stackWords[i]);
 					node = node[stackWords[i]];
 				}
-//				dumpNode(" new node at: " + i + " ", node);
 			}
-			console.log(" ");
 
 			return node;
 		}
@@ -779,7 +772,7 @@ console.log("addTransformControlsSet " + id + " <" + stack + "> index: " + index
 			doClearControls();
 
 			var currentControls = document.getElementById("currentControls");
-			var node = getNodeFromStack(id, stack, index);
+			var node = getNodeFromStack(id, stack);
 
 			if (index == -1) {
 				var newSubmit = document.createElement("input");
@@ -1007,7 +1000,7 @@ console.log("angle id: " + newSubmit.id);
 		function doControlNewPiece(id, stack, index) {
 			console.log("doControlNewPiece " + stack.toString() + " " + stack.length);
 
-			var node = getNodeFromStack(id, stack, index);
+			var node = getNodeFromStack(id, stack);
 
 			var pieceListEntry = new Object();
 			var piece = new Object();
@@ -1022,7 +1015,7 @@ console.log("angle id: " + newSubmit.id);
 		function doControlNewTransformEntry(id, stack, index) {
 			console.log("doControlNewTransformEntry " + stack.toString() + " " + stack.length);
 
-			var node = getNodeFromStack(id, stack, index);
+			var node = getNodeFromStack(id, stack);
 
 			var listEntry = new Object();
 			var transform = new Object();
@@ -1055,13 +1048,15 @@ console.log("angle id: " + newSubmit.id);
 		}
 
 		function doMouseDown(evt) {
-			gkToolContext.currentMouseMoveX = evt.clientX;
-			gkToolContext.currentMouseMoveY = evt.clientY;
 			if (!gkToolContext.mouseDown) {
-				if ((gkToolContext.currentMouseMoveX == evt.clientX) && (gkToolContext.currentMouseMoveY == evt.clientY)) {
-					gkToolContext.mouseTwiceDown = true;
+				if (gkToolContext.currentMouseMoveX == evt.clientX) {
+					if (gkToolContext.currentMouseMoveY == evt.clientY) {
+						gkToolContext.mouseTwiceDown = true;
+					}
 				}
 			}
+			gkToolContext.currentMouseMoveX = evt.clientX;
+			gkToolContext.currentMouseMoveY = evt.clientY;
 			gkToolContext.mouseDown = true;
 		}
 
@@ -1078,28 +1073,33 @@ console.log("angle id: " + newSubmit.id);
 					var diffX = evt.clientX - gkToolContext.currentMouseMoveX;
 					var diffY = evt.clientY - gkToolContext.currentMouseMoveY;
 
-console.log("diffX: " + diffX);
+//console.log("diffX: " + diffX);
 					if (gkToolContext.mouseTwiceDown) {
-						var inputX = document.getElementById(gkToolContext.currentTransformXId);
-						inputX.value = parseInt(inputX.value) + diffX;
-						var inputY = document.getElementById(gkToolContext.currentTransformYId);
-						inputY.value = parseInt(inputY.value) + diffY;
-
-						gkToolContext.currentMouseMoveX = evt.clientX;
-						gkToolContext.currentMouseMoveY = evt.clientY;
-
-						var node = getNodeFromStack(gkToolContext.currentTransformId, gkToolContext.currentTransformStack, -1);
-						node.x = inputX.value;
-						node.y = inputY.value;
-					} else {
 						var inputAngle = document.getElementById(gkToolContext.currentTransformAngleId);
 						inputAngle.value = parseInt(inputAngle.value) + diffX;
 
 						gkToolContext.currentMouseMoveX = evt.clientX;
 						gkToolContext.currentMouseMoveY = evt.clientY;
 
-						var node = getNodeFromStack(gkToolContext.currentTransformId, gkToolContext.currentTransformStack, -1);
+						var node = getNodeFromStack(gkToolContext.currentTransformId, gkToolContext.currentTransformStack);
 						node.angle = inputAngle.value;
+					} else {
+						var node = getNodeFromStack(gkToolContext.currentTransformId, gkToolContext.currentTransformStack);
+
+						if (node.type == "scale") {
+							diffX = diffX / 50;
+							diffY = diffY / 50;
+						}
+						var inputX = document.getElementById(gkToolContext.currentTransformXId);
+						inputX.value = parseFloat(inputX.value) + diffX;
+						var inputY = document.getElementById(gkToolContext.currentTransformYId);
+						inputY.value = parseFloat(inputY.value) + diffY;
+
+						gkToolContext.currentMouseMoveX = evt.clientX;
+						gkToolContext.currentMouseMoveY = evt.clientY;
+
+						node.x = inputX.value;
+						node.y = inputY.value;
 					}
 
 					doRunAssemble(gkToolContext.currentTransformId);
