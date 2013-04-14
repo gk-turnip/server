@@ -23,7 +23,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	"strings"
+	"bytes"
 )
 
 import (
@@ -288,6 +288,7 @@ func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *we
 
 	for i := 0; i < len(fieldContext.terrainMap.jsonMapData.TileList); i++ {
 		var terrain string = fieldContext.terrainMap.jsonMapData.TileList[i].Terrain
+		
 		var ok bool
 
 		_, ok = terrainSentMap[terrain]
@@ -334,11 +335,14 @@ func (fieldContext *FieldContextDef) doTerrainMap(websocketConnectionContext *we
 	if gkErr != nil {
 		return gkErr
 	}
-	var jsonTemp string = string(messageToClient.JsonData)
-	jsonTemp = strings.Replace(jsonTemp, "\n", "", -1)
-	jsonTemp = strings.Replace(jsonTemp, " ", "", -1)
-	jsonTemp = strings.Replace(jsonTemp, "\t", "", -1)
-	messageToClient.JsonData = []byte(jsonTemp)
+	var lf []byte = []byte("\n")
+	var tb []byte = []byte("\t")
+	var sp []byte = []byte(" ")
+	var nl []byte = []byte("")
+
+	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, lf, nl, -1)
+	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, sp, nl, -1)
+	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, tb, nl, -1)
 	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 
 	return nil
