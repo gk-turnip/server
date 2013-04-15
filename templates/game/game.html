@@ -1,6 +1,7 @@
 {{define "body"}}
 <body style="margin-left:5px; margin-top: 10px;" onload="init();" onKeydown="doKeyDown(event);" onkeyup="doKeyUp(event);">
 <div onclick="doClick(event);" onkeydown="doKeyDown(event);" onkeyup="doKeyUp(event);" onfocus="gkFieldGetFocus();" onblur="gkFieldLoseFocus();" tabindex="0">
+<div id="svgSpacer" onclick="nothing()" tabindex="1"></div>
 <svg 
 	id="gkField" 
 	xmlns="http://www.w3.org/2000/svg"
@@ -102,7 +103,7 @@ Height: <input id="svgHeightInput" type="text" size="4"/>
 <span id="inFocus"></span>
 </div>
 
-<div id="svgSpacer" onclick="nothing()"></div>
+
 <div class="gkGameRight">
 	<form onsubmit="return gkChatSubmit();">
 	Chat <input id="chatInput" type="text"></input>

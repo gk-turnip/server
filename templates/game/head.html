@@ -78,6 +78,7 @@
 
 			svgWidthInput.value = gkViewContext.svgWidth;
 			svgHeightInput.value = gkViewContext.svgHeight;
+			doSvgWidthHeightChange();
 		}
 
 		function doClick(e) {
@@ -150,6 +151,7 @@
 			}
 			var x = window.innerWidth - svgWidth
 			if (x > 0) {
+				spacer.left = svgWidth;
 				spacer.width = x;
 			}
 			spacer.height = svgHeight
