@@ -49,9 +49,15 @@ type attributeDef struct {
 // remove all comments <!-- -->
 // add single <g> around everything within svg
 // rename any "id" to "prefix_id"
+// **experimental** remove <g> that does not have a transform property (Wastes memory/DOM space)
 func FixSvgData(svgData []byte, prefix string) ([]byte, *gkerr.GkErrDef) {
 	var rootNode *nodeDef
 	var gkErr *gkerr.GkErrDef
+
+	svgData, gkErr = removeGNodes(svgData)
+	if gkErr != nil {
+		return nil, gkErr
+	}
 
 	rootNode, gkErr = parseSvg(svgData)
 	if gkErr != nil {
@@ -68,6 +74,41 @@ func FixSvgData(svgData []byte, prefix string) ([]byte, *gkerr.GkErrDef) {
 	rebuildSvg(rootNode, buf)
 
 	return buf.Bytes(), nil
+}
+
+func removeGNodes(svgData []byte) ([]byte, *gkerr.GkErrDef) {
+	var i int
+	i = 0
+	var t string
+	var s []string
+	var b *bytes.Buffer
+	var out *bytes.Buffer
+	b.Write(svgData)
+	for {
+		t, _ = b.ReadString(byte("<"))
+		b.UnreadByte()
+		s = []string(t)
+		out.WriteString(string(s[:len(s)-1]))
+		t, _ = b.ReadString(byte(">"))
+		if strings.HasPrefix(t, "<g ") && !strings.Contains(t, "transform=") {
+//			The string is a <g> tag and but does not contain the transform property, so omit it. Increment counter
+			i++
+		}
+		else if (t == "</g>") && (i > 0) {
+//			The string is a closing tag, but since we omitted a <g> earlier, we won't write it. Decrement counter
+			i--
+		}
+		else {
+//			The string is (a) not a <g> tag, (b) a closing tag but hierarchy is balanced, no need to omit, (c) <g> tag with transform property
+			out.WriteString(t)
+		}
+	}
+	if i > 0 {
+//		An error happened! The hierarchy is not balanced!
+		return nil, gkerr.GenGkErr("invalid svg, unbalanced hierarchy", nil, ERROR_ID_INVALID_SVG)
+	}
+//	All done, so return written bytes
+	return out.Bytes(), nil
 }
 
 func parseSvg(svgData []byte) (*nodeDef, *gkerr.GkErrDef) {
