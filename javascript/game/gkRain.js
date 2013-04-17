@@ -34,6 +34,9 @@ var gkRainContext = new gkRainContextDef();
 // the gkRainContextDef once the rain fade is working)
 function gkRainContextDef () {
 	this.dropsRequired = 0;
+	this.dropsThrottled = 0;
+	this.throttled = false;
+	this.override = false;
 	this.dropsWidth = 500;
 	this.dropsHeight = 300;
 	this.dropsStateCount = 0;
@@ -47,7 +50,8 @@ function gkRainStart() {
 
 // turn on rain, triggered from the server
 function gkRainOn() {
-	gkRainContext.dropsRequired = 30
+	gkRainContext.dropsRequired = 30;
+	gkRainContext.dropsThrottled = 30;
 	var rainTBP = document.getElementById("audio3");
 	rainTBP.play();
 	rainFadeAmount = 0.1;
@@ -56,7 +60,9 @@ function gkRainOn() {
 
 // turn off rain, triggered from the server
 function gkRainOff() {
-	gkRainContext.dropsRequired = 0
+	gkRainContext.dropsRequired = 0;
+	gkRainContext.dropsThrottled = 0;
+	gkRainContext.throttled = false;
 	rainFadeAmount = -0.1;
 	rainFadeInterval = setInterval(gkRainVolumeFader,rainFadeTime);
 }
@@ -87,6 +93,8 @@ function gkRainLoop() {
 	tileLayer = document.getElementById("gkField");
 	var undefinedIndex = -1;
 	var dropsCounted = 0;
+	var time = new Date();
+	var ms = time.getTime();
 	for (i = 0;i < gkDrops.length;i++) {
 		if (gkDrops[i] == undefined) {
 			undefinedIndex = i;
@@ -115,7 +123,7 @@ function gkRainLoop() {
 			}
 		}
 	}
-	if (dropsCounted < gkRainContext.dropsRequired) {
+	if (dropsCounted < gkRainContext.dropsThrottled) {
 		if (undefinedIndex != -1) {
 			gkDrops[undefinedIndex] = new GkDropDef();
 			tileLayer.appendChild(gkDrops[undefinedIndex].svgGroup);
@@ -123,6 +131,27 @@ function gkRainLoop() {
 			gkDrops.push(new GkDropDef());
 			tileLayer.appendChild(gkDrops[gkDrops.length - 1].svgGroup);
 		}
+	}
+	var time = new Date();
+	var diff = time.getTime() - ms;
+	if (!gkRainContext.override) {
+		if ((diff > 65) && (diff < 100) {
+//			took long time
+			if (!gkRainContext.throttled) {
+				gkRainContext.throttled = true;
+				gkRainContext.dropsThrottled = gkRainContext.dropsRequired * 0.1;
+			}
+		}
+		else if (gkRainContext.throttled) {
+			gkRainContext.throttled = false;
+		}
+		if (diff >= 100) {
+			gkRainContext.dropsThrottled = gkRainContext.dropsRequired * 0.0001;
+		}
+	}
+	else {
+		gkRainContext.throttled = false;
+		gkRainContext.dropsThrottled = gkRainContext.dropsRequired;
 	}
 }
 

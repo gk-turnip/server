@@ -83,11 +83,14 @@
 		<option value="0.66">medium</option>
 		<option value="0.99">high</option>
 	</select>
+
+	<input type="checkbox" id="rainswitcher" />
+	<br/>
+	<form onsubmit="return gkChatSubmit();">
 	<audio id="audio1">Audio One</audio>
 	<audio id="audio2">Audio Two</audio>
 	<audio id="audio3">Audio Three</audio>
 	<span id="scriptUse"></span>
-<form onsubmit="return gkChatSubmit();">
 
 	position <span id="posValueX"></span>, <span id="posValueY"></span>, <span id="posValueZ"></span><br/>
 	zoom: <span id="zoomValue"></span><input id="zoomValueSubmitPlus" type="submit" onclick="doZoomChange(0.1);" value="+1"/>
