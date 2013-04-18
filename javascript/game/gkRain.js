@@ -139,7 +139,7 @@ function gkRainLoop() {
 //			took long time
 			if (!gkRainContext.throttled) {
 				gkRainContext.throttled = true;
-				gkRainContext.dropsThrottled = gkRainContext.dropsRequired * 0.1;
+				gkRainContext.dropsThrottled = gkRainContext.dropsRequired * 0.2;
 			}
 		}
 		else if (gkRainContext.throttled) {
@@ -147,12 +147,15 @@ function gkRainLoop() {
 			gkRainContext.dropsThrottled = gkRainContext.dropsRequired;
 		}
 		if (diff >= 100) {
-			gkRainContext.dropsThrottled = gkRainContext.dropsRequired * 0.0001;
+			gkRainContext.dropsThrottled = gkRainContext.dropsRequired * 0.05;
 		}
 	}
 	else {
 		gkRainContext.throttled = false;
 		gkRainContext.dropsThrottled = gkRainContext.dropsRequired;
+	}
+	if (gkRainContext.debug) {
+		console.info("throttled: " + gkRainContext.throttled + " dropsThrottled: " + gkRainContext.dropsThrottled + " diff: " + diff);
 	}
 }
 
