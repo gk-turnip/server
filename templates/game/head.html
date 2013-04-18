@@ -214,7 +214,11 @@
 		}
 		function nothing() {
 		}
-
+		function setRainStatus() {
+			var rs = document.getElementById("rainswitcher");
+			gkRainContext.override = rs.checked;
+			return false;
+		}
 	</script>
 </head>
 {{end}}
