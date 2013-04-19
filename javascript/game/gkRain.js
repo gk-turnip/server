@@ -142,7 +142,7 @@ function gkRainLoop() {
 			gkRainContext.throttled = false;
 			gkRainContext.dropsThrottled = gkRainContext.dropsRequired;
 		}
-		if (diff <= 9) {
+		if (gkFieldContext.frameRate <= 9) {
 			gkRainContext.dropsThrottled = gkRainContext.dropsRequired * 0.05;
 		}
 	}
