@@ -150,14 +150,16 @@ function gkFieldEnumObjects(scanIsoXYZ, acceptedOffset) {
 		if (fieldObject == "NEXT") {
 			break;
 		}
-		var isoXYZ = fieldObject.isoXYZCurrent;
-//		isoXYZ.x -= fieldObject.originX;
-//		isoXYZ.y -= fieldObject.originY;
-		if ((Math.abs(isoXYZ.x - scanIsoXYZ.x) <= acceptedOffset) && (Math.abs(isoXYZ.y - scanIsoXYZ.y) <= acceptedOffset) && (Math.abs(isoXYZ.x - scanIsoXYZ.x) <= acceptedOffset)) {
-//		Objects meeting criteria
-			var listing = document.createTextNode("id: " + i + " x: " + isoXYZ.x + " y: " + isoXYZ.y + " z: " + isoXYZ.z + "\n");
-			holder.appendChild(listing);
-		}	
+		if (fieldObject) {
+			var isoXYZ = fieldObject.isoXYZCurrent;
+//			isoXYZ.x -= fieldObject.originX;
+//			isoXYZ.y -= fieldObject.originY;
+			if ((Math.abs(isoXYZ.x - scanIsoXYZ.x) <= acceptedOffset) && (Math.abs(isoXYZ.y - scanIsoXYZ.y) <= acceptedOffset) && (Math.abs(isoXYZ.x - scanIsoXYZ.x) <= acceptedOffset)) {
+//			Objects meeting criteria
+				var listing = document.createTextNode("id: " + i + " x: " + isoXYZ.x + " y: " + isoXYZ.y + " z: " + isoXYZ.z + "\n");
+				holder.appendChild(listing);
+			}
+		}
 	}
 }
 
