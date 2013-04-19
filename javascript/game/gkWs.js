@@ -32,7 +32,7 @@ function gkWsContextDef() {
 }
 
 // the websocket needs to be "initialized" so it can open a connection to the server
-function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessionId) {
+function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessionId, recon) {
 	console.log("gkWsInit");
 	gkWsContext.dispatchFunction = dispatchFunction
 	gkWsContext.websocketAddressPrefix = websocketAddressPrefix
@@ -44,7 +44,9 @@ function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessi
 		gkWsContext.ws = null;
 	}
 
-	gkWsSetStatusTryInitialConnection();
+	if (!recon) {
+		gkWsSetStatusTryInitialConnection();
+	}
 
 	gkWsContext.ws = new WebSocket(gkWsContext.websocketAddressPrefix + websocketPath + "?ses=" + sessionId);
 	gkWsContext.ws.onopen = function() { gkWsDoOpen(); };
@@ -61,9 +63,14 @@ function gkWsDoOpen() {
 	gkWsSetStatusWaitingPing();
 	gkWsContext.reconnectTries = 0;
 
-	gkWsSendMessage("pingReq~{ \"pingId\":\"" + gkWsContext.pingId + "\" }~");
+	gkWsDoPing()
+	setInterval("gkWsDoPing", 5000);
 }
 
+// send a ping
+function gkWsDoPing() {
+	gkWsSendMessage("pingReq~{ \"pingId\":\"" + gkWsContext.pingId + "\" }~");
+}
 // this is called (by the browser) when a new message is received from the server
 // it is decoded and sent to gkDispatch
 function gkWsDoMessage(e) {
@@ -139,7 +146,7 @@ function gkWsAttemptReconnect() {
 	console.log("gkWsAttemptReconnect");
 	gkWsSetStatusReconnecting();
 	gkWsContext.ws = null;
-	gkWsInit(gkWsContext.dispatchFunction, gkWsContext.websocketAddressPrefix, gkWsContext.websocketPath, gkWsContext.sessionId)
+	gkWsInit(gkWsContext.dispatchFunction, gkWsContext.websocketAddressPrefix, gkWsContext.websocketPath, gkWsContext.sessionId, true)
 }
 
 // this is called when the client side wants to send a message to the server
