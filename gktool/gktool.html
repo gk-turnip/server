@@ -45,6 +45,11 @@
 				this.assembleObject = assembleObject;
 			}
 
+			function gkToolAnimateEntryDef(id, animateObject) {
+				this.id = id;
+				this.animateObject = animateObject;
+			}
+
 		function init() {
 			var browserCompatible = document.getElementById("browserCompatible");
 			if (window.File && window.FileReader && window.FileList && window.Blob && window.URL && window.URL.createObjectURL) {
@@ -207,6 +212,48 @@ console.log("got assemble file: " + id);
 
 		function gotAnimateFile(id, animateObject) {
 console.log("got animate file: " + id);
+			var oldEntry = document.getElementById(gkToolContext.animatePrefix + id);
+			if (oldEntry != undefined) {
+				oldEntry.parentNode.removeChild(oldEntry);
+			}
+
+			var oldLi = document.getElementById(gkToolContext.liAnimatePrefix + id)
+			if (oldLi != undefined) {
+				oldLi.parentNode.removeChild(oldLi);
+			}
+			var newLi = document.createElement("li");
+			newLi.setAttribute("id",gkToolContext.liAnimatePrefix + id);
+			newLi.innerHTML = id;
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","del");
+			newSubmit.onclick = function() { doDeleteAnimate(id) };
+			newLi.appendChild(newSubmit);
+
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","run");
+			newSubmit.onclick = function() { doRunAnimate(id) };
+			newLi.appendChild(newSubmit);
+
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","save");
+			newSubmit.onclick = function() { doSaveAnimate(id) };
+			newLi.appendChild(newSubmit);
+
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","select");
+			newSubmit.onclick = function() { doSelectAnimate(id) };
+			newLi.appendChild(newSubmit);
+
+			var animateObjects = document.getElementById("animateObjects");
+			animateObjects.appendChild(newLi);
+
+			var animateEntry = new gkToolAnimateEntryDef(id, animateObject);
+			gkToolContext.animateMap[id] = animateEntry;
 		}
 
 		function doDeleteSvg(id) {
@@ -232,6 +279,15 @@ console.log("got animate file: " + id);
 			delete gkToolContext.assembleMap[id];
 		}
 
+		function doDeleteAnimate(id) {
+			var oldEntry = document.getElementById(gkToolContext.liAnimatePrefix + id);
+			if (oldEntry != undefined) {
+				oldEntry.parentNode.removeChild(oldEntry);
+			}
+
+			delete gkToolContext.animateMap[id];
+		}
+
 		function doRunAssemble(id) {
 //console.log("doRunAssemble: " + id);
 			clearAssembleGroup();
@@ -240,6 +296,15 @@ console.log("got animate file: " + id);
 			if (assembleEntry != undefined) {
 				//clearSvg();
 				assembleSvg(assembleEntry.id, assembleEntry.assembleObject);
+			}
+		}
+
+		function doRunAnimate(id) {
+			clearAnimateGroup();
+			var animateEntry = gkToolContext.animateMap[id];
+
+			if (animateEntry != undefined) {
+				animateSvg(animateEntry.id, animateEntry.animateObject);
 			}
 		}
 
@@ -1118,19 +1183,24 @@ console.log("angle id: " + newSubmit.id);
 			background-color: #efefef;
 		}
 		#assembleList {
-			width: 32%;
+			width: 22%;
 			float: left;
 			background-color: #efffef;
 		}
 		.svgObjects {
-			width: 32%;
+			width: 22%;
 			float: left;
 			background-color: #efefff;
 		}
 		.assembleObjects {
-			width: 32%;
+			width: 22%;
 			float: left;
 			background-color: #ffefef;
+		}
+		.animateObjects {
+			width: 22%;
+			float: left;
+			background-color: #efffef;
 		}
 		.trailer {
 			clear: both;
@@ -1182,6 +1252,11 @@ console.log("angle id: " + newSubmit.id);
 				<ul id="assembleObjects">
 				</ul>
 			</div>
+			<div class="animateObjects">
+				<input id="createAnimateId" size="8" type="text"/><input type="submit" onclick="doCreateAnimate();" value="Create Animation"/><br/>
+				<ul id="animateObjects">
+				</ul>
+			</div>
 			<div class="svgObjects">
 				<ul id="svgObjects"></ul>
 			</div>
@@ -1190,7 +1265,7 @@ console.log("angle id: " + newSubmit.id);
 		<div class="trailer">
 <p>The svg sanitizer tool can be found <a href="http://www.gourdianknot.com/gktool/utils">here</a>.</p>
 		</div>
-	<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.16 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+	<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.18 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 	</body>
 
 </html>

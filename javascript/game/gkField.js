@@ -143,6 +143,8 @@ function gkFieldMoveSvg(jsonData) {
 
 // enumerate the objects at a certain position
 function gkFieldEnumObjects(scanIsoXYZ, acceptedOffset) {
+	console.log("gkFieldEnumObjects");
+/*
 	var holder = document.getElementById("objectList");
 	holder.innerHTML = "";
 	for (var i=0;;i++) {
@@ -161,6 +163,7 @@ function gkFieldEnumObjects(scanIsoXYZ, acceptedOffset) {
 			}
 		}
 	}
+*/
 }
 
 // request a new avatar svg and jsonData from the server

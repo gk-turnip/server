@@ -131,7 +131,7 @@ function gkRainLoop() {
 		}
 	}
 	if (!gkRainContext.override) {
-		if ((gkFieldContext.frameRate > 9) && (gkFieldContext.frameRate < 14) {
+		if ((gkFieldContext.frameRate > 9) && (gkFieldContext.frameRate < 14)) {
 //			took long time
 			if (!gkRainContext.throttled) {
 				gkRainContext.throttled = true;
