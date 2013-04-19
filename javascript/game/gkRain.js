@@ -93,8 +93,6 @@ function gkRainLoop() {
 	tileLayer = document.getElementById("gkField");
 	var undefinedIndex = -1;
 	var dropsCounted = 0;
-	var time = new Date();
-	var ms = time.getTime();
 	for (i = 0;i < gkDrops.length;i++) {
 		if (gkDrops[i] == undefined) {
 			undefinedIndex = i;
@@ -132,10 +130,8 @@ function gkRainLoop() {
 			tileLayer.appendChild(gkDrops[gkDrops.length - 1].svgGroup);
 		}
 	}
-	var time = new Date();
-	var diff = time.getTime() - ms;
 	if (!gkRainContext.override) {
-		if ((diff > 65) && (diff < 100) {
+		if ((gkFieldContext.frameRate > 9) && (gkFieldContext.frameRate < 14) {
 //			took long time
 			if (!gkRainContext.throttled) {
 				gkRainContext.throttled = true;
@@ -146,7 +142,7 @@ function gkRainLoop() {
 			gkRainContext.throttled = false;
 			gkRainContext.dropsThrottled = gkRainContext.dropsRequired;
 		}
-		if (diff >= 100) {
+		if (diff <= 9) {
 			gkRainContext.dropsThrottled = gkRainContext.dropsRequired * 0.05;
 		}
 	}
@@ -155,7 +151,7 @@ function gkRainLoop() {
 		gkRainContext.dropsThrottled = gkRainContext.dropsRequired;
 	}
 	if (gkRainContext.debug) {
-		console.info("throttled: " + gkRainContext.throttled + " dropsThrottled: " + gkRainContext.dropsThrottled + " diff: " + diff);
+		console.info("override: " + gkRainContext.override + " throttled: " + gkRainContext.throttled + " dropsThrottled: " + gkRainContext.dropsThrottled + " fps: " + gkFieldContext.frameRate);
 	}
 }
 

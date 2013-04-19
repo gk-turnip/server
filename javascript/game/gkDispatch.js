@@ -56,6 +56,6 @@ function gkDispatchWsMessage(command, jsonData, data) {
 		gkWsChatReq(jsonData);
 		break;
 	default:
-		console.log("did not understand command from game server " + command);
+		console.error("did not understand command from game server " + command);
 	}
 }

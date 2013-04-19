@@ -34,6 +34,7 @@ function gkFieldContextDef() {
 	this.duration2 = 0;
 	this.duration3 = 0;
 	this.inFocus = true;
+	this.frameRate = 0;
 }
 
 function gkFieldInit() {
@@ -67,7 +68,6 @@ function gkFieldRefObjectDef(id, userName, isoXYZCurrent, isoXYZDestination, ori
 		this.isoXYZDestination = isoXYZ
 	}
 }
-
 // add an svg image into the field
 function gkFieldAddSvg(jsonData, rawSvgData) {
 //console.log("gkFieldAddSvg id: " + jsonData.id);
@@ -114,7 +114,8 @@ function gkFieldAddSvg(jsonData, rawSvgData) {
 
 	var destIsoXYZ = new GkIsoXYZDef(isoXYZ.x, isoXYZ.y, isoXYZ.z)
 	var refObject = new gkFieldRefObjectDef(jsonData.id, jsonData.userName, isoXYZ, destIsoXYZ, originX, originY);
-	gkFieldContext.refObjectMap[refObject.id] = refObject
+	gkFieldContext.refObjectMap[refObject.id] = refObject;
+	gkFieldContext.refObjectMap[refObject.id + 1] = "NEXT";
 	//console.log("got new field object userName: " + jsonData.userName + " id: " + jsonData.id);
 }
 
@@ -137,6 +138,26 @@ function gkFieldMoveSvg(jsonData) {
 		refObject.isoXYZDestination.x = parseInt(jsonData.x)
 		refObject.isoXYZDestination.y = parseInt(jsonData.y)
 		refObject.isoXYZDestination.z = parseInt(jsonData.z)
+	}
+}
+
+// enumerate the objects at a certain position
+function gkFieldEnumObjects(scanIsoXYZ, acceptedOffset) {
+	var holder = document.getElementById("objectList");
+	holder.innerHTML = "";
+	for (var i=0;;i++) {
+		var fieldObject = gkFieldContext.refObjectMap[i];
+		if (fieldObject == "NEXT") {
+			break;
+		}
+		var isoXYZ = fieldObject.isoXYZCurrent;
+//		isoXYZ.x -= fieldObject.originX;
+//		isoXYZ.y -= fieldObject.originY;
+		if ((Math.abs(isoXYZ.x - scanIsoXYZ.x) <= acceptedOffset) && (Math.abs(isoXYZ.y - scanIsoXYZ.y) <= acceptedOffset) && (Math.abs(isoXYZ.x - scanIsoXYZ.x) <= acceptedOffset)) {
+//		Objects meeting criteria
+			var listing = document.createTextNode("id: " + i + " x: " + isoXYZ.x + " y: " + isoXYZ.y + " z: " + isoXYZ.z + "\n");
+			holder.appendChild(listing);
+		}	
 	}
 }
 
@@ -193,7 +214,7 @@ function gkFieldMoveObjects() {
 	//gkFieldContext.objectMap
 
 	var moveFlag = false;
-
+	
 	for (var prop in gkFieldContext.refObjectMap) {
 		var refObject;
 		refObject = gkFieldContext.refObjectMap[prop];
@@ -228,6 +249,7 @@ function gkFieldMoveObjects() {
 		}
 		if (gkFieldContext.avatarId != undefined) {
 			if (gkFieldContext.avatarId == refObject.id) {
+				gkFieldEnumObjects(refObject.isoXYZCurrent, 1);
 
 				var localIsoXYZ = new GkIsoXYZDef(
 					refObject.isoXYZCurrent.x,
@@ -302,8 +324,9 @@ function gkFieldMoveObjects() {
 			gkFieldContext.duration3 = gkFieldContext.duration2;
 			gkFieldContext.duration2 = gkFieldContext.duration1;
 			gkFieldContext.duration1 = duration;
+			gkFieldContext.frameRate = (3000.0 / (gkFieldContext.duration1 + gkFieldContext.duration2 + gkFieldContext.duration3)).toFixed(2);
 			var frameRate = document.getElementById("frameRate");
-			frameRate.innerHTML = "fps: " + (3000.0 / (gkFieldContext.duration1 + gkFieldContext.duration2 + gkFieldContext.duration3)).toFixed(2);
+			frameRate.innerHTML = "fps: " + gkFieldContext.frameRate;
 		}
 	}
 
