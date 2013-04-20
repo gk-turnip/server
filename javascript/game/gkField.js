@@ -21,8 +21,8 @@
 var gkFieldContext = new gkFieldContextDef();
 
 function gkFieldContextDef() {
-	this.objectMap = new Object();
-	this.refObjectMap = new Object();
+	this.objectMap = new Array();
+	this.refObjectMap = new Array();
 //	this.avatarId = null;
 	this.avatarDestination = null;
 	this.leftKeyDown = false;
