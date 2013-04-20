@@ -115,7 +115,7 @@ function gkFieldAddSvg(jsonData, rawSvgData) {
 	var destIsoXYZ = new GkIsoXYZDef(isoXYZ.x, isoXYZ.y, isoXYZ.z)
 	var refObject = new gkFieldRefObjectDef(jsonData.id, jsonData.userName, isoXYZ, destIsoXYZ, originX, originY);
 	gkFieldContext.refObjectMap[refObject.id] = refObject;
-	gkFieldContext.refObjectMap[refObject.id + 1] = "NEXT";
+//	gkFieldContext.refObjectMap[refObject.id + 1] = "NEXT";
 	//console.log("got new field object userName: " + jsonData.userName + " id: " + jsonData.id);
 }
 
@@ -144,14 +144,12 @@ function gkFieldMoveSvg(jsonData) {
 // enumerate the objects at a certain position
 function gkFieldEnumObjects(scanIsoXYZ, acceptedOffset) {
 	console.log("gkFieldEnumObjects");
-/*
 	var holder = document.getElementById("objectList");
 	holder.innerHTML = "";
-	for (var i=0;;i++) {
+	var l = gkFieldContext.refObjectMap.push("last") - 1;
+	gkFieldContext.refObjectMap.pop();
+	for (var i=0;i<=l;i++) {
 		var fieldObject = gkFieldContext.refObjectMap[i];
-		if (fieldObject == "NEXT") {
-			break;
-		}
 		if (fieldObject) {
 			var isoXYZ = fieldObject.isoXYZCurrent;
 //			isoXYZ.x -= fieldObject.originX;
@@ -163,7 +161,6 @@ function gkFieldEnumObjects(scanIsoXYZ, acceptedOffset) {
 			}
 		}
 	}
-*/
 }
 
 // request a new avatar svg and jsonData from the server
