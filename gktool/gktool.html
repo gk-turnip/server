@@ -160,6 +160,7 @@
 					}
 					if (jsonObject.type == "animate") {
 						gotAnimateFile(id, jsonObject);
+						doSelectAnimate(id);
 					}
 				}
 			}
@@ -317,6 +318,18 @@ console.log("got animate file: " + id);
 
 				var downloadAssemble = document.getElementById("downloadAssemble");
 				downloadAssemble.href = objectURL;
+			}
+		}
+
+		function doSaveAnimate(id) {
+			var animateEntry = gkToolContext.animateMap[id];
+			if (animateEntry != undefined) {
+				var serialized = [JSON.stringify(animateEntry.animateObject)]
+				var b = new Blob(serialized, { type: "application/octet-binary"});
+				var objectURL = window.URL.createObjectURL(b);
+
+				var downloadAnimate = document.getElementById("downloadAnimate");
+				downloadAnimate.href = objectURL;
 			}
 		}
 
@@ -568,10 +581,29 @@ console.log("for pieceId: " + pieceId + " found id: " + assembleGroup.id);
 			}
 		}
 
+		function doSelectAnimate(id) {
+			var animateEntry = gkToolContext.animateMap[id];
+			if (animateEntry != undefined) {
+				clearAnimateList();
+				setAnimateListId(id);
+			}
+		}
+
 		function clearAssembleList() {
 			var assembleList = document.getElementById("assembleList");
 
 			var childNodes = assembleList.childNodes
+			var i;
+			for (i = (childNodes.length - 1);i >= 0;i--) {
+				var node = childNodes[i];
+				node.parentNode.removeChild(node);
+			}
+		}
+
+		function clearAnimateList() {
+			var animateList = document.getElementById("animateList");
+
+			var childNodes = animateList.childNodes
 			var i;
 			for (i = (childNodes.length - 1);i >= 0;i--) {
 				var node = childNodes[i];
@@ -592,7 +624,7 @@ console.log("for pieceId: " + pieceId + " found id: " + assembleGroup.id);
 			var newSubmit = document.createElement("input");
 			newSubmit.setAttribute("type","submit");
 			newSubmit.setAttribute("value","select");
-			newSubmit.onclick = function() { addGroupControlsSet(id, [], -1) };
+			newSubmit.onclick = function() { addAssembleGroupControlsSet(id, []) };
 			newLi.appendChild(newSubmit);
 
 			var assembleList = document.getElementById("assembleList");
@@ -603,10 +635,112 @@ console.log("for pieceId: " + pieceId + " found id: " + assembleGroup.id);
 
 			var stack = new Array();
 
-			addNodeSelect(id, node, stack, newUl);
+			addAssembleNodeSelect(id, node, stack, newUl);
 		}
 
-		function addNodeSelect(id, node, stack, newUl) {
+		function setAnimateListId(id) {
+			console.log("setAnimateListId");
+			var newUl = document.createElement("ul");
+
+			var newLi = document.createElement("li");
+			newUl.appendChild(newLi);
+
+			var newSpan = document.createElement("span");
+			newSpan.innerHTML = id;
+			newLi.appendChild(newSpan);
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","select");
+			newSubmit.onclick = function() { addAnimateGroupControlsSet(id) };
+			newLi.appendChild(newSubmit);
+
+			var animateList = document.getElementById("animateList");
+			animateList.appendChild(newUl);
+
+			var animateEntry = gkToolContext.animateMap[id];
+			var node = animateEntry.animateObject;
+
+			var stack = new Array();
+
+			addAnimateNodeSelect(id, node, stack, newUl);
+		}
+
+		function addAnimateNodeSelect(id, node, stack, newUl) {
+console.log("addAnimateNodeSelect timeList.length: " + node.timeList.length);
+
+			var i;
+
+			for (i = 0;i < node.timeList.length;i++) {
+				var newLi = document.createElement("li");
+				newUl.appendChild(newLi);
+
+				var newSpan = document.createElement("span");
+				newSpan.innerHTML = node.timeList[i].time;
+				newLi.appendChild(newSpan);
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","submit");
+				newSubmit.setAttribute("value","select");
+				//newSubmit.onclick = function() { addAnimateTimeEntryControlsSet(id, i.toString()) };
+				setOnclickAddAnimateTimeEntryControlsSet(newSubmit,id,i);
+				newLi.appendChild(newSubmit);
+
+				var newSubUl = document.createElement("ul");
+				newLi.appendChild(newSubUl);
+
+				var piecesList = node.timeList[i].piecesList;
+				var j;
+				for (j = 0;j < piecesList.length;j++) {
+					var newSubLi = document.createElement("li");
+					newSubUl.appendChild(newSubLi);
+
+					var newSubSpan = document.createElement("span");
+					newSubSpan.innerHTML = piecesList[j].piece.id;
+					newSubLi.appendChild(newSubSpan);
+
+					var newSubmit = document.createElement("input");
+					newSubmit.setAttribute("type","submit");
+					newSubmit.setAttribute("value","select");
+					setOnclickAddAnimatePieceEntryControlsSet(newSubmit,id,i,j);
+					newSubLi.appendChild(newSubmit);
+
+					var newSubSubUl = document.createElement("ul");
+					newSubLi.appendChild(newSubSubUl);
+
+					var k;
+					for (k = 0;k < piecesList[j].piece.transformList.length;k++) {
+						transformEntry = piecesList[j].piece.transformList[k]
+						var newSubSubLi = document.createElement("li");
+						newSubSubUl.appendChild(newSubSubLi);
+
+						var newSubSubSpan = document.createElement("span");
+						newSubSubSpan.innerHTML = transformEntry.transform.type + " " + k;
+						newSubSubLi.appendChild(newSubSubSpan);
+
+						var newSubSubmit = document.createElement("input");
+						newSubSubmit.setAttribute("type","submit");
+						newSubSubmit.setAttribute("value","select");
+						setOnclickAddAnimateTransformEntryControlsSet(newSubSubmit,id,i,j,k);
+						newSubSubLi.appendChild(newSubSubmit);
+					}
+				}
+			}
+		}
+
+		function setOnclickAddAnimateTimeEntryControlsSet(newSubmit,id,i) {
+			newSubmit.onclick = function() { addAnimateTimeEntryControlsSet(id, i) };
+		}
+
+		function setOnclickAddAnimatePieceEntryControlsSet(newSubmit,id,i,j) {
+			newSubmit.onclick = function() { addAnimatePieceEntryControlsSet(id, i, j) };
+		}
+
+		function setOnclickAddAnimateTransformEntryControlsSet(newSubmit, id, i, j, k) {
+			newSubmit.onclick = function() { addAnimateTransformEntryControlsSet(id, i, j, k) };
+		}
+
+		function addAssembleNodeSelect(id, node, stack, newUl) {
 			if (node.group != undefined) {
 				stack.push("group");
 
@@ -622,7 +756,7 @@ console.log("for pieceId: " + pieceId + " found id: " + assembleGroup.id);
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","select");
 console.log("adding stack: " + stack.toString());
-				newSubmit.onclick = function() { addGroupControlsSet(id, stack.toString(), -1) };
+				newSubmit.onclick = function() { addAssembleGroupControlsSet(id, stack.toString()) };
 				newLi.appendChild(newSubmit);
 				stack.pop();
 			}
@@ -655,13 +789,13 @@ console.log("adding stack: " + stack.toString());
 
 			if (node.group != undefined) {
 				stack.push("group");
-				addNodeSelect(id, node.group, stack, newUl);
+				addAssembleNodeSelect(id, node.group, stack, newUl);
 				stack.pop();
 			}
 		}
 
-		function addGroupControlsSet(id, stack) {
-console.log("addGroupControlsSet " + id + " <" + stack + ">");
+		function addAssembleGroupControlsSet(id, stack) {
+console.log("addAssembleGroupControlsSet " + id + " <" + stack + ">");
 			doClearControls();
 
 			var currentControls = document.getElementById("currentControls");
@@ -674,7 +808,7 @@ console.log("addGroupControlsSet " + id + " <" + stack + ">");
 			newSubmit = document.createElement("input");
 			newSubmit.setAttribute("type","submit");
 			newSubmit.setAttribute("value","new group");
-			newSubmit.onclick = function() { doControlNewGroup(id) };
+			newSubmit.onclick = function() { doAssembleControlNewGroup(id) };
 			currentControls.appendChild(newSubmit);
 
 			var newBr = document.createElement("br");
@@ -683,18 +817,276 @@ console.log("addGroupControlsSet " + id + " <" + stack + ">");
 			newSubmit = document.createElement("input");
 			newSubmit.setAttribute("type","submit");
 			newSubmit.setAttribute("value","new pieces list");
-			newSubmit.onclick = function() { doControlNewPiecesList(id) };
+			newSubmit.onclick = function() { doAssembleControlNewPiecesList(id) };
 			currentControls.appendChild(newSubmit);
 
 //			newSubmit = document.createElement("input");
 //			newSubmit.setAttribute("type","submit");
 //			newSubmit.setAttribute("value","new transform list");
-//			newSubmit.onclick = function() { doControlNewTransformList(id) };
+//			newSubmit.onclick = function() { doAssembleControlNewTransformList(id) };
 //			currentControls.appendChild(newSubmit);
 		}
 
-		function addPiecesControlsSet(id, stack, index) {
-console.log("addPiecesControlsSet " + id + " <" + stack + "> index: " + index);
+		function addAnimateGroupControlsSet(id) {
+console.log("addAnimateGroupControlsSet " + id);
+			doClearControls();
+
+			var currentControls = document.getElementById("currentControls");
+
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","new Time List Entry");
+			newSubmit.onclick = function() { doAssembleControlNewTimeListEntry(id) };
+			currentControls.appendChild(newSubmit);
+
+			var newBr = document.createElement("br");
+			currentControls.appendChild(newBr);
+		}
+
+		function addAnimateTimeEntryControlsSet(id, index) {
+			console.log("addAnimateTimeEntryControlsSet: " + id + " " + index);
+			doClearControls();
+
+			var currentControls = document.getElementById("currentControls");
+
+			var newSpan = document.createElement("span");
+			newSpan.innerHTML = "time delay:"
+			currentControls.appendChild(newSpan);
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","text");
+			newSubmit.setAttribute("id","animateTimeDelay");
+			var timeEntry = getAnimateTimeEntry(id, index);
+			newSubmit.setAttribute("value", timeEntry.time);
+			currentControls.appendChild(newSubmit);
+			newSubmit.onchange = function() { doAnimateControlChangeTime(id, index) };
+
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","new pieces list");
+			newSubmit.onclick = function() { doAnimateControlNewPieceEntry(id, index) };
+			currentControls.appendChild(newSubmit);
+		}
+
+		function doAnimateControlChangeTime(id, index) {
+			var timeEntry = getAnimateTimeEntry(id, index);
+			var timeInput = document.getElementById("animateTimeDelay");
+			timeEntry.time = parseInt(timeInput.value);
+
+			doSelectAnimate(id);
+		}
+
+		function doAnimateControlNewPieceEntry(id, index) {
+			var timeEntry = getAnimateTimeEntry(id, index);
+
+			var pieceEntry = new Object();
+			pieceEntry.piece = new Object();
+			pieceEntry.piece.id = "unknown";
+			pieceEntry.piece.transformList = new Array();
+			timeEntry.piecesList.push(pieceEntry);
+
+			doSelectAnimate(id);
+		}
+
+		function getAnimateTimeEntry(id, index) {
+			var animateEntry = gkToolContext.animateMap[id];
+
+			return animateEntry.animateObject.timeList[index];
+		}
+
+		function getAnimatePieceEntry(id, index1, index2) {
+			var animateEntry = gkToolContext.animateMap[id];
+
+			return animateEntry.animateObject.timeList[index1].piecesList[index2];
+		}
+
+		function getAnimateTransformEntry(id, index1, index2, index3) {
+			var animateEntry = gkToolContext.animateMap[id];
+
+			return animateEntry.animateObject.timeList[index1].piecesList[index2].piece.transformList[index3];
+		}
+
+		function addAnimatePieceEntryControlsSet(id, index1, index2) {
+			console.log("addAnimatePieceEntryControlsSet: " + id + " " + index1 + " " + index2);
+			doClearControls();
+			var pieceEntry = getAnimatePieceEntry(id, index1, index2);
+
+			var currentControls = document.getElementById("currentControls");
+			var newSelect = document.createElement("select");
+			newSelect.id = "selectPieceId";
+			currentControls.appendChild(newSelect);
+			newSelect.onchange = function() { doAnimateControlChangePieceId(id, index1, index2) };
+
+			if (pieceEntry.piece.id == "unknown") {
+				var newOption = document.createElement("option");
+				newOption.value = "unknown";
+				newOption.innerHTML = "unknown";
+				newSelect.appendChild(newOption);
+			}
+
+			var newOption;
+			for (var prop in gkToolContext.svgMap) {
+				var newOption = document.createElement("option");
+				newOption.value = prop;
+				newOption.innerHTML = prop;
+				if (prop == pieceEntry.piece.id) {
+					newOption.selected = "selected"
+				}
+				newSelect.appendChild(newOption);
+			}
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","new transform");
+			newSubmit.onclick = function() { doAnimateControlNewTransform(id, index1, index2) };
+			currentControls.appendChild(newSubmit);
+
+		}
+
+		function doAnimateControlNewTransform(id, index1, index2) {
+			console.log("doAnimateControlNewTransform " + id + " " + index1 + " " + index2);
+			var pieceEntry = getAnimatePieceEntry(id, index1, index2);
+
+			var transformEntry = new Object();
+			transformEntry.transform = new Object();
+			transformEntry.transform.type = "translate";
+			transformEntry.transform.x = 0;
+			transformEntry.transform.y = 0;
+			pieceEntry.piece.transformList.push(transformEntry);
+
+			doSelectAnimate(id);
+		}
+
+		function doAnimateControlChangePieceId(id, index1, index2) {
+			console.log("doAnimateControlChangePieceId " + index1 + " " + index2);
+
+			var pieceSelect = document.getElementById("selectPieceId");
+
+			var pieceEntry = getAnimatePieceEntry(id, index1, index2);
+			pieceEntry.piece.id = pieceSelect.value
+
+			doSelectAnimate(id);
+		}
+
+		function addAnimateTransformEntryControlsSet(id, index1, index2, index3) {
+			console.log("addAnimateTransformEntryControlsSet: " + id + " " + index1 + " " + index2 + " " + index3);
+			var transformEntry = getAnimateTransformEntry(id, index1, index2, index3);
+
+			doClearControls();
+
+			var currentControls = document.getElementById("currentControls");
+
+			var newSelect = document.createElement("select");
+			newSelect.id = gkToolContext.selectPrefix + gkToolContext.nextId;
+			gkToolContext.nextId += 1;
+console.log("type id: " + newSelect.id);
+			var id1 = newSelect.id;
+			newSelect.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id1) };
+			currentControls.appendChild(newSelect);
+
+			var newOption = document.createElement("option");
+			newOption.value = "translate";
+			newOption.innerHTML = "translate";
+			newSelect.appendChild(newOption);
+
+			newOption = document.createElement("option");
+			newOption.value = "rotate";
+			newOption.innerHTML = "rotate";
+			if (transformEntry.transform.type == "rotate") {
+				newOption.selected = "selected";
+			}
+			newSelect.appendChild(newOption);
+
+			newOption = document.createElement("option");
+			newOption.value = "scale";
+			newOption.innerHTML = "scale";
+			if (transformEntry.transform.type == "scale") {
+				newOption.selected = "selected";
+			}
+			newSelect.appendChild(newOption);
+
+			newOption = document.createElement("option");
+			newOption.value = "skewX";
+			newOption.innerHTML = "skewX";
+			if (transformEntry.transform.type == "skewX") {
+				newOption.selected = "selected";
+			}
+			newSelect.appendChild(newOption);
+
+			newOption = document.createElement("option");
+			newOption.value = "skewY";
+			newOption.innerHTML = "skewY";
+			if (transformEntry.transform.type == "skewY") {
+				newOption.selected = "selected";
+			}
+			newSelect.appendChild(newOption);
+
+			var newSpan = document.createElement("span");
+			newSpan.innerHTML = "x";
+			currentControls.appendChild(newSpan);
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","text");
+			newSubmit.setAttribute("value",transformEntry.transform.x);
+			newSubmit.id = gkToolContext.selectPrefix + gkToolContext.nextId;
+			gkToolContext.currentTransformXId = newSubmit.id;
+console.log("x id: " + newSubmit.id);
+			var id_x = newSubmit.id;
+			gkToolContext.nextId += 1;
+			var id2 = newSubmit.id;
+			newSubmit.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id2) };
+			currentControls.appendChild(newSubmit);
+
+			var newSpan = document.createElement("span");
+			newSpan.innerHTML = "y";
+			currentControls.appendChild(newSpan);
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","text");
+			newSubmit.setAttribute("value",transformEntry.transform.y);
+			newSubmit.id = gkToolContext.selectPrefix + gkToolContext.nextId;
+			gkToolContext.currentTransformYId = newSubmit.id;
+console.log("y id: " + newSubmit.id);
+			var id_y = newSubmit.id;
+			gkToolContext.nextId += 1;
+			var id3 = newSubmit.id;
+			newSubmit.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id3) };
+			currentControls.appendChild(newSubmit);
+
+			var newSpan = document.createElement("span");
+			newSpan.innerHTML = "angle";
+			currentControls.appendChild(newSpan);
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","text");
+			newSubmit.setAttribute("value",transformEntry.transform.angle);
+			newSubmit.id = gkToolContext.selectPrefix + gkToolContext.nextId;
+			gkToolContext.currentTransformAngleId = newSubmit.id;
+console.log("angle id: " + newSubmit.id);
+			var id_angle = newSubmit.id;
+			gkToolContext.nextId += 1;
+			var id4 = newSubmit.id;
+			newSubmit.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id4) };
+			currentControls.appendChild(newSubmit);
+
+			var newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","del");
+			newSubmit.onclick = function() { doAnimateControlDeleteTransformEntry(id, index1, index2, index3) };
+			currentControls.appendChild(newSubmit);
+			gkToolContext.currentTransformId = id;
+		}
+
+		function doAnimateControlChangeTransform(id, index1, index2, index3, submitId) {
+			console.log("doAnimateControlChangeTransform " + id + " " + index1 + "," + index2 + "," + index3 + " submitId: " + submitId);
+		}
+
+		function doAnimateControlDeleteTransformEntry(id, index1, index2, index3) {
+			console.log("doAnimateControlDeleteTransformEntry " + id + " " + index1 + "," + index2 + "," + index3);
+		}
+
+		function addAssemblePiecesControlsSet(id, stack, index) {
+console.log("addAssemblePiecesControlsSet " + id + " <" + stack + "> index: " + index);
 			doClearControls();
 
 			var currentControls = document.getElementById("currentControls");
@@ -704,7 +1096,7 @@ console.log("addPiecesControlsSet " + id + " <" + stack + "> index: " + index);
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","new piece");
 				var localStack = stack.toString();
-				newSubmit.onclick = function() { doControlNewPiece(id, localStack, index) };
+				newSubmit.onclick = function() { doAssembleControlNewPiece(id, localStack, index) };
 				currentControls.appendChild(newSubmit);
 			} else {
 				var node = getNodeFromStack(id, stack);
@@ -734,7 +1126,7 @@ console.log("addPiecesControlsSet " + id + " <" + stack + "> index: " + index);
 				localStack_id = stack.toString();
 				newSelect.id = gkToolContext.selectPrefix + gkToolContext.nextId;
 				gkToolContext.nextId += 1;
-				newSelect.onchange = function() { doControlChangePieceId(id, localStack_id, index, newSelect.id) };
+				newSelect.onchange = function() { doAssembleControlChangePieceId(id, localStack_id, index, newSelect.id) };
 
 				currentControls.appendChild(newSelect);
 
@@ -743,7 +1135,7 @@ console.log("addPiecesControlsSet " + id + " <" + stack + "> index: " + index);
 					newSubmit.setAttribute("type","submit");
 					newSubmit.setAttribute("value","create transform list");
 					var localStack_tr = stack.toString();
-					newSubmit.onclick = function() { doControlNewTransformList(id, localStack_tr, index) };
+					newSubmit.onclick = function() { doAssembleControlNewTransformList(id, localStack_tr, index) };
 					currentControls.appendChild(newSubmit);
 				}
 
@@ -751,28 +1143,28 @@ console.log("addPiecesControlsSet " + id + " <" + stack + "> index: " + index);
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","del");
 				var localStack_del = dropTwoOffStack(stack.toString());
-				newSubmit.onclick = function() { doControlDeletePiece(id, localStack_del, index) };
+				newSubmit.onclick = function() { doAssembleControlDeletePiece(id, localStack_del, index) };
 				currentControls.appendChild(newSubmit);
 
 				var newSubmit = document.createElement("input");
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","move up");
 				var localStack_move_up = dropTwoOffStack(stack.toString());
-				newSubmit.onclick = function() { doControlMovePiece(id, localStack_move_up, index, -1) };
+				newSubmit.onclick = function() { doAssembleControlMovePiece(id, localStack_move_up, index, -1) };
 				currentControls.appendChild(newSubmit);
 
 				var newSubmit = document.createElement("input");
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","move down");
 				var localStack_move_down = dropTwoOffStack(stack.toString());
-				newSubmit.onclick = function() { doControlMovePiece(id, localStack_move_down, index, 1) };
+				newSubmit.onclick = function() { doAssembleControlMovePiece(id, localStack_move_down, index, 1) };
 				currentControls.appendChild(newSubmit);
 
 			}
 		}
 
-		function doControlChangePieceId(id, stack, index, selectId) {
-			console.log("doControlChangePieceId " + stack);
+		function doAssembleControlChangePieceId(id, stack, index, selectId) {
+			console.log("doAssembleControlChangePieceId " + stack);
 
 			var node = getNodeFromStack(id, stack);
 
@@ -784,8 +1176,8 @@ console.log("addPiecesControlsSet " + id + " <" + stack + "> index: " + index);
 			doRunAssemble(id);
 		}
 
-		function doControlChangeTransform(id, stack, index, selectId, changeType) {
-			console.log("doControlChangeTransform selectId: " + selectId + " stack: " + stack + " index: " + index);
+		function doAssembleControlChangeTransform(id, stack, index, selectId, changeType) {
+			console.log("doAssembleControlChangeTransform selectId: " + selectId + " stack: " + stack + " index: " + index);
 
 			var comp = document.getElementById(selectId);
 			var value = comp.value;
@@ -809,8 +1201,8 @@ dumpNode("got node for transform: ", node);
 			doRunAssemble(id);
 		}
 
-		function doControlDeletePiece(id, stack, index) {
-			console.log("doControlDeletePiece " + stack);
+		function doAssembleControlDeletePiece(id, stack, index) {
+			console.log("doAssembleControlDeletePiece " + stack);
 
 			var node = getNodeFromStack(id, stack);
 
@@ -830,8 +1222,8 @@ dumpNode("got node for transform: ", node);
 			doRunAssemble(id);
 		}
 
-		function doControlMovePiece(id, stack, index, moveDir) {
-			console.log("doControlMovePiece " + stack);
+		function doAssembleControlMovePiece(id, stack, index, moveDir) {
+			console.log("doAssembleControlMovePiece " + stack);
 
 			var node = getNodeFromStack(id, stack);
 
@@ -842,15 +1234,15 @@ dumpNode("got node for transform: ", node);
 					node[index] = node[index + moveDir];
 					node[index + moveDir] = n1;
 console.log("fix this stack: " + stack);
-					addPiecesControlsSet(id, stack + "," + (index + moveDir) + ",piece", index + moveDir);
+					addAssemblePiecesControlsSet(id, stack + "," + (index + moveDir) + ",piece", index + moveDir);
 					doSelectAssemble(id);
 					doRunAssemble(id);
 				}
 			}
 		}
 
-		function doControlDeleteTransformEntry(id, stack, index) {
-			console.log("doControlDeleteTransformEntry " + stack);
+		function doAssembleControlDeleteTransformEntry(id, stack, index) {
+			console.log("doAssembleControlDeleteTransformEntry " + stack);
 
 			var node = getNodeFromStack(id, stack);
 
@@ -873,8 +1265,8 @@ console.log("fix this stack: " + stack);
 			doRunAssemble(id);
 		}
 
-		function doControlNewTransformList(id, stack, index) {
-			console.log("doControlNewTransformList " + stack);
+		function doAssembleControlNewTransformList(id, stack, index) {
+			console.log("doAssembleControlNewTransformList " + stack);
 
 			var node = getNodeFromStack(id, stack);
 
@@ -882,6 +1274,19 @@ console.log("fix this stack: " + stack);
 
 			doSelectAssemble(id);
 			doRunAssemble(id);
+		}
+
+		function doAssembleControlNewTimeListEntry(id) {
+			console.log("doAssembleControlNewTimeListEntry");
+
+			var animateEntry = gkToolContext.animateMap[id];
+
+			var timeListEntry = new Object();
+			timeListEntry.time = 0;
+			timeListEntry.piecesList = new Array();
+			animateEntry.animateObject.timeList.push(timeListEntry);
+
+			doSelectAnimate(id);
 		}
 
 		function getNodeFromStack(id, stack) {
@@ -940,8 +1345,8 @@ console.log("fix this stack: " + stack);
 			}
 		}
 
-		function addTransformControlsSet(id, stack, index) {
-console.log("addTransformControlsSet " + id + " <" + stack + "> index: " + index);
+		function addAssembleTransformControlsSet(id, stack, index) {
+console.log("addAssembleTransformControlsSet " + id + " <" + stack + "> index: " + index);
 			doClearControls();
 
 			var currentControls = document.getElementById("currentControls");
@@ -952,7 +1357,7 @@ console.log("addTransformControlsSet " + id + " <" + stack + "> index: " + index
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","new transform");
 				var localStack = stack.toString();
-				newSubmit.onclick = function() { doControlNewTransformEntry(id, localStack, index) };
+				newSubmit.onclick = function() { doAssembleControlNewTransformEntry(id, localStack, index) };
 				currentControls.appendChild(newSubmit);
 
 			} else {
@@ -962,7 +1367,7 @@ console.log("addTransformControlsSet " + id + " <" + stack + "> index: " + index
 				newSelect.id = gkToolContext.selectPrefix + gkToolContext.nextId;
 				gkToolContext.nextId += 1;
 console.log("type id: " + newSelect.id);
-				newSelect.onchange = function() { doControlChangeTransform(id, localStack, index, newSelect.id, "type") };
+				newSelect.onchange = function() { doAssembleControlChangeTransform(id, localStack, index, newSelect.id, "type") };
 				currentControls.appendChild(newSelect);
 
 				var newOption = document.createElement("option");
@@ -1015,7 +1420,7 @@ console.log("type id: " + newSelect.id);
 console.log("x id: " + newSubmit.id);
 				var id_x = newSubmit.id;
 				gkToolContext.nextId += 1;
-				newSubmit.onchange = function() { doControlChangeTransform(id, localStack, index, id_x, "x") };
+				newSubmit.onchange = function() { doAssembleControlChangeTransform(id, localStack, index, id_x, "x") };
 				currentControls.appendChild(newSubmit);
 
 				var newSpan = document.createElement("span");
@@ -1031,7 +1436,7 @@ console.log("x id: " + newSubmit.id);
 console.log("y id: " + newSubmit.id);
 				var id_y = newSubmit.id;
 				gkToolContext.nextId += 1;
-				newSubmit.onchange = function() { doControlChangeTransform(id, localStack, index, id_y, "y") };
+				newSubmit.onchange = function() { doAssembleControlChangeTransform(id, localStack, index, id_y, "y") };
 				currentControls.appendChild(newSubmit);
 
 				var newSpan = document.createElement("span");
@@ -1047,14 +1452,14 @@ console.log("y id: " + newSubmit.id);
 console.log("angle id: " + newSubmit.id);
 				var id_angle = newSubmit.id;
 				gkToolContext.nextId += 1;
-				newSubmit.onchange = function() { doControlChangeTransform(id, localStack, index, id_angle, "angle") };
+				newSubmit.onchange = function() { doAssembleControlChangeTransform(id, localStack, index, id_angle, "angle") };
 				currentControls.appendChild(newSubmit);
 
 				var newSubmit = document.createElement("input");
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","del");
 				var localStack_del = dropTwoOffStack(stack.toString());
-				newSubmit.onclick = function() { doControlDeleteTransformEntry(id, localStack_del, index) };
+				newSubmit.onclick = function() { doAssembleControlDeleteTransformEntry(id, localStack_del, index) };
 				currentControls.appendChild(newSubmit);
 				var localStackSave = stack.toString();
 				gkToolContext.currentTransformStack = localStackSave;
@@ -1095,7 +1500,7 @@ console.log("angle id: " + newSubmit.id);
 			newSubmit.setAttribute("value","select");
 
 			var localStack = stack.toString();
-			newSubmit.onclick = function() { addTransformControlsSet(id, localStack, index) };
+			newSubmit.onclick = function() { addAssembleTransformControlsSet(id, localStack, index) };
 			newLi.appendChild(newSubmit);
 		}
 
@@ -1117,7 +1522,7 @@ console.log("angle id: " + newSubmit.id);
 			newSubmit.setAttribute("value","select");
 
 			var localStack = stack.toString();
-			newSubmit.onclick = function() { addPiecesControlsSet(id, localStack, index) };
+			newSubmit.onclick = function() { addAssemblePiecesControlsSet(id, localStack, index) };
 			newLi.appendChild(newSubmit);
 
 			if (index != -1) {
@@ -1149,8 +1554,8 @@ console.log("angle id: " + newSubmit.id);
 			return spacing;
 		}
 
-		function doControlNewGroup(id) {
-			console.log("doControlNewGroup");
+		function doAssembleControlNewGroup(id) {
+			console.log("doAssembleControlNewGroup");
 			var assembleEntry = gkToolContext.assembleMap[id];
 
 			var group = new Object();
@@ -1161,8 +1566,8 @@ console.log("angle id: " + newSubmit.id);
 			doRunAssemble(id);
 		}
 
-		function doControlNewPiecesList(id) {
-			console.log("doControlNewPiecesList");
+		function doAssembleControlNewPiecesList(id) {
+			console.log("doAssembleControlNewPiecesList");
 			var assembleEntry = gkToolContext.assembleMap[id];
 
 			assembleEntry.assembleObject.piecesList = new Array();
@@ -1170,8 +1575,8 @@ console.log("angle id: " + newSubmit.id);
 			doRunAssemble(id);
 		}
 
-		function doControlNewPiece(id, stack, index) {
-			console.log("doControlNewPiece " + stack.toString() + " " + stack.length);
+		function doAssembleControlNewPiece(id, stack, index) {
+			console.log("doAssembleControlNewPiece " + stack.toString() + " " + stack.length);
 
 			var node = getNodeFromStack(id, stack);
 
@@ -1185,8 +1590,8 @@ console.log("angle id: " + newSubmit.id);
 			doRunAssemble(id);
 		}
 
-		function doControlNewTransformEntry(id, stack, index) {
-			console.log("doControlNewTransformEntry " + stack.toString() + " " + stack.length);
+		function doAssembleControlNewTransformEntry(id, stack, index) {
+			console.log("doAssembleControlNewTransformEntry " + stack.toString() + " " + stack.length);
 
 			var node = getNodeFromStack(id, stack);
 
@@ -1291,22 +1696,27 @@ console.log("angle id: " + newSubmit.id);
 			background-color: #efefef;
 		}
 		#assembleList {
-			width: 22%;
+			width: 19%;
 			float: left;
 			background-color: #efffef;
 		}
+		#animateList {
+			width: 19%;
+			float: left;
+			background-color: #efffff;
+		}
 		.svgObjects {
-			width: 22%;
+			width: 19%;
 			float: left;
 			background-color: #efefff;
 		}
 		.assembleObjects {
-			width: 22%;
+			width: 19%;
 			float: left;
 			background-color: #ffefef;
 		}
 		.animateObjects {
-			width: 22%;
+			width: 19%;
 			float: left;
 			background-color: #ffffcf;
 		}
@@ -1336,7 +1746,7 @@ console.log("angle id: " + newSubmit.id);
     x="0px"
     y="0px"
     width="800"
-    height="500"
+    height="400"
     xml:space="preserve">
 
 <defs id="piecesGroup"></defs>
@@ -1346,14 +1756,17 @@ console.log("angle id: " + newSubmit.id);
 </div>
 	<br/>
 		<span id="browserCompatible">one</span>
-		<input type="file" id="files" name="files[]" multiple/>
-		<a id="downloadAssemble">download saved assembly</a>
+		<input type="file" id="files" name="files[]" multiple/><br/>
+		<a id="downloadAssemble">download saved assembly</a><br/>
+		<a id="downloadAnimate">download saved animation</a><br/>
 
 		<form onsubmit="return false;">
 		<div id="currentControls">
 		</div>
 		<div class="whole">
 			<div id="assembleList">
+			</div>
+			<div id="animateList">
 			</div>
 			<div class="assembleObjects">
 				<input id="createAssembleId" size="8" type="text"/><input type="submit" onclick="doCreateAssemble();" value="Create Assembly"/><br/>
