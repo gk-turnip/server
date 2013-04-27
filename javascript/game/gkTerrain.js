@@ -44,7 +44,7 @@ console.log("tileList.length: " + jsonData.tileList.length);
 		x = jsonData.tileList[i].x;
 		y = jsonData.tileList[i].y;
 		z = jsonData.tileList[i].z;
-		terrainName = jsonData.tileList[i].terrain;
+		terrainName = jsonData.tileList[i].t;
 
 		var terrainMapMapEntry = new gkTerrainMapMapEntryDef(x, y, z, terrainName)
 
@@ -70,7 +70,7 @@ console.log("objectList.length: " + jsonData.objectList.length);
 		x = jsonData.objectList[i].x;
 		y = jsonData.objectList[i].y;
 		z = jsonData.objectList[i].z;
-		objectName = jsonData.objectList[i].object;
+		objectName = jsonData.objectList[i].o;
 
 		var objectMapMapEntry = new gkTerrainMapMapEntryDef(x, y, z, objectName)
 
