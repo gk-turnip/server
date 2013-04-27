@@ -713,7 +713,7 @@ console.log("addAnimateNodeSelect timeList.length: " + node.timeList.length);
 
 					var k;
 					for (k = 0;k < piecesList[j].piece.transformList.length;k++) {
-						transformEntry = piecesList[j].piece.transformList[k]
+						var transformEntry = piecesList[j].piece.transformList[k]
 						var newSubSubLi = document.createElement("li");
 						newSubSubUl.appendChild(newSubSubLi);
 
@@ -1115,16 +1115,12 @@ console.log("comp value: " + value);
 
 			var pieceEntry = getAnimatePieceEntry(id, index1, index2);
 
-			pieceEntry.piece.transformList.push(transformEntry);
-console.log("lena: " + pieceEntry.piece.transformList.length);
 			var i
 			for (i = (index3 + 1);i < pieceEntry.piece.transformList.length;i++) {
 				pieceEntry.piece.transformList[i - 1] = pieceEntry.piece.transformList[i];
 			}
 
-console.log("lenb: " + pieceEntry.piece.transformList.length);
 			pieceEntry.piece.transformList.pop();
-console.log("lenc: " + pieceEntry.piece.transformList.length);
 
 			doClearControls();
 			doSelectAnimate(id);
