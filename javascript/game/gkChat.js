@@ -61,6 +61,14 @@ function gkChatSubmit() {
 		message = message.replace("<", "&lt;");
 		message = message.replace(">", "&gt;");
 	}
+	if (message.search("[") + message.search("]") != -2) {
+		console.warn("BBCode possibly detected! message:" + message);
+		if (!confirm("Your message may contain BBCode. This markup, if any, will be shown in plaintext. If you want to submit your message as-is, press OK. Press Cancel to edit your message.")) {
+			return false;
+		}
+		message = message.replace("[", "&#91;");
+		message = message.replace("]", "&#93;");
+	}
 
 	var jsonMessage = JSON.stringify({ userName: gkWsContext.userName, message: message });
 	if (message.length > 0) {
@@ -94,8 +102,8 @@ function gkChatMessageFromServer(userName, message) {
 
 		if (userSpan2.innerHTML.length > 0) {
 			userSpan2.setAttribute('class','chatUser');
-			userSpan2.setAttribute('onclick','gkChatShowFullName(i + 1)')
-			userSpan2.setAttribute('onblur','gkChatHideFullName(i + 1)')
+			userSpan2.setAttribute('onmouseover','gkChatShowFullName(i + 1)')
+			userSpan2.setAttribute('onmouseout','gkChatHideFullName(i + 1)')
 		}
     }
 
@@ -105,8 +113,8 @@ function gkChatMessageFromServer(userName, message) {
     userSpan1 = document.getElementById("chatUser_1");
     userSpan1.innerHTML = userName
 	userSpan1.setAttribute('class','chatUser');
-	userSpan1.setAttribute('onclick','gkChatShowFullName(1)')
-	userSpan1.setAttribute('onblur','gkChatHideFullName(1)')
+	userSpan1.setAttribute('onmouseover','gkChatShowFullName(1)')
+	userSpan1.setAttribute('onmouseout','gkChatHideFullName(1)')
     messageSpan1 = document.getElementById("chatMessage_1");
     messageSpan1.innerHTML = message
 }
