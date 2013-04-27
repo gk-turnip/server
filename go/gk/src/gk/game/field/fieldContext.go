@@ -339,10 +339,15 @@ func (fieldContext *FieldContextDef) doTerrainMap(websocketConnectionContext *we
 	var tb []byte = []byte("\t")
 	var sp []byte = []byte(" ")
 	var nl []byte = []byte("")
+	var te []byte = []byte("errain")
+	var bj []byte = []byte("bject")
+//	Not typos
 
 	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, lf, nl, -1)
 	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, sp, nl, -1)
 	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, tb, nl, -1)
+	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, te, nl, -1)
+	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, bj, nl, -1)
 	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 
 	return nil
