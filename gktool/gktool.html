@@ -25,11 +25,14 @@
 				this.animatePiecePrefix = "anip_";
 				this.selectPrefix = "sel_";
 				this.nextId = 1;
-				this.currentTransformXId = undefined;
-				this.currentTransformYId = undefined;
-				this.currentTransformAngleId = undefined;
-				this.currentTransformStack = undefined;
-				this.currentTransformId = undefined;
+				delete this.currentTransformXId;
+				delete this.currentTransformYId;
+				delete this.currentTransformAngleId;
+				delete this.currentTransformStack;
+				delete this.currentTransformId;
+				delete this.currentTransformIndex1;
+				delete this.currentTransformIndex2;
+				delete this.currentTransformIndex3;
 				this.currentMouseMoveX = 0;
 				this.currentMouseMoveY = 0;
 				this.mouseDown = false;
@@ -389,7 +392,7 @@ console.log("got animate file: " + id);
 			for (i = 0;i < piecesList.length;i++) {
 //				console.log("i: " + i + " id: " + piecesList[i].piece.id);
 				var transformList = piecesList[i].piece.transformList;
-				animateSvgApplySingleTransform(id, piecesList[i].piece.id, transformList);
+//				animateSvgApplySingleTransform(id, piecesList[i].piece.id, transformList);
 //				var j;
 //				for (j = 0;j < transformList.length;j++) {
 //					var transform = transformList[j].transform
@@ -408,7 +411,7 @@ console.log("got animate file: " + id);
 			//var x = assembleGroup.getElementById(gkToolContext.animatePiecePrefix + pieceId);
 			var node = findAssembleGroupAnimateG(pieceId);
 			if (node != undefined) {
-console.log("found node: " + node.id);
+//console.log("found node: " + node.id);
 				var transformObject = new Object();
 				transformObject.transform = "";
 				assembleSvgTransformList(transformList, transformObject);
@@ -419,7 +422,7 @@ console.log("found node: " + node.id);
 		function findAssembleGroupAnimateG(pieceId) {
 			var assembleGroup = document.getElementById("assembleGroup");
 
-console.log("for pieceId: " + pieceId + " found id: " + assembleGroup.id);
+//console.log("for pieceId: " + pieceId + " found id: " + assembleGroup.id);
 
 //			for (var prop in assembleGroup) {
 //				console.log("in assemble group: " + prop);
@@ -981,7 +984,7 @@ console.log("addAnimateGroupControlsSet " + id);
 			gkToolContext.nextId += 1;
 console.log("type id: " + newSelect.id);
 			var id1 = newSelect.id;
-			newSelect.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id1) };
+			newSelect.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id1, "type") };
 			currentControls.appendChild(newSelect);
 
 			var newOption = document.createElement("option");
@@ -1034,7 +1037,7 @@ console.log("x id: " + newSubmit.id);
 			var id_x = newSubmit.id;
 			gkToolContext.nextId += 1;
 			var id2 = newSubmit.id;
-			newSubmit.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id2) };
+			newSubmit.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id2, "x") };
 			currentControls.appendChild(newSubmit);
 
 			var newSpan = document.createElement("span");
@@ -1050,7 +1053,7 @@ console.log("y id: " + newSubmit.id);
 			var id_y = newSubmit.id;
 			gkToolContext.nextId += 1;
 			var id3 = newSubmit.id;
-			newSubmit.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id3) };
+			newSubmit.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id3, "y") };
 			currentControls.appendChild(newSubmit);
 
 			var newSpan = document.createElement("span");
@@ -1066,7 +1069,7 @@ console.log("angle id: " + newSubmit.id);
 			var id_angle = newSubmit.id;
 			gkToolContext.nextId += 1;
 			var id4 = newSubmit.id;
-			newSubmit.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id4) };
+			newSubmit.onchange = function() { doAnimateControlChangeTransform(id, index1, index2, index3, id4, "angle") };
 			currentControls.appendChild(newSubmit);
 
 			var newSubmit = document.createElement("input");
@@ -1075,14 +1078,57 @@ console.log("angle id: " + newSubmit.id);
 			newSubmit.onclick = function() { doAnimateControlDeleteTransformEntry(id, index1, index2, index3) };
 			currentControls.appendChild(newSubmit);
 			gkToolContext.currentTransformId = id;
+			gkToolContext.currentTransformIndex1 = index1;
+			gkToolContext.currentTransformIndex2 = index2;
+			gkToolContext.currentTransformIndex3 = index3;
 		}
 
-		function doAnimateControlChangeTransform(id, index1, index2, index3, submitId) {
+		function doAnimateControlChangeTransform(id, index1, index2, index3, submitId, changeType) {
 			console.log("doAnimateControlChangeTransform " + id + " " + index1 + "," + index2 + "," + index3 + " submitId: " + submitId);
+
+			var comp = document.getElementById(submitId);
+			var value = comp.value;
+console.log("comp value: " + value);
+
+			//var node = getNodeFromStack(id, stack);
+			var transformEntry = getAnimateTransformEntry(gkToolContext.currentTransformId, gkToolContext.currentTransformIndex1, gkToolContext.currentTransformIndex2, gkToolContext.currentTransformIndex3);
+
+//dumpNode("got node for transform: ", node);
+			if (changeType == "type") {
+				transformEntry.transform.type = value;
+			}
+			if (changeType == "angle") {
+				transformEntry.transform.angle = value;
+			}
+			if (changeType == "x") {
+				transformEntry.transform.x = value;
+			}
+			if (changeType == "y") {
+				transformEntry.transform.y = value;
+			}
+			doSelectAnimate(id);
+			doRunAnimate(id);
 		}
 
 		function doAnimateControlDeleteTransformEntry(id, index1, index2, index3) {
 			console.log("doAnimateControlDeleteTransformEntry " + id + " " + index1 + "," + index2 + "," + index3);
+
+			var pieceEntry = getAnimatePieceEntry(id, index1, index2);
+
+			pieceEntry.piece.transformList.push(transformEntry);
+console.log("lena: " + pieceEntry.piece.transformList.length);
+			var i
+			for (i = (index3 + 1);i < pieceEntry.piece.transformList.length;i++) {
+				pieceEntry.piece.transformList[i - 1] = pieceEntry.piece.transformList[i];
+			}
+
+console.log("lenb: " + pieceEntry.piece.transformList.length);
+			pieceEntry.piece.transformList.pop();
+console.log("lenc: " + pieceEntry.piece.transformList.length);
+
+			doClearControls();
+			doSelectAnimate(id);
+			doRunAnimate(id);
 		}
 
 		function addAssemblePiecesControlsSet(id, stack, index) {
@@ -1618,11 +1664,14 @@ console.log("angle id: " + newSubmit.id);
 				node.parentNode.removeChild(node);
 			}
 
-			gkToolContext.currentTransformXId = undefined;
-			gkToolContext.currentTransformYId = undefined;
-			gkToolContext.currentTransformAngleId = undefined;
-			gkToolContext.currentTransformStack = undefined;
-			gkToolContext.currentTransformId = undefined;
+			delete gkToolContext.currentTransformXId;
+			delete gkToolContext.currentTransformYId;
+			delete gkToolContext.currentTransformAngleId;
+			delete gkToolContext.currentTransformStack;
+			delete gkToolContext.currentTransformId;
+			delete this.currentTransformIndex1;
+			delete this.currentTransformIndex2;
+			delete this.currentTransformIndex3;
 		}
 
 		function doMouseDown(evt) {
@@ -1653,57 +1702,115 @@ console.log("angle id: " + newSubmit.id);
 
 //console.log("diffX: " + diffX);
 					if (gkToolContext.mouseTwiceDown) {
-						var inputAngle = document.getElementById(gkToolContext.currentTransformAngleId);
-						inputAngle.value = parseInt(inputAngle.value) + diffX;
-
-						gkToolContext.currentMouseMoveX = evt.clientX;
-						gkToolContext.currentMouseMoveY = evt.clientY;
-
-						var node = getNodeFromStack(gkToolContext.currentTransformId, gkToolContext.currentTransformStack);
-						node.angle = inputAngle.value;
-					} else {
-						var node = getNodeFromStack(gkToolContext.currentTransformId, gkToolContext.currentTransformStack);
-
-						if (node.type == "scale") {
-							diffX = diffX / 50;
-							diffY = diffY / 50;
+						if (gkToolContext.currentTransformStack != undefined) {
+							doMouseMoveTwiceDownAssemble(evt, diffX, diffY);
 						}
-						var inputX = document.getElementById(gkToolContext.currentTransformXId);
-						inputX.value = parseFloat(inputX.value) + diffX;
-						var inputY = document.getElementById(gkToolContext.currentTransformYId);
-						inputY.value = parseFloat(inputY.value) + diffY;
-
-						gkToolContext.currentMouseMoveX = evt.clientX;
-						gkToolContext.currentMouseMoveY = evt.clientY;
-
-						node.x = inputX.value;
-						node.y = inputY.value;
+						if (gkToolContext.currentTransformIndex1 != undefined) {
+							doMouseMoveTwiceDownAnimate(evt, diffX, diffY);
+						}
+					} else {
+						if (gkToolContext.currentTransformStack != undefined) {
+							doMouseMoveOnceDownAssemble(evt, diffX, diffY);
+						}
+						if (gkToolContext.currentTransformIndex1 != undefined) {
+							doMouseMoveOnceDownAnimate(evt, diffX, diffY);
+						}
 					}
-
-					doRunAssemble(gkToolContext.currentTransformId);
 				}
 			}
+		}
+
+		function doMouseMoveTwiceDownAssemble(evt, diffX, diffY) {
+			var inputAngle = document.getElementById(gkToolContext.currentTransformAngleId);
+			inputAngle.value = parseInt(inputAngle.value) + diffX;
+
+			gkToolContext.currentMouseMoveX = evt.clientX;
+			gkToolContext.currentMouseMoveY = evt.clientY;
+
+			var node = getNodeFromStack(gkToolContext.currentTransformId, gkToolContext.currentTransformStack);
+			node.angle = inputAngle.value;
+
+			doRunAssemble(gkToolContext.currentTransformId);
+		}
+
+		function doMouseMoveTwiceDownAnimate(evt, diffX, diffY) {
+			var inputAngle = document.getElementById(gkToolContext.currentTransformAngleId);
+			inputAngle.value = parseInt(inputAngle.value) + diffX;
+
+			gkToolContext.currentMouseMoveX = evt.clientX;
+			gkToolContext.currentMouseMoveY = evt.clientY;
+
+			var transformEntry = getAnimateTransformEntry(gkToolContext.currentTransformId, gkToolContext.currentTransformIndex1, gkToolContext.currentTransformIndex2, gkToolContext.currentTransformIndex3);
+
+			transformEntry.transform.angle = inputAngle.value;
+
+			doRunAnimate(gkToolContext.currentTransformId);
+		}
+
+		function doMouseMoveOnceDownAssemble(evt, diffX, diffY) {
+			var node = getNodeFromStack(gkToolContext.currentTransformId, gkToolContext.currentTransformStack);
+
+			if (node.type == "scale") {
+				diffX = diffX / 50;
+				diffY = diffY / 50;
+			}
+			var inputX = document.getElementById(gkToolContext.currentTransformXId);
+			inputX.value = parseFloat(inputX.value) + diffX;
+			inputX.value = Math.round(inputX.value * 10) / 10;
+			var inputY = document.getElementById(gkToolContext.currentTransformYId);
+			inputY.value = parseFloat(inputY.value) + diffY;
+			inputY.value = Math.round(inputY.value * 10) / 10;
+
+			gkToolContext.currentMouseMoveX = evt.clientX;
+			gkToolContext.currentMouseMoveY = evt.clientY;
+
+			node.x = inputX.value;
+			node.y = inputY.value;
+			doRunAssemble(gkToolContext.currentTransformId);
+		}
+
+		function doMouseMoveOnceDownAnimate(evt, diffX, diffY) {
+//			var node = getNodeFromStack(gkToolContext.currentTransformId, gkToolContext.currentTransformStack);
+
+			var transformEntry = getAnimateTransformEntry(gkToolContext.currentTransformId, gkToolContext.currentTransformIndex1, gkToolContext.currentTransformIndex2, gkToolContext.currentTransformIndex3);
+
+			if (transformEntry.transform.type == "scale") {
+				diffX = diffX / 50;
+				diffY = diffY / 50;
+			}
+			var inputX = document.getElementById(gkToolContext.currentTransformXId);
+			inputX.value = parseFloat(inputX.value) + diffX;
+			inputX.value = Math.round(inputX.value * 10) / 10;
+			var inputY = document.getElementById(gkToolContext.currentTransformYId);
+			inputY.value = parseFloat(inputY.value) + diffY;
+			inputY.value = Math.round(inputY.value * 10) / 10;
+
+			gkToolContext.currentMouseMoveX = evt.clientX;
+			gkToolContext.currentMouseMoveY = evt.clientY;
+
+			transformEntry.transform.x = inputX.value;
+			transformEntry.transform.y = inputY.value;
+			doRunAnimate(gkToolContext.currentTransformId);
 		}
 
 	</script>
 
 	<style type="text/css">
 		.whole {
-			width: 95%;
 		}
 		#currentControls {
-			width: 95%;
 			background-color: #efefef;
+			width: 95%;
 		}
 		#assembleList {
 			width: 19%;
 			float: left;
-			background-color: #efffef;
+			background-color: #dfffdf;
 		}
 		#animateList {
 			width: 19%;
 			float: left;
-			background-color: #efffff;
+			background-color: #ffefef;
 		}
 		.svgObjects {
 			width: 19%;
@@ -1713,7 +1820,7 @@ console.log("angle id: " + newSubmit.id);
 		.assembleObjects {
 			width: 19%;
 			float: left;
-			background-color: #ffefef;
+			background-color: #dfffff;
 		}
 		.animateObjects {
 			width: 19%;
@@ -1761,7 +1868,9 @@ console.log("angle id: " + newSubmit.id);
 		<a id="downloadAnimate">download saved animation</a><br/>
 
 		<form onsubmit="return false;">
-		<div id="currentControls">
+		<div class="whole">
+			<div id="currentControls">
+			</div>
 		</div>
 		<div class="whole">
 			<div id="assembleList">
@@ -1786,7 +1895,7 @@ console.log("angle id: " + newSubmit.id);
 		<div class="trailer">
 <p>The svg sanitizer tool can be found <a href="http://www.gourdianknot.com/gktool/utils">here</a>.</p>
 		</div>
-	<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.18 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+	<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.19 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 	</body>
 
 </html>

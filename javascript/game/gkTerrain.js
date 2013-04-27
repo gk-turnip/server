@@ -64,13 +64,13 @@ console.log("tileList.length: " + jsonData.tileList.length);
 		}
 	}
 
-console.log("objectList.length: " + jsonData.objectList.length);
-	for (i = 0;i < jsonData.objectList.length; i++) {
+console.log("objectList.length: " + jsonData.oList.length);
+	for (i = 0;i < jsonData.oList.length; i++) {
 		var x, y, z, objectName;
-		x = jsonData.objectList[i].x;
-		y = jsonData.objectList[i].y;
-		z = jsonData.objectList[i].z;
-		objectName = jsonData.objectList[i].o;
+		x = jsonData.oList[i].x;
+		y = jsonData.oList[i].y;
+		z = jsonData.oList[i].z;
+		objectName = jsonData.oList[i].o;
 
 		var objectMapMapEntry = new gkTerrainMapMapEntryDef(x, y, z, objectName)
 

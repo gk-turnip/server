@@ -37,7 +37,7 @@
 
 .chatTime {
 	clear: both;
-	width: 20%;
+	width: 15%;
 	float: left;
 	padding-top: 0.05em;
 	padding-bottom: 0.05em;
@@ -53,15 +53,16 @@
 	padding-bottom: 0.05em;
 	padding-right: 0.2em;
 	padding-left: 0.2em;
+	word-wrap: break-word;
 }
 
 .chatUserBlank {
-	width: 10%;
+	width: 15%;
 	float: left;
 }
 
 .chatMessage {
-	width: 50%;
+	width: 65%;
 	float: left;
 	padding-top: 0.05em;
 	padding-bottom: 0.05em;
