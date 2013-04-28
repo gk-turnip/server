@@ -889,6 +889,8 @@ console.log("addAnimateGroupControlsSet " + id);
 			newSubmit.setAttribute("value","new pieces list");
 			newSubmit.onclick = function() { doAnimateControlNewPieceEntry(id, index) };
 			currentControls.appendChild(newSubmit);
+
+			animateSvgDoSingle(id, index);
 		}
 
 		function doAnimateControlChangeTime(id, index) {
@@ -970,6 +972,7 @@ console.log("addAnimateGroupControlsSet " + id);
 			newSubmit.onclick = function() { doAnimateControlNewTransform(id, index1, index2) };
 			currentControls.appendChild(newSubmit);
 
+			animateSvgDoSingle(id, index1);
 		}
 
 		function doAnimateControlNewTransform(id, index1, index2) {
@@ -1138,6 +1141,8 @@ console.log("angle id: " + newSubmit.id);
 			gkToolContext.currentTransformIndex1 = index1;
 			gkToolContext.currentTransformIndex2 = index2;
 			gkToolContext.currentTransformIndex3 = index3;
+
+			animateSvgDoSingle(id, index1);
 		}
 
 		function doAnimateControlChangeTransform(id, index1, index2, index3, submitId, changeType) {
@@ -1164,7 +1169,8 @@ console.log("comp value: " + value);
 				transformEntry.transform.y = value;
 			}
 			doSelectAnimate(id);
-			doRunAnimate(id);
+//			doRunAnimate(id);
+			animateSvgDoSingle(id, index1);
 		}
 
 		function doAnimateControlDeleteTransformEntry(id, index1, index2, index3) {
@@ -1800,7 +1806,8 @@ console.log("angle id: " + newSubmit.id);
 
 			transformEntry.transform.angle = inputAngle.value;
 
-			doRunAnimate(gkToolContext.currentTransformId);
+			//doRunAnimate(gkToolContext.currentTransformId);
+			animateSvgDoSingle(gkToolContext.currentTransformId, gkToolContext.currentTransformIndex1);
 		}
 
 		function doMouseMoveOnceDownAssemble(evt, diffX, diffY) {
@@ -1846,7 +1853,8 @@ console.log("angle id: " + newSubmit.id);
 
 			transformEntry.transform.x = inputX.value;
 			transformEntry.transform.y = inputY.value;
-			doRunAnimate(gkToolContext.currentTransformId);
+		//	doRunAnimate(gkToolContext.currentTransformId);
+			animateSvgDoSingle(gkToolContext.currentTransformId, gkToolContext.currentTransformIndex1);
 		}
 
 	</script>
