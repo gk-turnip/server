@@ -129,7 +129,7 @@
 			var g = gkIsoCreateSvgObject(rawSvgData);
 			g.setAttribute("id",id);
 			//g.setAttributeNS(gkIsoContext.svgNameSpace,"id",id);
-			var isoXYZ = new GkIsoXYZDef(10, 10, 0);
+			var isoXYZ = new GkIsoXYZDef(0, 0, 0);
 			gkIsoSetSvgObjectPosition(g, isoXYZ);
 			var field = document.getElementById("piecesGroup");
 			field.appendChild(g)
@@ -357,7 +357,7 @@ console.log("got animate file: " + id);
 		}
 
 		function animateSvg(id, animateObject) {
-			console.log("animateSvg");
+			console.log("animateSvg timeList.length: " + animateObject.timeList.length);
 
 			animateSvgTimeList(id, animateObject.timeList);
 //			for (var prop in animateObject) {
@@ -373,6 +373,7 @@ console.log("got animate file: " + id);
 			var i
 			var timeSum = 0
 			for (i = 0;i < timeList.length;i++) {
+console.log("i: " + i);
 				var time = timeList[i].time;
 				timeSum += time;
 				var piecesList = timeList[i].piecesList;
@@ -390,9 +391,9 @@ console.log("got animate file: " + id);
 
 			var i;
 			for (i = 0;i < piecesList.length;i++) {
-//				console.log("i: " + i + " id: " + piecesList[i].piece.id);
+				console.log("i: " + i + " id: " + piecesList[i].piece.id);
 				var transformList = piecesList[i].piece.transformList;
-//				animateSvgApplySingleTransform(id, piecesList[i].piece.id, transformList);
+				animateSvgApplySingleTransform(id, piecesList[i].piece.id, transformList);
 //				var j;
 //				for (j = 0;j < transformList.length;j++) {
 //					var transform = transformList[j].transform
@@ -411,7 +412,7 @@ console.log("got animate file: " + id);
 			//var x = assembleGroup.getElementById(gkToolContext.animatePiecePrefix + pieceId);
 			var node = findAssembleGroupAnimateG(pieceId);
 			if (node != undefined) {
-//console.log("found node: " + node.id);
+console.log("found node: " + node.id);
 				var transformObject = new Object();
 				transformObject.transform = "";
 				assembleSvgTransformList(transformList, transformObject);
@@ -759,7 +760,9 @@ console.log("addAnimateNodeSelect timeList.length: " + node.timeList.length);
 				newSubmit.setAttribute("type","submit");
 				newSubmit.setAttribute("value","select");
 console.log("adding stack: " + stack.toString());
-				newSubmit.onclick = function() { addAssembleGroupControlsSet(id, stack.toString()) };
+
+				var localStack = stack.toString();
+				newSubmit.onclick = function() { addAssembleGroupControlsSet(id, localStack) };
 				newLi.appendChild(newSubmit);
 				stack.pop();
 			}
@@ -829,7 +832,9 @@ console.log("addAssembleGroupControlsSet " + id + " <" + stack + ">");
 			newSubmit = document.createElement("input");
 			newSubmit.setAttribute("type","submit");
 			newSubmit.setAttribute("value","new pieces list");
-			newSubmit.onclick = function() { doAssembleControlNewPiecesList(id) };
+
+			var localStack = stack.toString();
+			newSubmit.onclick = function() { doAssembleControlNewPiecesList(id, localStack); };
 			currentControls.appendChild(newSubmit);
 
 //			newSubmit = document.createElement("input");
@@ -1662,11 +1667,12 @@ console.log("angle id: " + newSubmit.id);
 //			doRunAssemble(id);
 //		}
 
-		function doAssembleControlNewPiecesList(id) {
+		function doAssembleControlNewPiecesList(id, stack) {
 			console.log("doAssembleControlNewPiecesList");
-			var assembleEntry = gkToolContext.assembleMap[id];
+			//var assembleEntry = gkToolContext.assembleMap[id];
+			var node = getNodeFromStack(id, stack);
 
-			assembleEntry.assembleObject.piecesList = new Array();
+			node.piecesList = new Array();
 			doSelectAssemble(id);
 			doRunAssemble(id);
 		}
