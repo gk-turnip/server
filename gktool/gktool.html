@@ -575,6 +575,19 @@ console.log("found node: " + node.id);
 			id = createAssembleId.value;
 			var jsonObject = { "type": "assemble", "group": { "id": "new", "transformList": [] } };
 			gotAssembleFile(id, jsonObject);
+
+			doSelectAssemble(id);
+			doRunAssemble(id);
+		}
+
+		function doCreateAnimate() {
+			var id
+			var createAnimateId = document.getElementById("createAnimateId");
+			id = createAnimateId.value;
+			var jsonObject = { "type": "animate", "timeList": [ ] };
+			gotAnimateFile(id, jsonObject);
+
+			doSelectAnimate(id);
 		}
 
 		function doSelectAssemble(id) {
@@ -837,11 +850,12 @@ console.log("addAssembleGroupControlsSet " + id + " <" + stack + ">");
 			newSubmit.onclick = function() { doAssembleControlNewPiecesList(id, localStack); };
 			currentControls.appendChild(newSubmit);
 
-//			newSubmit = document.createElement("input");
-//			newSubmit.setAttribute("type","submit");
-//			newSubmit.setAttribute("value","new transform list");
-//			newSubmit.onclick = function() { doAssembleControlNewTransformList(id) };
-//			currentControls.appendChild(newSubmit);
+			newSubmit = document.createElement("input");
+			newSubmit.setAttribute("type","submit");
+			newSubmit.setAttribute("value","new transform list");
+			var localStack_trl = stack.toString();
+			newSubmit.onclick = function() { doAssembleControlNewTransformList(id, localStack_trl) };
+			currentControls.appendChild(newSubmit);
 		}
 
 		function addAnimateGroupControlsSet(id) {
@@ -1203,6 +1217,13 @@ console.log("addAssemblePiecesControlsSet " + id + " <" + stack + "> index: " + 
 				var localStack = stack.toString();
 				newSubmit.onclick = function() { doAssembleControlNewPiece(id, localStack, index) };
 				currentControls.appendChild(newSubmit);
+
+				var newSubmit = document.createElement("input");
+				newSubmit.setAttribute("type","submit");
+				newSubmit.setAttribute("value","new group");
+				var localStack_gr = stack.toString();
+				newSubmit.onclick = function() { doAssembleControlNewGroup(id, localStack_gr, index) };
+				currentControls.appendChild(newSubmit);
 			} else {
 				var node = getNodeFromStack(id, stack);
 //console.log("got node: node.id: " + node.id);
@@ -1240,7 +1261,7 @@ console.log("addAssemblePiecesControlsSet " + id + " <" + stack + "> index: " + 
 					newSubmit.setAttribute("type","submit");
 					newSubmit.setAttribute("value","create transform list");
 					var localStack_tr = stack.toString();
-					newSubmit.onclick = function() { doAssembleControlNewTransformList(id, localStack_tr, index) };
+					newSubmit.onclick = function() { doAssembleControlNewTransformList(id, localStack_tr) };
 					currentControls.appendChild(newSubmit);
 				}
 
@@ -1370,7 +1391,7 @@ console.log("fix this stack: " + stack);
 			doRunAssemble(id);
 		}
 
-		function doAssembleControlNewTransformList(id, stack, index) {
+		function doAssembleControlNewTransformList(id, stack) {
 			console.log("doAssembleControlNewTransformList " + stack);
 
 			var node = getNodeFromStack(id, stack);
@@ -1661,17 +1682,22 @@ console.log("angle id: " + newSubmit.id);
 			return spacing;
 		}
 
-//		function doAssembleControlNewGroup(id) {
-//			console.log("doAssembleControlNewGroup");
-//			var assembleEntry = gkToolContext.assembleMap[id];
-//
-//			var group = new Object();
-//			var groupIdInput = document.getElementById("groupId");
-//			group.id = groupIdInput.value;
-//			assembleEntry.assembleObject.group = group
-//			doSelectAssemble(id);
-//			doRunAssemble(id);
-//		}
+		function doAssembleControlNewGroup(id, stack) {
+			console.log("doAssembleControlNewGroup " + stack);
+
+			var node = getNodeFromStack(id, stack);
+
+			var piecesListEntry = new Object();
+			var group = new Object();
+			group.id = "new";
+			group.transformList = [];
+			piecesListEntry.group = group;
+
+			node.push(piecesListEntry);
+
+			doSelectAssemble(id);
+			doRunAssemble(id);
+		}
 
 		function doAssembleControlNewPiecesList(id, stack) {
 			console.log("doAssembleControlNewPiecesList");
