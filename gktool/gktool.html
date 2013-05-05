@@ -17,6 +17,7 @@
 				this.svgMap = new Object();
 				this.assembleMap = new Object();
 				this.animateMap = new Object();
+				this.selectedAssembleId = "none";
 				this.liSvgPrefix = "lis_";
 				this.liAssemblePrefix = "lias_";
 				this.liAnimatePrefix = "lian_";
@@ -593,6 +594,7 @@ console.log("FOUND...");
 		}
 
 		function doSelectAssemble(id) {
+			gkToolContext.selectedAssembleId = id;
 			var assembleEntry = gkToolContext.assembleMap[id];
 			if (assembleEntry != undefined) {
 				clearAssembleList();
@@ -969,16 +971,31 @@ console.log("addAnimateGroupControlsSet " + id);
 				newSelect.appendChild(newOption);
 			}
 
+			groupIdList = getAssembleGroupIdList(id);
+
 			var newOption;
-			for (var prop in gkToolContext.svgMap) {
+			var i;
+			for (i = 0;i < groupIdList.length;i++) {
 				var newOption = document.createElement("option");
-				newOption.value = prop;
-				newOption.innerHTML = prop;
-				if (prop == pieceEntry.piece.id) {
+				newOption.value = groupIdList[i];
+				newOption.innerHTML = groupIdList[i];
+				
+				if (groupIdList[i] == pieceEntry.piece.id) {
 					newOption.selected = "selected"
 				}
 				newSelect.appendChild(newOption);
 			}
+
+//			var newOption;
+//			for (var prop in gkToolContext.svgMap) {
+//				var newOption = document.createElement("option");
+//				newOption.value = prop;
+//				newOption.innerHTML = prop;
+//				if (prop == pieceEntry.piece.id) {
+//					newOption.selected = "selected"
+//				}
+//				newSelect.appendChild(newOption);
+//			}
 
 			var newSubmit = document.createElement("input");
 			newSubmit.setAttribute("type","submit");
@@ -993,6 +1010,43 @@ console.log("addAnimateGroupControlsSet " + id);
 			currentControls.appendChild(newSubmit);
 
 			animateSvgDoSingle(id, index1);
+		}
+
+		function getAssembleGroupIdList(id) {
+			var assembleEntry = gkToolContext.assembleMap[gkToolContext.selectedAssembleId];
+			var node = assembleEntry.assembleObject;
+			var groupIdList = new Array();
+
+			getAssembleGroupIdListRecurse(node, groupIdList);
+
+			return groupIdList;
+		}
+
+		function getAssembleGroupIdListRecurse(assembleObject, groupIdList) {
+			for (var prop in assembleObject) {
+				if (prop == "group") {
+					getAssembleGroupIdListRecurseGroup(assembleObject, groupIdList);
+				}
+				if (prop == "piecesList") {
+					getAssembleGroupIdListRecursePiecesList(assembleObject, groupIdList);
+				}
+			}
+		}
+
+		function getAssembleGroupIdListRecurseGroup(node, groupIdList) {
+			groupIdList.push(node.group.id);
+			if (node.group.piecesList != undefined) {
+				getAssembleGroupIdListRecursePiecesList(node.group, groupIdList);
+			}
+		}
+
+		function getAssembleGroupIdListRecursePiecesList(node, groupIdList) {
+			var i;
+			for (i = 0;i < node.piecesList.length;i++) {
+				if (node.piecesList[i].group != undefined) {
+					getAssembleGroupIdListRecurseGroup(node.piecesList[i], groupIdList);
+				}
+			}
 		}
 
 		function doAnimateControlNewTransform(id, index1, index2) {
@@ -2004,7 +2058,7 @@ console.log("angle id: " + newSubmit.id);
 		<div class="trailer">
 <p>The svg sanitizer tool can be found <a href="http://www.gourdianknot.com/gktool/utils">here</a>.</p>
 		</div>
-	<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.21 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+	<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.1.22 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 	</body>
 
 </html>
