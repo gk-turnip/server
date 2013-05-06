@@ -25,6 +25,7 @@
 				this.animiatePrefix = "ani_";
 				this.animatePiecePrefix = "anip_";
 				this.selectPrefix = "sel_";
+				this.groupAnimatePrefix = "gani_";
 				this.nextId = 1;
 				delete this.currentTransformXId;
 				delete this.currentTransformYId;
@@ -308,6 +309,12 @@ console.log("got animate file: " + id);
 		function doRunAnimate(id) {
 			var animateEntry = gkToolContext.animateMap[id];
 
+			var assembleEntry = gkToolContext.assembleMap[gkToolContext.selectedAssembleId];
+			if (assembleEntry != undefined) {
+				doSelectAssemble(gkToolContext.selectedAssembleId);
+				doRunAssemble(gkToolContext.selectedAssembleId);
+			}
+
 			if (animateEntry != undefined) {
 				animateSvg(animateEntry.id, animateEntry.animateObject);
 			}
@@ -395,28 +402,21 @@ console.log("i: " + i);
 				console.log("i: " + i + " id: " + piecesList[i].piece.id);
 				var transformList = piecesList[i].piece.transformList;
 				animateSvgApplySingleTransform(id, piecesList[i].piece.id, transformList);
-//				var j;
-//				for (j = 0;j < transformList.length;j++) {
-//					var transform = transformList[j].transform
-////					console.log("i: " + i + " j: " + j + " type: " + transform.type);
-//					animateSvgApplySingleTransform(id, piecesList[i].piece.id, transform);
-//				}
 			}
 		}
 
 		function animateSvgApplySingleTransform(id, pieceId, transformList) {
 			console.log("animateSvgApplySingleTransform id: " + id + " pieceId: " + pieceId + " transformations count: " + transformList.length);
 
-			
 			var assembleGroup = document.getElementById("assembleGroup");
 
-			//var x = assembleGroup.getElementById(gkToolContext.animatePiecePrefix + pieceId);
 			var node = findAssembleGroupAnimateG(pieceId);
 			if (node != undefined) {
 console.log("found node: " + node.id);
 				var transformObject = new Object();
 				transformObject.transform = "";
 				assembleSvgTransformList(transformList, transformObject);
+console.log("apply transform to found node: " + transformObject.transform);
 				node.setAttribute("transform",transformObject.transform);
 			}
 		}
@@ -424,35 +424,18 @@ console.log("found node: " + node.id);
 		function findAssembleGroupAnimateG(pieceId) {
 			var assembleGroup = document.getElementById("assembleGroup");
 
-//console.log("for pieceId: " + pieceId + " found id: " + assembleGroup.id);
-
-//			for (var prop in assembleGroup) {
-//				console.log("in assemble group: " + prop);
-//			}
-
-//console.log("child nodes length: " + assembleGroup.childNodes.length);
-			var i;
-			for (i = 0;i < assembleGroup.childNodes.length;i++) {
-//console.log("i: " + i + " id: " + assembleGroup.childNodes[i].id);
-//				for (var prop in assembleGroup.childNodes[i]) {
-//					console.log("in child assemble group: " + prop);
-//				}
-			}
-
-//			return findAssembleGroupAnimateGRecurse(assembleGroup, gkToolContext.animatePiecePrefix + pieceId, 0);
 			return findAssembleGroupAnimateGRecurse(assembleGroup, pieceId, 0);
 		}
 
 		function findAssembleGroupAnimateGRecurse(node, pieceId, tab) {
 			var result;
-console.log("children: " + node.childNodes.length + " tab: " + tab + " id: " + node.id);
+//console.log("children: " + node.childNodes.length + " tab: " + tab + " id: " + node.id);
 			var i;
 			for (i = 0;i < node.childNodes.length;i++) {
-console.log("i: " + i + " id: " + node.childNodes[i].id);
+//console.log("i: " + i + " id: " + node.childNodes[i].id);
 				if (node.childNodes[i].id != undefined) {
-					if (node.childNodes[i].id == pieceId) {
+					if (node.childNodes[i].id == (gkToolContext.groupAnimatePrefix + pieceId)) {
 						return node.childNodes[i]
-console.log("FOUND...");
 					}
 }
 				result = findAssembleGroupAnimateGRecurse(node.childNodes[i], pieceId, tab + 1);
@@ -477,7 +460,10 @@ console.log("FOUND...");
 
 		function assembleSvgGroup(group, currentGroup) {
 			var childGroup = document.createElementNS(gkIsoContext.svgNameSpace,"g");
+			var subChildGroup = document.createElementNS(gkIsoContext.svgNameSpace,"g");
 			childGroup.setAttribute("id",group.id);
+			subChildGroup.setAttribute("id",gkToolContext.groupAnimatePrefix + group.id);
+			childGroup.appendChild(subChildGroup);
 			currentGroup.appendChild(childGroup);
 			for (var prop in group) {
 				if (prop == "transformList") {
@@ -485,10 +471,9 @@ console.log("FOUND...");
 					transformObject.transform = "";
 					assembleSvgTransformList(group[prop], transformObject);
 					childGroup.setAttribute("transform",transformObject.transform);
-					//childGroup.setAttributeNS(gkIsoContext.svgNameSpace,"transform",transformObject.transform);
 				}
 				if (prop == "piecesList") {
-					assembleSvgPiecesList(group[prop], childGroup);
+					assembleSvgPiecesList(group[prop], subChildGroup);
 				}
 			}
 		}
