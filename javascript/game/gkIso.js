@@ -29,6 +29,7 @@ var gkIsoContext = new gkIsoContextDef();
 function gkIsoContextDef() {
 	this.svgNameSpace = "http://www.w3.org/2000/svg";
 	this.xlinkNameSpace = "http://www.w3.org/1999/xlink";
+	this.zFactor = 0.5;
 }
 
 // create and return a single small diamond (1/10 fern sized)
@@ -89,20 +90,22 @@ console.log("win x,y: " + winXY.x + "," + winXY.y);
 }
 
 // set the position of the object, with originX and originY offsets
-function gkIsoSetSvgObjectPositionWithOffset(svgDiamond, isoXYZ, originX, originY) {
+function gkIsoSetSvgObjectPositionWithOffset(svgDiamond, isoXYZ, originX, originY, originZ) {
 	var winXY;
 	winXY = isoXYZ.convertToWin();
 	winXY.x -= originX
 	winXY.y -= originY
+	winXY.y -= originZ;
 	svgDiamond.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ")");
 }
 
 // set the position of the <use>, with originX and originY offsets
-function gkIsoSetSvgUsePositionWithOffset(useObj, isoXYZ, originX, originY) {
+function gkIsoSetSvgUsePositionWithOffset(useObj, isoXYZ, originX, originY, originZ) {
 	var winXY;
 	winXY = isoXYZ.convertToWin();
 	winXY.x -= originX;
 	winXY.y -= originY;
+	winXY.y -= originZ;
 	useObj.setAttribute("x",winXY.x);
 	useObj.setAttribute("y",winXY.y);
 }
@@ -135,7 +138,7 @@ function GkIsoXYZDef(x, y, z) {
 
 		winX *= 5;
 		winY *= 2.5;
-		winY -= this.z * 5;
+		winY -= this.z * gkIsoContext.zFactor;
 
 		return new GkWinXYDef(winX, winY);
 	}

@@ -28,13 +28,6 @@
 	overflow: auto;
 }
 
-#objectList {
-	width: 95%;
-	height: 250px;
-	background-color: #f5f5dc;
-	overflow: auto;
-}
-
 .chatTime {
 	clear: both;
 	width: 15%;

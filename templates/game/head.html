@@ -82,6 +82,7 @@
 		}
 
 		function doClick(e) {
+			console.log("doClick");
 			var x, y
 
 			x = e.pageX;
@@ -108,6 +109,10 @@
 				objectLayer.removeChild(moveMarker);
 			}
 			moveMarker = g;
+		}
+
+		function svgObjectClick(id, x, y, z, originX, originY) {
+			console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY);
 		}
 
 		function changeAvatar() {

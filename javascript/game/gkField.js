@@ -35,6 +35,7 @@ function gkFieldContextDef() {
 	this.duration3 = 0;
 	this.inFocus = true;
 	this.frameRate = 0;
+	this.maxElevationMove = 105;
 }
 
 function gkFieldInit() {
@@ -56,13 +57,14 @@ function gkFieldObjectDef(id, g) {
 }
 
 // the attributes for a single reference on the field <use> tag
-function gkFieldRefObjectDef(id, userName, isoXYZCurrent, isoXYZDestination, originX, originY) {
+function gkFieldRefObjectDef(id, userName, isoXYZCurrent, isoXYZDestination, originX, originY, originZ) {
 	this.id = id
 	this.userName = userName
 	this.isoXYZCurrent = isoXYZCurrent
 	this.isoXYZDestination = isoXYZDestination
 	this.originX = originX
 	this.originY = originY
+	this.originZ = originZ
 
 	gkFieldRefObjectDef.prototype.setDestination = function (isoXYZ) {
 		this.isoXYZDestination = isoXYZ
@@ -89,7 +91,8 @@ function gkFieldAddSvg(jsonData, rawSvgData) {
 	var isoXYZ = new GkIsoXYZDef(parseInt(jsonData.x), parseInt(jsonData.y), parseInt(jsonData.z))
 	var originX = parseInt(jsonData.originX)
 	var originY = parseInt(jsonData.originY)
-	gkIsoSetSvgObjectPositionWithOffset(g2, isoXYZ, originX, originY);
+	var originZ = parseInt(jsonData.originZ)
+	gkIsoSetSvgObjectPositionWithOffset(g2, isoXYZ, originX, originY, originZ);
 	g2.setAttribute("id","ref_" + jsonData.id)
 
 	if ((jsonData.userName != undefined) && (jsonData.userName.length > 0)) {
@@ -113,7 +116,7 @@ function gkFieldAddSvg(jsonData, rawSvgData) {
 	layer.appendChild(g2)
 
 	var destIsoXYZ = new GkIsoXYZDef(isoXYZ.x, isoXYZ.y, isoXYZ.z)
-	var refObject = new gkFieldRefObjectDef(jsonData.id, jsonData.userName, isoXYZ, destIsoXYZ, originX, originY);
+	var refObject = new gkFieldRefObjectDef(jsonData.id, jsonData.userName, isoXYZ, destIsoXYZ, originX, originY, originZ);
 	gkFieldContext.refObjectMap[refObject.id] = refObject;
 //	gkFieldContext.refObjectMap[refObject.id + 1] = "NEXT";
 	//console.log("got new field object userName: " + jsonData.userName + " id: " + jsonData.id);
@@ -141,7 +144,7 @@ function gkFieldMoveSvg(jsonData) {
 	}
 }
 
-// enumerate the objects at a certain position
+/*
 function gkFieldEnumObjects(scanIsoXYZ, acceptedOffset) {
 	console.log("gkFieldEnumObjects");
 	var holder = document.getElementById("objectList");
@@ -152,16 +155,14 @@ function gkFieldEnumObjects(scanIsoXYZ, acceptedOffset) {
 		var fieldObject = gkFieldContext.refObjectMap[i];
 		if (fieldObject) {
 			var isoXYZ = fieldObject.isoXYZCurrent;
-//			isoXYZ.x -= fieldObject.originX;
-//			isoXYZ.y -= fieldObject.originY;
 			if ((Math.abs(isoXYZ.x - scanIsoXYZ.x) <= acceptedOffset) && (Math.abs(isoXYZ.y - scanIsoXYZ.y) <= acceptedOffset) && (Math.abs(isoXYZ.x - scanIsoXYZ.x) <= acceptedOffset)) {
-//			Objects meeting criteria
 				var listing = document.createTextNode("id: " + i + " x: " + isoXYZ.x + " y: " + isoXYZ.y + " z: " + isoXYZ.z + "\n");
 				holder.appendChild(listing);
 			}
 		}
 	}
 }
+*/
 
 // request a new avatar svg and jsonData from the server
 function gkFieldLoadNewAvatar(avatarName) {
@@ -213,34 +214,59 @@ function gkFieldSetNewAvatarDestination(isoXYZ) {
 
 // move all objects closer to their proper destination
 function gkFieldMoveObjects() {
+//	console.log("gkFieldMoveObjects");
 	//gkFieldContext.objectMap
 
 	var moveFlag = false;
-	
+
+	// check all of the svg objects	in the pod
 	for (var prop in gkFieldContext.refObjectMap) {
 		var refObject;
 		refObject = gkFieldContext.refObjectMap[prop];
 		if (refObject.id != undefined) {
+			// now test to see if it needs to be moved
 			var curIsoXYZ = refObject.isoXYZCurrent
 			var destIsoXYZ = refObject.isoXYZDestination
 			if ((curIsoXYZ.x != destIsoXYZ.x) ||
 				(curIsoXYZ.y != destIsoXYZ.y)) {
+
+				var newCurrentX = refObject.isoXYZCurrent.x;
+				var newCurrentY = refObject.isoXYZCurrent.y;
 	
 				if (destIsoXYZ.x > curIsoXYZ.x) {
-					refObject.isoXYZCurrent.x += 1;
+					newCurrentX += 1;
 				}
 				if (destIsoXYZ.x < curIsoXYZ.x) {
-					refObject.isoXYZCurrent.x -= 1;
+					newCurrentX -= 1;
 				}
 				if (destIsoXYZ.y > curIsoXYZ.y) {
-					refObject.isoXYZCurrent.y += 1;
+					newCurrentY += 1;
 				}
 				if (destIsoXYZ.y < curIsoXYZ.y) {
-					refObject.isoXYZCurrent.y -= 1;
+					newCurrentY -= 1;
 				}
+
+				var z = gkFieldGetElevation1(newCurrentX, newCurrentY);
+				if (Math.abs(z - refObject.isoXYZCurrent.z) <= gkFieldContext.maxElevationMove) {
+					refObject.isoXYZCurrent.x = newCurrentX;
+					refObject.isoXYZCurrent.y = newCurrentY;
+					refObject.isoXYZCurrent.z = z;
+				} else {
+					z = gkFieldGetElevation2(newCurrentX, newCurrentY);
+					if (Math.abs(z - refObject.isoXYZCurrent.z) <= gkFieldContext.maxElevationMove) {
+						refObject.isoXYZCurrent.x = newCurrentX;
+						refObject.isoXYZCurrent.y = newCurrentY;
+						refObject.isoXYZCurrent.z = z;
+					} else {
+						refObject.isoXYZDestination.x = refObject.isoXYZCurrent.x;
+						refObject.isoXYZDestination.y = refObject.isoXYZCurrent.y;
+						refObject.isoXYZDestination.z = refObject.isoXYZCurrent.z;
+					}
+				}
+
 				var ref = document.getElementById("ref_" + refObject.id);
 
-				gkIsoSetSvgObjectPositionWithOffset(ref, refObject.isoXYZCurrent, refObject.originX, refObject.originY);
+				gkIsoSetSvgObjectPositionWithOffset(ref, refObject.isoXYZCurrent, refObject.originX, refObject.originY, refObject.originZ);
 				if (gkFieldContext.avatarId != undefined) {
 					if (gkFieldContext.avatarId == refObject.id) {
 						gkFieldUpdatePositionDisplay(refObject.isoXYZCurrent);
@@ -249,10 +275,15 @@ function gkFieldMoveObjects() {
 				moveFlag = true;
 			}
 		}
+
+		// test if the current users avatar has moved
 		if (gkFieldContext.avatarId != undefined) {
 			if (gkFieldContext.avatarId == refObject.id) {
-				gkFieldEnumObjects(refObject.isoXYZCurrent, 1);
+//				gkFieldEnumObjects(refObject.isoXYZCurrent, 1);
 
+				// the local users avatar is moving
+				// so test if the view needs to be shifed
+				// because the avatar is moving off the edge
 				var localIsoXYZ = new GkIsoXYZDef(
 					refObject.isoXYZCurrent.x,
 					refObject.isoXYZCurrent.y,
@@ -333,6 +364,14 @@ function gkFieldMoveObjects() {
 	}
 
 	gkFieldContext.lastIntervalTime = endTime;
+}
+
+function gkFieldGetElevation1(x, y) {
+	return gkTerrainGetElevation1(x,y);
+}
+
+function gkFieldGetElevation2(x, y) {
+	return gkTerrainGetElevation2(x,y);
 }
 
 // delete all objects from the field
