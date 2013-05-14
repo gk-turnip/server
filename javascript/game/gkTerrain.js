@@ -13,6 +13,9 @@ function gkTerrainContextDef() {
 	// map holding the elevation data for each terrain diamond
 	this.terrainElevationMap = new Object();
 
+	// map holding the enviromental audio sources
+	this.terrainAudioMap = new Object();
+
 	this.terrainDiamondOffsetX = 50;
 	this.terrainDiamondOffsetY = 0;
 }
@@ -36,6 +39,13 @@ function gkTerrainSvgMapEntryDef(terrainName, originX, originY, originZ, layer) 
 	this.originY = originY;
 	this.originZ = originZ;
 	this.layer = layer;
+}
+
+function gkTerrainAudioMapEntryDef(clip, x, y, z) {
+	this.clip = clip;
+	this.x = x;
+	this.y = y;
+	this.z = z;
 }
 
 function gkTerrainInit() {
@@ -118,6 +128,19 @@ console.log("objectList.length: " + jsonData.oList.length);
 		gkTerrainContext.terrainElevationMap[mapKey] = elevationMapEntry;
 	}
 
+	for (i = 0;i < jsonData.audioList.length; i++) {
+		var clip, x, y, z;
+		clip = jsonData.audioList[i].clip;
+		x = jsonData.audioList[i].x;
+		y = jsonData.audioList[i].y;
+		z = jsonData.audioList[i].z;
+
+		var mapKey = gkTerrainGetMapKey(x, y);
+
+		var audioMapEntry = new gkTerrainAudioMapEntryDef(x, y, z);
+
+		gkTerrainContext.terrainAudioMap[mapKey] = audioMapEntry;
+	}
 
 	gkViewRender();
 }
