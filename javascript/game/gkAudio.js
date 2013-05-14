@@ -55,8 +55,8 @@ function gkAudioInit(sourceDir) {
 	gkAudioVolumeChange("3",0,3);
 }
 
-// start a new audio source, loop for audioSelect 1 or 3
-function gkAudioStartAudio(audioSelect, sourceFile) {
+// start a new audio source, loop if specified
+function gkAudioStartAudio(audioSelect, sourceFile, loop) {
 	var source = document.createElement("source");
 	var audio = document.getElementById("audio" + audioSelect);
 
@@ -67,7 +67,7 @@ function gkAudioStartAudio(audioSelect, sourceFile) {
 	source.type = gkAudioContext.preferredType;
 	source.src = gkAudioContext.sourceDir + "/assets/gk/audio/" + sourceFile + gkAudioContext.preferredSuffix;
 	audio.appendChild(source);
-	if (audioSelect == 1 || audioSelect == 3) {
+	if (loop) {
 		audio.addEventListener('ended', function() {
   			this.currentTime = 0;
 			this.play();

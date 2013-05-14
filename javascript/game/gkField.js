@@ -352,6 +352,9 @@ function gkFieldMoveObjects() {
 	var endTime = (new Date()).getTime();
 
 	if (moveFlag) {
+		for (var evAC=0;evAC<gkTerrainContext.terrainAudioMap.length;evAC++) {
+			if ((Math.abs(gkTerrainContext.terrainAudioMap[evAC].x - x) < 15) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].y - y) < 15) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].z - z) < 15)) {
+				gkAudioStartAudio(4, gkTerrainContext.terrainAudioMap[evAC].clip, true)
 		if (gkFieldContext.lastIntervalTime > 0) {
 			var duration = endTime - gkFieldContext.lastIntervalTime;
 			gkFieldContext.duration3 = gkFieldContext.duration2;
