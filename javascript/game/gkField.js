@@ -246,13 +246,13 @@ function gkFieldMoveObjects() {
 					newCurrentY -= 1;
 				}
 
-				var z = gkFieldGetElevation1(newCurrentX, newCurrentY);
+				var z = gkFieldGetElevation2(newCurrentX, newCurrentY);
 				if (Math.abs(z - refObject.isoXYZCurrent.z) <= gkFieldContext.maxElevationMove) {
 					refObject.isoXYZCurrent.x = newCurrentX;
 					refObject.isoXYZCurrent.y = newCurrentY;
 					refObject.isoXYZCurrent.z = z;
 				} else {
-					z = gkFieldGetElevation2(newCurrentX, newCurrentY);
+					z = gkFieldGetElevation1(newCurrentX, newCurrentY);
 					if (Math.abs(z - refObject.isoXYZCurrent.z) <= gkFieldContext.maxElevationMove) {
 						refObject.isoXYZCurrent.x = newCurrentX;
 						refObject.isoXYZCurrent.y = newCurrentY;

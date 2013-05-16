@@ -117,9 +117,9 @@ console.log("objectList.length: " + jsonData.oList.length);
 	for (i = 0;i < jsonData.elevationList.length; i++) {
 		var x, y, z;
 
-		x = jsonData.oList[i].x;
-		y = jsonData.oList[i].y;
-		z = jsonData.oList[i].z;
+		x = jsonData.elevationList[i].x;
+		y = jsonData.elevationList[i].y;
+		z = jsonData.elevationList[i].z;
 
 		var mapKey = gkTerrainGetMapKey(x, y);
 
@@ -208,12 +208,12 @@ function gkTerrainGetElevation2(x, y) {
 	if (localX >= 0) {
 		localX = Math.floor(localX);
 	} else {
-		localX = Math.ceil(localX);
+		localX = Math.floor(localX);
 	}
 	if (localY >= 0) {
 		localY = Math.floor(localY);
 	} else {
-		localY = Math.ceil(localY);
+		localY = Math.floor(localY);
 	}
 
 	localX = localX * 10;
@@ -245,7 +245,7 @@ function gkSetTerrainSvg(jsonData, rawSvgData) {
 	if (jsonData.terrain != undefined) {
 		var terrainName, originX, originY, originZ, layer;
 
-console.log("gkSetTerrainSvg name: " + jsonData.terrain);
+//console.log("gkSetTerrainSvg name: " + jsonData.terrain);
 		terrainName = jsonData.terrain;
 		originX = jsonData.originX;
 		originY = jsonData.originY;

@@ -20,7 +20,7 @@ function gkViewContextDef() {
 // change the offset and scale of the view
 function gkViewRender() {
 
-	console.log("gkViewRender");
+//	console.log("gkViewRender");
 
 	gkViewContext.fernWidth = Math.round((gkViewContext.svgWidth / 100) / gkViewContext.scale);
 	gkViewContext.fernHeight = Math.round((gkViewContext.svgHeight / 50) / gkViewContext.scale);
