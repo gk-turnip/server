@@ -62,8 +62,8 @@
 			if (gkAudioContext.canPlayOgg) {
 				canPlay.innerHTML += " .ogg";
 			}
-			gkAudioStartAudio(1, "Underwater2");
-			gkAudioStartAudio(3, "Rain");
+			gkAudioStartAudio(1, "Underwater2", true);
+			gkAudioStartAudio(3, "Rain", true);
 			var rainTBP = document.getElementById("audio3");
 			rainTBP.pause();
 			var rainTBP;
@@ -103,7 +103,7 @@
 
 			gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
 
-			gkAudioStartAudio(2, "boing");
+			gkAudioStartAudio(2, "boing", false);
 
 			if (moveMarker) {
 				objectLayer.removeChild(moveMarker);

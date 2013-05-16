@@ -21,7 +21,7 @@ function gkBrowserCheckCompatibility() {
 	var status = document.getElementById("browserCompatibleStatus");
 	var ok = true
 
-	status.innerHTML = status.innerHTML + "browser support:";
+	status.innerHTML = "browser support:";
 	status.style.backgroundColor = "#4fff4f";
 	if ("WebSocket" in window) {
 		status.innerHTML = status.innerHTML + " WebSocket ok";

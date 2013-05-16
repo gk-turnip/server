@@ -83,12 +83,20 @@
 		<option value="0.66">medium</option>
 		<option value="0.99">high</option>
 	</select>
+	Enviroment volume:
+	<select id="volume4" onchange="volumeChange(4);">
+		<option value="0.00">off</option>
+		<option value="0.33" selected="selected">low</option>
+		<option value="0.66">medium</option>
+		<option value="0.99">high</option>
+	</select>
 
 	<input type="checkbox" id="rainswitcher" onmouseup="setRainStatus" />
 	<br/>
 	<audio id="audio1">Audio One</audio>
 	<audio id="audio2">Audio Two</audio>
 	<audio id="audio3">Audio Three</audio>
+	<audio id="audio4">Audio Four</audio>
 	<span id="scriptUse"></span>
 <form onsubmit="return gkChatSubmit();">
 
