@@ -137,7 +137,7 @@ console.log("objectList.length: " + jsonData.oList.length);
 
 		var mapKey = gkTerrainGetMapKey(x, y);
 
-		var audioMapEntry = new gkTerrainAudioMapEntryDef(x, y, z);
+		var audioMapEntry = new gkTerrainAudioMapEntryDef(clip, x, y, z);
 
 		gkTerrainContext.terrainAudioMap[mapKey] = audioMapEntry;
 	}
