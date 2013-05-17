@@ -353,8 +353,12 @@ function gkFieldMoveObjects() {
 
 	if (moveFlag) {
 		for (var evAC=0;evAC<gkTerrainContext.terrainAudioMap.length;evAC++) {
-			if ((Math.abs(gkTerrainContext.terrainAudioMap[evAC].x - x) < 15) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].y - y) < 15) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].z - z) < 15)) {
+			if ((Math.abs(gkTerrainContext.terrainAudioMap[evAC].x - x) < 25) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].y - y) < 25) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].z - z) < 50)) {
 				gkAudioStartAudio(4, gkTerrainContext.terrainAudioMap[evAC].clip, true)
+				break;
+			} else {
+				eAudio = document.getElementById("audio4")
+				eAudio.pause();
 			}
 		}
 		if (gkFieldContext.lastIntervalTime > 0) {

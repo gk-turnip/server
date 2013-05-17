@@ -74,6 +74,7 @@ function gkAudioStartAudio(audioSelect, sourceFile, loop) {
 			this.play();
 			}, false);
 	}
+	this.currentTime = 0;
 	audio.play();
 }
 
