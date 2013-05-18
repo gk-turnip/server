@@ -353,7 +353,16 @@ function gkFieldMoveObjects() {
 
 	if (moveFlag) {
 		for (var evAC=0;evAC<gkTerrainContext.terrainAudioMap.length;evAC++) {
-			if ((Math.abs(gkTerrainContext.terrainAudioMap[evAC].x - x) < 25) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].y - y) < 25) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].z - z) < 50)) {
+			if (gkFieldContext.avatarId == undefined) {
+				console.error("no avatar id");
+				break;
+			}
+			var refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId];
+			if (refObject == undefined) {
+				console.error("no avatar id");
+				break;
+			}
+			if ((Math.abs(gkTerrainContext.terrainAudioMap[evAC].x - refObject.isoXYZCurrent.x) < 25) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].y - refObject.isoXYZCurrent.y) < 25) && (Math.abs(gkTerrainContext.terrainAudioMap[evAC].z - refObject.isoXYZCurrent.z) < 50)) {
 				gkAudioStartAudio(4, gkTerrainContext.terrainAudioMap[evAC].clip, true)
 				break;
 			} else {

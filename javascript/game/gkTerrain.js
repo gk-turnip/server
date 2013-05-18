@@ -13,8 +13,8 @@ function gkTerrainContextDef() {
 	// map holding the elevation data for each terrain diamond
 	this.terrainElevationMap = new Object();
 
-	// map holding the enviromental audio sources
-	this.terrainAudioMap = new Object();
+	// array holding the enviromental audio sources
+	this.terrainAudioMap = new Array();
 
 	this.terrainDiamondOffsetX = 50;
 	this.terrainDiamondOffsetY = 0;
@@ -137,7 +137,7 @@ console.log("objectList.length: " + jsonData.oList.length);
 
 		var audioMapEntry = new gkTerrainAudioMapEntryDef(clip, x, y, z);
 
-		gkTerrainContext.terrainAudioMap[i] = audioMapEntry;
+		gkTerrainContext.append(audioMapEntry);
 	}
 
 	gkViewRender();
