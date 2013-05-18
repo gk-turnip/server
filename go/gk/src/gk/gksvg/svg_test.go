@@ -58,9 +58,9 @@ func testSvgLowLevel(t *testing.T) {
 	}
 
 	idIn = "fill:url(#radialGradient9814);fill-opacity:1"
-	idOut, gkErr = getIdOutOfStyle(idIn)
+	idOut, gkErr = getFillIdOutOfStyle(idIn)
 	if gkErr != nil {
-		t.Logf("gkErr on getIdOutOfStyle in: " + idIn + " out: " + idOut)
+		t.Logf("gkErr on getFillIdOutOfStyle in: " + idIn + " out: " + idOut)
 		t.Fail()
 	}
 
@@ -70,13 +70,20 @@ func testSvgLowLevel(t *testing.T) {
 	}
 
 	idIn = "opacity:0.8;fill:url(#radialGradient14051)"
-	idOut, gkErr = getIdOutOfStyle(idIn)
+	idOut, gkErr = getFillIdOutOfStyle(idIn)
 	if gkErr != nil {
-		t.Logf("gkErr on getIdOutOfStyle in: " + idIn + " out: " + idOut)
+		t.Logf("gkErr on getFillIdOutOfStyle in: " + idIn + " out: " + idOut)
 		t.Fail()
 	}
 
-	if idOut != "radialGradient14051" {
+	idIn = "opacity:0.8;filter:url(#radialGradient14052)"
+	idOut, gkErr = getFilterIdOutOfStyle(idIn)
+	if gkErr != nil {
+		t.Logf("gkErr on getFilterIdOutOfStyle in: " + idIn + " out: " + idOut)
+		t.Fail()
+	}
+
+	if idOut != "radialGradient14052" {
 		t.Logf("got wrong in: " + idIn + " out: " + idOut)
 		t.Fail()
 	}
@@ -127,6 +134,23 @@ func testSvgMidLevel(t *testing.T) {
 		t.Fail()
 	}
 	if result != "stroke:none;fill-opacity:1" {
+		t.Logf("invalid result on substituteOneAttibuteId " + result)
+		t.Fail()
+	}
+
+	idMap = make(map[string]string)
+	idMap["linearGradient9986-0-1-3-1-1"] = "new_linearGradient9986-0-1-3-1-1"
+	idMap["filter8705-8-7-6-6-6-1"] = "new_filter8705-8-7-6-6-6-1"
+
+	name="style"
+	space=""
+	value="opacity:0.6;fill:url(#linearGradient9986-0-1-3-1-1);fill-opacity:1;filter:url(#filter8705-8-7-6-6-6-1)"
+	result, gkErr = substituteOneAttributeId(idMap, space, name, value)
+	if gkErr != nil {
+		t.Logf("gkErr on substituteOneAttributeId " + gkErr.String())
+		t.Fail()
+	}
+	if result != "opacity:0.6;fill:url(#new_linearGradient9986-0-1-3-1-1);fill-opacity:1;filter:url(#new_filter8705-8-7-6-6-6-1)" {
 		t.Logf("invalid result on substituteOneAttibuteId " + result)
 		t.Fail()
 	}

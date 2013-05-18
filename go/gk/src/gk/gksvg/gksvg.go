@@ -253,7 +253,7 @@ func substituteOneAttributeId(idMap map[string]string, space string, name string
 		if space == "" {
 			var id string
 
-			id, gkErr = getIdOutOfStyle(value)
+			id, gkErr = getFillIdOutOfStyle(value)
 			if gkErr != nil {
 				return "", gkErr
 			}
@@ -265,7 +265,22 @@ func substituteOneAttributeId(idMap map[string]string, space string, name string
 					gkErr = gkerr.GenGkErr("could not find id in idMap " + id, nil, ERROR_ID_INTERNAL_ID_MAP)
 					return "", gkErr
 				}
-				returnValue = strings.Replace(value, "fill:url(#" + id + ")", "fill:url(#" + newId + ")", 1)
+				returnValue = strings.Replace(returnValue, "fill:url(#" + id + ")", "fill:url(#" + newId + ")", 1)
+			}
+
+			id, gkErr = getFilterIdOutOfStyle(value)
+			if gkErr != nil {
+				return "", gkErr
+			}
+			if id != "" {
+				var newId string
+
+				newId, ok = idMap[id]
+				if !ok {
+					gkErr = gkerr.GenGkErr("could not find id in idMap " + id, nil, ERROR_ID_INTERNAL_ID_MAP)
+					return "", gkErr
+				}
+				returnValue = strings.Replace(returnValue, "filter:url(#" + id + ")", "filter:url(#" + newId + ")", 1)
 			}
 		}
 	case "href":
@@ -301,7 +316,7 @@ func getIdOutOfHref(input string) (string, *gkerr.GkErrDef) {
 	return "", gkerr.GenGkErr("href id parse: " + input, nil, ERROR_ID_HREF_PARSE)
 }
 
-func getIdOutOfStyle(input string) (string, *gkerr.GkErrDef) {
+func getFillIdOutOfStyle(input string) (string, *gkerr.GkErrDef) {
 	var index1, index2 int
 
 	index1 = strings.Index(input, "fill:url(#")
@@ -315,6 +330,22 @@ func getIdOutOfStyle(input string) (string, *gkerr.GkErrDef) {
 	}
 
 	return input[index1 + 10:index1 + index2 + 10], nil
+}
+
+func getFilterIdOutOfStyle(input string) (string, *gkerr.GkErrDef) {
+	var index1, index2 int
+
+	index1 = strings.Index(input, "filter:url(#")
+	if index1 == -1 {
+		return "", nil
+	}
+
+	index2 = strings.Index(input[index1 + 12:],")")
+	if index2 == -1 {
+		return "", gkerr.GenGkErr("style id parse: " + input, nil, ERROR_ID_STYLE_PARSE)
+	}
+
+	return input[index1 + 12:index1 + index2 + 12], nil
 }
 
 
