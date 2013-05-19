@@ -29,7 +29,7 @@ var gkIsoContext = new gkIsoContextDef();
 function gkIsoContextDef() {
 	this.svgNameSpace = "http://www.w3.org/2000/svg";
 	this.xlinkNameSpace = "http://www.w3.org/1999/xlink";
-	this.zFactor = 0.5;
+	this.zFactor = 5;
 }
 
 // create and return a single small diamond (1/10 fern sized)

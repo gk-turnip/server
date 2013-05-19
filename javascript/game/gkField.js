@@ -35,7 +35,7 @@ function gkFieldContextDef() {
 	this.duration3 = 0;
 	this.inFocus = true;
 	this.frameRate = 0;
-	this.maxElevationMove = 105;
+	this.maxElevationMove = 11;
 }
 
 function gkFieldInit() {
