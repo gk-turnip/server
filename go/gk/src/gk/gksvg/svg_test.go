@@ -162,14 +162,20 @@ const svgInputData1 = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
 	xmlns:svg="http://www.w3.org/2000/svg"
 	xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink">
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+<metadata>
+<dc:format>image/svg+xml
+</dc:format>
+</metadata>
 <linearGradient id="linearGradient1"/>
 <radialGradient id="radialGradient1" xlink:href="#linearGradient1"/>
 <path style="fill:url(#radialGradient1);fill-opacity:1"/>
 </svg>
 `
 
-const svgOutputData1 = `<svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><linearGradient id="pre_linearGradient1"></linearGradient><radialGradient id="pre_radialGradient1" xlink:href="#pre_linearGradient1"></radialGradient><path style="fill:url(#pre_radialGradient1);fill-opacity:1"></path></g></svg>`
+const svgOutputData1 = `<svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"><g><metadata><dc:format>image/svg+xml
+</dc:format></metadata><linearGradient id="pre_linearGradient1"></linearGradient><radialGradient id="pre_radialGradient1" xlink:href="#pre_linearGradient1"></radialGradient><path style="fill:url(#pre_radialGradient1);fill-opacity:1"></path></g></svg>`
 
 func testSvgHighLevel(t *testing.T) {
 	var gkErr *gkerr.GkErrDef

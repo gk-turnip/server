@@ -49,6 +49,7 @@ type attributeDef struct {
 // remove all comments <!-- -->
 // add single <g> around everything within svg
 // rename any "id" to "prefix_id"
+// there is also a special case to fix where xml:space would get translated to http://www.w3.org/XML/1998/namespace:space
 func FixSvgData(svgData []byte, prefix string) ([]byte, *gkerr.GkErrDef) {
 	var rootNode *nodeDef
 	var gkErr *gkerr.GkErrDef
@@ -119,9 +120,12 @@ func parseSvg(svgData []byte) (*nodeDef, *gkerr.GkErrDef) {
 			currentNode.childList = append(currentNode.childList,childNode)
 			childNode.parentNode = currentNode
 			currentNode = childNode
+			// this forces charData to be only at the inner most xml level
+			currentCharData = make([]byte,0,0)
 		case xml.EndElement:
 			currentNode.charData = currentCharData
 			currentNode = currentNode.parentNode
+			// this forces charData to be only at the inner most xml level
 			currentCharData = make([]byte,0,0)
 		case xml.CharData:
 			var charData = xml.CharData(token)
@@ -365,7 +369,11 @@ func rebuildSvg(node *nodeDef, buf io.Writer) *gkerr.GkErrDef {
 	for _, attribute := range node.attributeList {
 		result = append(result, ' ')
 		if attribute.nameSpace != "" {
-			result = append(result, []byte(attribute.nameSpace)...)
+			if attribute.nameSpace == "http://www.w3.org/XML/1998/namespace" {
+				result = append(result, []byte("xml")...)
+			} else {
+				result = append(result, []byte(attribute.nameSpace)...)
+			}
 			result = append(result, ':')
 		}
 		result = append(result, []byte(fmt.Sprintf("%s=\"%s\"", attribute.nameLocal, escapeXML([]byte(attribute.value))))...)
@@ -382,6 +390,9 @@ func rebuildSvg(node *nodeDef, buf io.Writer) *gkerr.GkErrDef {
 
 	}
 	result = make([]byte, 0, 16)
+	if !isCharDataAllWhiteSpace(node.charData) {
+		result = append(result, node.charData...)
+	}
 	result = append(result, []byte("</")...)
 
 	if node.nameSpace != "" {
@@ -398,6 +409,15 @@ func rebuildSvg(node *nodeDef, buf io.Writer) *gkerr.GkErrDef {
 	}
 
 	return nil
+}
+
+func isCharDataAllWhiteSpace(input []byte) bool {
+	for i := 0;i < len(input);i++ {
+		if input[i] != '\n' && input[i] != '\r' && input[i] != '\t' && input[i] != ' ' {
+			return false
+		}
+	}
+	return true
 }
 
 /*
