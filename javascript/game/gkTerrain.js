@@ -18,6 +18,8 @@ function gkTerrainContextDef() {
 
 	this.terrainDiamondOffsetX = 50;
 	this.terrainDiamondOffsetY = 0;
+
+	this.terrainUndefinedZ = -30000;
 }
 
 function gkTerrainMapMapEntryDef(x, y, z, terrainName) {
@@ -74,7 +76,7 @@ console.log("tileList.length: " + jsonData.tileList.length);
 		var baseLayer = document.getElementById("gkTerrainBaseLayer");
 
 		var isoXYZ = new GkIsoXYZDef(x,y,z);
-		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(x,y);
+		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(terrainName);
 
 		if (terrainSvgMapEntry != undefined) {
 			var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
@@ -94,13 +96,13 @@ console.log("objectList.length: " + jsonData.oList.length);
 
 		var objectMapMapEntry = new gkTerrainMapMapEntryDef(x, y, z, objectName)
 
-		var mapKey = gkTerrainGetMapKey(x, y);
-		gkTerrainContext.terrainMapMap[mapKey] = objectMapMapEntry;
+//		var mapKey = gkTerrainGetMapKey(x, y);
+//		gkTerrainContext.terrainMapMap[mapKey] = objectMapMapEntry;
 
 		var objectLayer = document.getElementById("gkTerrainObjectLayer");
 
 		var isoXYZ = new GkIsoXYZDef(x,y,z);
-		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(x,y);
+		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(objectName);
 
 		if (terrainSvgMapEntry != undefined) {
 			var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
@@ -176,11 +178,12 @@ function gkTerrainGetElevation1(x, y) {
 
 	var mapKey = gkTerrainGetMapKey(localX, localY);
 
-	var z = 0;
+	var z = gkTerrainContext.terrainUndefinedZ;
 
 	var terrainMapMapEntry = gkTerrainContext.terrainMapMap[mapKey];
 	if (terrainMapMapEntry != undefined) {
 		z = terrainMapMapEntry.z;
+console.log("got z1: " + z);
 	}
 
 	return z;
@@ -223,10 +226,11 @@ function gkTerrainGetElevation2(x, y) {
 
 	elevationMapEntry = gkTerrainContext.terrainElevationMap[mapKey];
 
-	var z = 0;
+	var z = gkTerrainContext.terrainUndefinedZ;
 
 	if (elevationMapEntry != undefined) {
 		z = elevationMapEntry.z;
+console.log("got z2: " + z);
 	}
 
 	return z;
@@ -274,19 +278,19 @@ function gkTerrainGetMapMapEntry(x, y) {
 	return terrainMapMapEntry
 }
 
-function gkTerrainGetSvgMapEntry(x, y) {
-	var mapKey = gkTerrainGetMapKey(x, y);
+function gkTerrainGetSvgMapEntry(terrainName) {
+//	var mapKey = gkTerrainGetMapKey(x, y);
+//
+//	var terrainMapMapEntry = gkTerrainContext.terrainMapMap[mapKey];
+//	var svgMapEntry
+//
+//	if (terrainMapMapEntry == undefined) {
+//		console.error("missing terrainMapMapEntry mapKey: " + mapKey);
+//	} else {
+//	var terrainName = terrainMapMapEntry.terrainName
 
-	var terrainMapMapEntry = gkTerrainContext.terrainMapMap[mapKey];
-	var svgMapEntry
-
-	if (terrainMapMapEntry == undefined) {
-		console.error("missing terrainMapMapEntry mapKey: " + mapKey);
-	} else {
-		var terrainName = terrainMapMapEntry.terrainName
-
-		svgMapEntry = gkTerrainContext.terrainSvgMap[terrainName]
-	}
+	svgMapEntry = gkTerrainContext.terrainSvgMap[terrainName]
+//	}
 
 	return svgMapEntry
 }
