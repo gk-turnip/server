@@ -70,7 +70,7 @@ type rainContextDef struct {
 	nextRainEvent   time.Time
 }
 
-const MAX_MESSAGES_TO_CLIENT_QUEUE = 20
+const MAX_MESSAGES_TO_CLIENT_QUEUE = 40
 
 type toClientQueueDef struct {
 	messagesChan chan *message.MessageToClientDef
