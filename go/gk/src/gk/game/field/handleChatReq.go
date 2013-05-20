@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+	"container/list"
 )
 
 import (
@@ -36,13 +37,23 @@ type chatReqDef struct {
 	Message  string
 }
 
+const maxSavedChatLines = 24
+
+//var savedChatMutex *sync.Mutex = new(sync.Mutex)
+//var savedChat *list.List = list.New()
+
+type chatMessageDef struct {
+	time time.Time
+	message string
+	userName string
+}
+
 func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.MessageFromClientDef) *gkerr.GkErrDef {
 
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 	var chatReq chatReqDef
 	var gkErr *gkerr.GkErrDef
 	var err error
-	var msgIn string
 
 	err = json.Unmarshal(messageFromClient.JsonData, &chatReq)
 	if err != nil {
@@ -50,19 +61,59 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 		return gkErr
 	}
 
-	msgIn = chatReq.Message
-	gklog.LogTrace(fmt.Sprintf("chat: t: %v u: %s m: %s", time.Now(), chatReq.UserName, chatReq.Message))
-	chatReq.Message = strings.Replace(chatReq.Message, "<", "&lt;", -1)
-	chatReq.Message = strings.Replace(chatReq.Message, ">", "&gt;", -1)
-	chatReq.Message = strings.Replace(chatReq.Message, "\\", "&#92;", -1)
-	if msgIn != chatReq.Message {
-		gklog.LogTrace("Previous message scrubbed")
-	}
+	var chatMessage chatMessageDef
+	chatMessage.time = time.Now()
+	chatMessage.userName = chatReq.UserName
+	chatMessage.message = chatReq.Message
+
+	gklog.LogTrace(fmt.Sprintf("chat: t: %v u: %s m: %s", chatMessage.time, chatMessage.userName, chatMessage.message))
+
+	chatMessage.message = strings.Replace(chatMessage.message, "<", "&lt;", -1)
+	chatMessage.message = strings.Replace(chatMessage.message, ">", "&gt;", -1)
+	chatMessage.message = strings.Replace(chatMessage.message, "\\", "&#92;", -1)
 
 	messageToClient.Command = message.ChatReq
-	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"userName\": \"%s\", \"message\": \"%s\" }", chatReq.UserName, gkjson.JsonEscape(chatReq.Message)))
+	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"userName\": \"%s\", \"message\": \"%s\" }", chatMessage.userName, gkjson.JsonEscape(chatMessage.message)))
 
 	fieldContext.sendMessageToAll(messageToClient)
 
+	fieldContext.savedChatMutex.Lock()
+	defer fieldContext.savedChatMutex.Unlock()
+
+	fieldContext.savedChat.PushFront(chatMessage)
+
+	for fieldContext.savedChat.Len() > maxSavedChatLines {
+		fieldContext.savedChat.Remove(fieldContext.savedChat.Back())
+	}
+
 	return nil
 }
+
+func (fieldContext *FieldContextDef) getPastChatJsonData() []byte {
+	var element *list.Element
+	var returnValue []byte = make([]byte,0,0)
+	var firstElement bool = true
+	returnValue = append(returnValue,[]byte("{ \"pastChat\": [")...)
+
+	for element = fieldContext.savedChat.Front(); element != nil; element = element.Next() {
+		var line string
+		var chatMessage chatMessageDef
+
+		chatMessage = element.Value.(chatMessageDef)
+
+		if !firstElement {
+			returnValue = append(returnValue,[]byte(",")...)
+		}
+		firstElement = false
+
+		line = fmt.Sprintf(
+			"{ \"userName\": \"%s\",\"message\":\"%s\",\"time\":\"%s\"}",
+			chatMessage.userName, chatMessage.message, "00:00:00 AM")
+
+		returnValue = append(returnValue,[]byte(line)...)
+	}
+	returnValue = append(returnValue,[]byte("]}")...)
+
+	return returnValue
+}
+

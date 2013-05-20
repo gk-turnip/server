@@ -223,3 +223,12 @@ function gkWsChatReq(jsonData) {
 	gkChatMessageFromServer(userName, message);
 }
 
+function gkWsChatSendPastChatReq(jsonData) {
+	var i;
+
+	for (i = (jsonData.pastChat.length - 1);i >= 0; i--) {
+		var chatEntry = jsonData.pastChat[i];
+		gkChatMessageFromServer(chatEntry.userName, chatEntry.message);
+	}
+}
+

@@ -26,6 +26,8 @@ const AddSvgReq = "addSvgReq"
 const DelSvgReq = "delSvgReq"
 const MoveSvgReq = "moveSvgReq"
 
+const SendPastChatReq = "sendPastChatReq"
+
 const TurnOnRainReq = "turnOnRainReq"
 const TurnOffRainReq = "turnOffRainReq"
 

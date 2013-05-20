@@ -24,6 +24,7 @@ import (
 	"sync"
 	"time"
 	"bytes"
+	"container/list"
 )
 
 import (
@@ -49,6 +50,8 @@ type FieldContextDef struct {
 	lastObjectIdMutex      sync.Mutex
 	rainContext            rainContextDef
 	terrainMap             *terrainMapDef
+	savedChatMutex *sync.Mutex
+	savedChat *list.List
 }
 
 type websocketConnectionContextDef struct {
@@ -97,6 +100,9 @@ func NewFieldContext(avatarSvgDir string, terrainSvgDir string, sessionContext *
 	if gkErr != nil {
 		return nil, gkErr
 	}
+
+	fieldContext.savedChatMutex = new(sync.Mutex)
+	fieldContext.savedChat = list.New()
 
 	return fieldContext, nil
 }
@@ -179,6 +185,19 @@ func (fieldContext *FieldContextDef) sendSingleAvatarObject(websocketConnectionC
 	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 
 	return nil
+}
+
+func (fieldContext *FieldContextDef) sendAllPastChat(websocketConnectionContext *websocketConnectionContextDef) {
+
+	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
+
+	messageToClient.Command = message.SendPastChatReq
+	messageToClient.JsonData = fieldContext.getPastChatJsonData()
+	messageToClient.Data = make([]byte, 0, 0)
+
+	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+
+	return
 }
 
 // all except for the current session
@@ -288,7 +307,6 @@ func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *we
 
 	for i := 0; i < len(fieldContext.terrainMap.jsonMapData.TileList); i++ {
 		var terrain string = fieldContext.terrainMap.jsonMapData.TileList[i].Terrain
-		
 		var ok bool
 
 		_, ok = terrainSentMap[terrain]

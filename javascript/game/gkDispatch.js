@@ -55,6 +55,9 @@ function gkDispatchWsMessage(command, jsonData, data) {
 	case "chatReq":
 		gkWsChatReq(jsonData);
 		break;
+	case "sendPastChatReq":
+		gkWsChatSendPastChatReq(jsonData);
+		break;
 	default:
 		console.error("did not understand command from game server " + command);
 	}
