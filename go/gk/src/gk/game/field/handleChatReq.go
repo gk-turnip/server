@@ -106,13 +106,27 @@ func (fieldContext *FieldContextDef) getPastChatJsonData() []byte {
 		}
 		firstElement = false
 
+		var escapedUserName, escapedMessage []byte
+		var err error
+
+		escapedUserName, err = json.Marshal(chatMessage.userName)
+		if err != nil {
+			escapedUserName = []byte(fmt.Sprintf("%v",err))
+		}
+		escapedMessage, err = json.Marshal(chatMessage.message)
+		if err != nil {
+			escapedMessage = []byte(fmt.Sprintf("%v",err))
+		}
+
 		line = fmt.Sprintf(
-			"{ \"userName\": \"%s\",\"message\":\"%s\",\"time\":\"%s\"}",
-			chatMessage.userName, chatMessage.message, "00:00:00 AM")
+			"{ \"userName\": %s,\"message\":%s,\"time\":\"%d\"}",
+			string(escapedUserName), string(escapedMessage), chatMessage.time.Unix() * 1000)
 
 		returnValue = append(returnValue,[]byte(line)...)
 	}
 	returnValue = append(returnValue,[]byte("]}")...)
+
+	gklog.LogTrace("chat history: " + string(returnValue))
 
 	return returnValue
 }

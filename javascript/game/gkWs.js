@@ -220,7 +220,7 @@ function gkWsChatReq(jsonData) {
 	var userName = jsonData.userName
 	var message = jsonData.message
 
-	gkChatMessageFromServer(userName, message);
+	gkChatMessageFromServer(userName, message, (new Date()).getTime());
 }
 
 function gkWsChatSendPastChatReq(jsonData) {
@@ -228,7 +228,7 @@ function gkWsChatSendPastChatReq(jsonData) {
 
 	for (i = (jsonData.pastChat.length - 1);i >= 0; i--) {
 		var chatEntry = jsonData.pastChat[i];
-		gkChatMessageFromServer(chatEntry.userName, chatEntry.message);
+		gkChatMessageFromServer(chatEntry.userName, chatEntry.message, parseInt(chatEntry.time));
 	}
 }
 

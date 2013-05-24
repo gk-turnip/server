@@ -79,7 +79,7 @@ function gkChatSubmit() {
 	return false;
 }
 
-function gkChatMessageFromServer(userName, message) {
+function gkChatMessageFromServer(userName, message, timeInMs) {
     var i
     var timeSpan1
     var timeSpan2
@@ -107,7 +107,7 @@ function gkChatMessageFromServer(userName, message) {
 		}
     }
 
-    var d = new Date();
+    var d = new Date(timeInMs);
     timeSpan1 = document.getElementById("chatTime_1");
     timeSpan1.innerHTML = d.toLocaleTimeString();
     userSpan1 = document.getElementById("chatUser_1");
