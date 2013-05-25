@@ -13,6 +13,9 @@ function gkTerrainContextDef() {
 	// map holding the elevation data for each terrain diamond
 	this.terrainElevationMap = new Object();
 
+	// map holding the places an avatar cannot go
+	this.terrainWallMap = new Object();
+
 	// array holding the enviromental audio sources
 	this.terrainAudioMap = new Array();
 
@@ -30,6 +33,12 @@ function gkTerrainMapMapEntryDef(x, y, z, terrainName) {
 }
 
 function gkTerrainElevationMapEntryDef(x, y, z) {
+	this.x = x
+	this.y = y
+	this.z = z
+}
+
+function gkTerrainWallMapEntryDef(x, y, z) {
 	this.x = x
 	this.y = y
 	this.z = z
@@ -142,6 +151,18 @@ console.log("objectList.length: " + jsonData.oList.length);
 		//gkTerrainContext.terrainAudioMap.append(audioMapEntry);
 	}
 
+	for (i = 0;i < jsonData.wallList.length; i++) {
+		var x, y, z;
+
+		x = jsonData.wallList[i].x;
+		y = jsonData.wallList[i].y;
+		z = jsonData.wallList[i].z;
+
+		var mapKey = gkTerrainGetMapKey(x, y);
+		var wallMapEntry = new gkTerrainWallMapEntryDef(x, y, z);
+		gkTerrainContext.terrainWallMap[mapKey] = wallMapEntry;
+	}
+
 	gkViewRender();
 }
 
@@ -162,28 +183,22 @@ function gkTerrainGetElevation1(x, y) {
 	localX = localX / 10;
 	localY = localY / 10;
 
-	if (localX >= 0) {
-		localX = Math.floor(localX);
-	} else {
-		localX = Math.floor(localX);
-	}
-	if (localY >= 0) {
-		localY = Math.floor(localY);
-	} else {
-		localY = Math.floor(localY);
-	}
+	localX = Math.floor(localX);
+	localY = Math.floor(localY);
 
 	localX = localX * 10;
 	localY = localY * 10;
 
-	var mapKey = gkTerrainGetMapKey(localX, localY);
-
 	var z = gkTerrainContext.terrainUndefinedZ;
 
-	var terrainMapMapEntry = gkTerrainContext.terrainMapMap[mapKey];
-	if (terrainMapMapEntry != undefined) {
-		z = terrainMapMapEntry.z;
-console.log("got z1: " + z);
+	var mapKey = gkTerrainGetMapKey(localX, localY);
+
+	var terrainWallEntry = gkTerrainContext.terrainWallMap[mapKey];
+	if (terrainWallEntry == undefined) {
+		var terrainMapMapEntry = gkTerrainContext.terrainMapMap[mapKey];
+		if (terrainMapMapEntry != undefined) {
+			z = terrainMapMapEntry.z;
+		}
 	}
 
 	return z;
@@ -206,16 +221,8 @@ function gkTerrainGetElevation2(x, y) {
 	localX = localX / 10;
 	localY = localY / 10;
 
-	if (localX >= 0) {
-		localX = Math.floor(localX);
-	} else {
-		localX = Math.floor(localX);
-	}
-	if (localY >= 0) {
-		localY = Math.floor(localY);
-	} else {
-		localY = Math.floor(localY);
-	}
+	localX = Math.floor(localX);
+	localY = Math.floor(localY);
 
 	localX = localX * 10;
 	localY = localY * 10;
@@ -230,7 +237,6 @@ function gkTerrainGetElevation2(x, y) {
 
 	if (elevationMapEntry != undefined) {
 		z = elevationMapEntry.z;
-console.log("got z2: " + z);
 	}
 
 	return z;
