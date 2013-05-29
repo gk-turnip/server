@@ -61,7 +61,10 @@ func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessag
 		return gkErr
 	}
 
-	fieldContext.sendAllPastChat(websocketConnectionContext)
+	gkErr = fieldContext.sendAllPastChat(websocketConnectionContext)
+	if gkErr != nil {
+		return gkErr
+	}
 
 	return nil
 }

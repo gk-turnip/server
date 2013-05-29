@@ -29,7 +29,7 @@ import (
 )
 
 type DbUserDef struct {
-	id                  int64
+	id                  int32
 	UserName            string
 	PasswordHash        string
 	PasswordSalt        string
@@ -38,6 +38,15 @@ type DbUserDef struct {
 	lastLoginDate       time.Time
 }
 
+type DbContextUserDef struct {
+	id            int32
+	LastPositionX int16
+	LastPositionY int16
+	LastPositionZ int16
+	LastPod       string
+}
+
+// return error if row not found
 func (gkDbCon *GkDbConDef) GetUser(userName string) (*DbUserDef, *gkerr.GkErrDef) {
 	var stmt *sql.Stmt
 	var err error
@@ -65,6 +74,38 @@ func (gkDbCon *GkDbConDef) GetUser(userName string) (*DbUserDef, *gkerr.GkErrDef
 	}
 
 	return dbUser, nil
+}
+
+// no error return if row is not found
+func (gkDbCon *GkDbConDef) GetContextUser(userName string) (*DbContextUserDef, bool, *gkerr.GkErrDef) {
+	var stmt *sql.Stmt
+	var err error
+	var dbContextUser *DbContextUserDef = new(DbContextUserDef)
+	var rowFound bool
+
+	stmt, err = gkDbCon.sqlDb.Prepare("select context_users.id, context_users.last_position_x, context_users.last_position_y, context_users.last_position_z, context_users.last_pod from users, context_users where users.id = context_users.id and users.user_name = $1")
+	if err != nil {
+		return nil, false, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
+	}
+
+	var rows *sql.Rows
+
+	rows, err = stmt.Query(userName)
+	if err != nil {
+		return nil, false, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
+	}
+
+	if rows.Next() {
+		err = rows.Scan(&dbContextUser.id, &dbContextUser.LastPositionX, &dbContextUser.LastPositionY, &dbContextUser.LastPositionZ, &dbContextUser.LastPod)
+		if err != nil {
+			return nil, false, gkerr.GenGkErr("rows.Scan"+getDatabaseErrorMessage(err), err, ERROR_ID_ROWS_SCAN)
+		}
+		rowFound = true
+	} else {
+		rowFound = false
+	}
+
+	return dbContextUser, rowFound, nil
 }
 
 func (gkDbCon *GkDbConDef) AddNewUser(userName string, passwordHash string, passwordSalt string, email string) *gkerr.GkErrDef {

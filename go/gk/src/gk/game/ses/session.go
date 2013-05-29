@@ -39,6 +39,7 @@ type SingleSessionDef struct {
 	createdTime     time.Time
 	isWebsocketOpen bool
 	userName        string
+	currentPod      string
 }
 
 func NewSessionContext(randContext *gkrand.GkRandContextDef) *SessionContextDef {
@@ -50,11 +51,13 @@ func NewSessionContext(randContext *gkrand.GkRandContextDef) *SessionContextDef 
 	return sessionContext
 }
 
-func (sessionContext *SessionContextDef) NewSingleSession(userName string, remoteAddr string) *SingleSessionDef {
+func (sessionContext *SessionContextDef) NewSingleSession(userName string, podName string, remoteAddr string) *SingleSessionDef {
 
 	var singleSession *SingleSessionDef = new(SingleSessionDef)
 	singleSession.remoteAddr = remoteAddr
 	singleSession.userName = userName
+	singleSession.currentPod = podName
+	singleSession.createdTime = time.Now()
 
 	sessionContext.sessionMutex.Lock()
 	defer sessionContext.sessionMutex.Unlock()
@@ -64,7 +67,6 @@ func (sessionContext *SessionContextDef) NewSingleSession(userName string, remot
 		singleSession.sessionId = sessionContext.genSessionString()
 		_, ok = sessionContext.sessionMap[singleSession.sessionId]
 		if !ok {
-			singleSession.createdTime = time.Now()
 			sessionContext.sessionMap[singleSession.sessionId] = singleSession
 			break
 		}

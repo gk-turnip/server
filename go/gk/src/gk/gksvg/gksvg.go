@@ -18,11 +18,11 @@
 package gksvg
 
 import (
+	"bytes"
+	"encoding/xml"
 	"fmt"
 	"io"
-	"bytes"
 	"strings"
-	"encoding/xml"
 )
 
 import (
@@ -30,18 +30,18 @@ import (
 )
 
 type nodeDef struct {
-	nameSpace string
-	nameLocal string
-	charData []byte
-	childList []*nodeDef
+	nameSpace     string
+	nameLocal     string
+	charData      []byte
+	childList     []*nodeDef
 	attributeList []*attributeDef
-	parentNode *nodeDef
+	parentNode    *nodeDef
 }
 
 type attributeDef struct {
 	nameSpace string
 	nameLocal string
-	value string
+	value     string
 }
 
 // remove all whitespaces between tags
@@ -100,33 +100,33 @@ func parseSvg(svgData []byte) (*nodeDef, *gkerr.GkErrDef) {
 			var startElement = xml.StartElement(token)
 
 			if currentNode == nil {
-				currentNode.childList = make([]*nodeDef,0,0)
+				currentNode.childList = make([]*nodeDef, 0, 0)
 			}
 
 			var childNode *nodeDef = new(nodeDef)
 			childNode.nameSpace = startElement.Name.Space
 			childNode.nameLocal = startElement.Name.Local
-			childNode.attributeList = make([]*attributeDef,0,0)
-			childNode.charData = make([]byte,0,0)
+			childNode.attributeList = make([]*attributeDef, 0, 0)
+			childNode.charData = make([]byte, 0, 0)
 
 			for _, attr := range startElement.Attr {
 				var attribute *attributeDef = new(attributeDef)
 				attribute.nameSpace = attr.Name.Space
 				attribute.nameLocal = attr.Name.Local
 				attribute.value = attr.Value
-				childNode.attributeList = append(childNode.attributeList,attribute)
+				childNode.attributeList = append(childNode.attributeList, attribute)
 			}
 
-			currentNode.childList = append(currentNode.childList,childNode)
+			currentNode.childList = append(currentNode.childList, childNode)
 			childNode.parentNode = currentNode
 			currentNode = childNode
 			// this forces charData to be only at the inner most xml level
-			currentCharData = make([]byte,0,0)
+			currentCharData = make([]byte, 0, 0)
 		case xml.EndElement:
 			currentNode.charData = currentCharData
 			currentNode = currentNode.parentNode
 			// this forces charData to be only at the inner most xml level
-			currentCharData = make([]byte,0,0)
+			currentCharData = make([]byte, 0, 0)
 		case xml.CharData:
 			var charData = xml.CharData(token)
 			currentCharData = append(currentCharData, charData...)
@@ -147,7 +147,7 @@ func addGNode(node *nodeDef) {
 	gNode.charData = make([]byte, 0, 0)
 	gNode.attributeList = make([]*attributeDef, 0, 0)
 	gNode.childList = node.childList
-	node.childList = []*nodeDef {gNode}
+	node.childList = []*nodeDef{gNode}
 }
 
 func fixNamespace(node *nodeDef) {
@@ -266,10 +266,10 @@ func substituteOneAttributeId(idMap map[string]string, space string, name string
 
 				newId, ok = idMap[id]
 				if !ok {
-					gkErr = gkerr.GenGkErr("could not find id in idMap " + id, nil, ERROR_ID_INTERNAL_ID_MAP)
+					gkErr = gkerr.GenGkErr("could not find id in idMap "+id, nil, ERROR_ID_INTERNAL_ID_MAP)
 					return "", gkErr
 				}
-				returnValue = strings.Replace(returnValue, "fill:url(#" + id + ")", "fill:url(#" + newId + ")", 1)
+				returnValue = strings.Replace(returnValue, "fill:url(#"+id+")", "fill:url(#"+newId+")", 1)
 			}
 
 			id, gkErr = getFilterIdOutOfStyle(value)
@@ -281,10 +281,10 @@ func substituteOneAttributeId(idMap map[string]string, space string, name string
 
 				newId, ok = idMap[id]
 				if !ok {
-					gkErr = gkerr.GenGkErr("could not find id in idMap " + id, nil, ERROR_ID_INTERNAL_ID_MAP)
+					gkErr = gkerr.GenGkErr("could not find id in idMap "+id, nil, ERROR_ID_INTERNAL_ID_MAP)
 					return "", gkErr
 				}
-				returnValue = strings.Replace(returnValue, "filter:url(#" + id + ")", "filter:url(#" + newId + ")", 1)
+				returnValue = strings.Replace(returnValue, "filter:url(#"+id+")", "filter:url(#"+newId+")", 1)
 			}
 		}
 	case "href":
@@ -298,10 +298,10 @@ func substituteOneAttributeId(idMap map[string]string, space string, name string
 			}
 			newId, ok = idMap[id]
 			if !ok {
-				gkErr = gkerr.GenGkErr("could not find id in idMap " + id, nil, ERROR_ID_INTERNAL_ID_MAP)
+				gkErr = gkerr.GenGkErr("could not find id in idMap "+id, nil, ERROR_ID_INTERNAL_ID_MAP)
 				return "", gkErr
 			}
-			returnValue = strings.Replace(value, "#" + id, "#" + newId, 1)
+			returnValue = strings.Replace(value, "#"+id, "#"+newId, 1)
 		}
 	}
 
@@ -317,7 +317,7 @@ func getIdOutOfHref(input string) (string, *gkerr.GkErrDef) {
 			return id, nil
 		}
 	}
-	return "", gkerr.GenGkErr("href id parse: " + input, nil, ERROR_ID_HREF_PARSE)
+	return "", gkerr.GenGkErr("href id parse: "+input, nil, ERROR_ID_HREF_PARSE)
 }
 
 func getFillIdOutOfStyle(input string) (string, *gkerr.GkErrDef) {
@@ -328,12 +328,12 @@ func getFillIdOutOfStyle(input string) (string, *gkerr.GkErrDef) {
 		return "", nil
 	}
 
-	index2 = strings.Index(input[index1 + 10:],")")
+	index2 = strings.Index(input[index1+10:], ")")
 	if index2 == -1 {
-		return "", gkerr.GenGkErr("style id parse: " + input, nil, ERROR_ID_STYLE_PARSE)
+		return "", gkerr.GenGkErr("style id parse: "+input, nil, ERROR_ID_STYLE_PARSE)
 	}
 
-	return input[index1 + 10:index1 + index2 + 10], nil
+	return input[index1+10 : index1+index2+10], nil
 }
 
 func getFilterIdOutOfStyle(input string) (string, *gkerr.GkErrDef) {
@@ -344,14 +344,13 @@ func getFilterIdOutOfStyle(input string) (string, *gkerr.GkErrDef) {
 		return "", nil
 	}
 
-	index2 = strings.Index(input[index1 + 12:],")")
+	index2 = strings.Index(input[index1+12:], ")")
 	if index2 == -1 {
-		return "", gkerr.GenGkErr("style id parse: " + input, nil, ERROR_ID_STYLE_PARSE)
+		return "", gkerr.GenGkErr("style id parse: "+input, nil, ERROR_ID_STYLE_PARSE)
 	}
 
-	return input[index1 + 12:index1 + index2 + 12], nil
+	return input[index1+12 : index1+index2+12], nil
 }
-
 
 func rebuildSvg(node *nodeDef, buf io.Writer) *gkerr.GkErrDef {
 
@@ -359,7 +358,7 @@ func rebuildSvg(node *nodeDef, buf io.Writer) *gkerr.GkErrDef {
 	var result []byte = make([]byte, 0, 128)
 	var err error
 
-	result = append(result,'<')
+	result = append(result, '<')
 	if node.nameSpace != "" {
 		result = append(result, []byte(node.nameSpace)...)
 		result = append(result, ':')
@@ -412,7 +411,7 @@ func rebuildSvg(node *nodeDef, buf io.Writer) *gkerr.GkErrDef {
 }
 
 func isCharDataAllWhiteSpace(input []byte) bool {
-	for i := 0;i < len(input);i++ {
+	for i := 0; i < len(input); i++ {
 		if input[i] != '\n' && input[i] != '\r' && input[i] != '\t' && input[i] != ' ' {
 			return false
 		}
@@ -454,10 +453,9 @@ func DumpSvg(node *nodeDef, tab int) {
 */
 
 func escapeXML(input []byte) []byte {
-	var buf *bytes.Buffer = bytes.NewBuffer(make([]byte,0,len(input) + 10))
+	var buf *bytes.Buffer = bytes.NewBuffer(make([]byte, 0, len(input)+10))
 
 	xml.Escape(buf, input)
 
 	return buf.Bytes()
 }
-

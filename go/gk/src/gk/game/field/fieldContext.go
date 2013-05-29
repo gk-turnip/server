@@ -18,19 +18,20 @@
 package field
 
 import (
+	"bytes"
+	"container/list"
 	"fmt"
 	"os"
 	"strconv"
 	"sync"
 	"time"
-	"bytes"
-	"container/list"
 )
 
 import (
 	"gk/game/iso"
 	"gk/game/message"
 	"gk/game/ses"
+	"gk/game/persistence"
 	"gk/gkcommon"
 	"gk/gkerr"
 	"gk/gklog"
@@ -41,6 +42,7 @@ type FieldContextDef struct {
 	globalTerrainMap       map[string]*fieldObjectDef
 	websocketConnectionMap map[string]*websocketConnectionContextDef
 	sessionContext         *ses.SessionContextDef
+	persistenceContext         *persistence.PersistenceContextDef
 	WebsocketOpenedChan    chan WebsocketOpenedMessageDef
 	WebsocketClosedChan    chan WebsocketClosedMessageDef
 	MessageFromClientChan  chan *message.MessageFromClientDef
@@ -50,8 +52,8 @@ type FieldContextDef struct {
 	lastObjectIdMutex      sync.Mutex
 	rainContext            rainContextDef
 	terrainMap             *terrainMapDef
-	savedChatMutex *sync.Mutex
-	savedChat *list.List
+	savedChatMutex         *sync.Mutex
+	savedChat              *list.List
 }
 
 type websocketConnectionContextDef struct {
@@ -82,13 +84,14 @@ type toClientQueueDef struct {
 	queueSize    int
 }
 
-func NewFieldContext(avatarSvgDir string, terrainSvgDir string, sessionContext *ses.SessionContextDef) (*FieldContextDef, *gkerr.GkErrDef) {
+func NewFieldContext(avatarSvgDir string, terrainSvgDir string, sessionContext *ses.SessionContextDef, persistenceContext *persistence.PersistenceContextDef) (*FieldContextDef, *gkerr.GkErrDef) {
 	var fieldContext *FieldContextDef = new(FieldContextDef)
 	var gkErr *gkerr.GkErrDef
 
 	fieldContext.avatarSvgDir = avatarSvgDir
 	fieldContext.terrainSvgDir = terrainSvgDir
 	fieldContext.sessionContext = sessionContext
+	fieldContext.persistenceContext = persistenceContext
 	fieldContext.globalAvatarMap = make(map[string]*fieldObjectDef)
 	fieldContext.globalTerrainMap = make(map[string]*fieldObjectDef)
 	fieldContext.websocketConnectionMap = make(map[string]*websocketConnectionContextDef)
@@ -187,17 +190,21 @@ func (fieldContext *FieldContextDef) sendSingleAvatarObject(websocketConnectionC
 	return nil
 }
 
-func (fieldContext *FieldContextDef) sendAllPastChat(websocketConnectionContext *websocketConnectionContextDef) {
+func (fieldContext *FieldContextDef) sendAllPastChat(websocketConnectionContext *websocketConnectionContextDef) *gkerr.GkErrDef {
 
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
+	var gkErr *gkerr.GkErrDef
 
 	messageToClient.Command = message.SendPastChatReq
-	messageToClient.JsonData = fieldContext.getPastChatJsonData()
+	messageToClient.JsonData, gkErr = fieldContext.getPastChatJsonData()
+	if gkErr != nil {
+		return gkErr
+	}
 	messageToClient.Data = make([]byte, 0, 0)
 
 	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 
-	return
+	return nil
 }
 
 // all except for the current session
@@ -359,7 +366,7 @@ func (fieldContext *FieldContextDef) doTerrainMap(websocketConnectionContext *we
 	var nl []byte = []byte("")
 	var te []byte = []byte("errain")
 	var bj []byte = []byte("bject")
-//	Not typos
+	//	Not typos
 
 	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, lf, nl, -1)
 	messageToClient.JsonData = bytes.Replace(messageToClient.JsonData, sp, nl, -1)

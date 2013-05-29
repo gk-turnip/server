@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"flag"
-	"os"
-	"io"
-	"strings"
 	"errors"
+	"flag"
+	"fmt"
+	"io"
+	"os"
+	"strings"
 )
 
 import (
-	"gk/gksvg"
 	"gk/gkerr"
+	"gk/gksvg"
 )
 
 func main() {
@@ -31,24 +31,23 @@ func main() {
 
 	inputData, err = readSvgData(*inputFileName)
 	if err != nil {
-		fmt.Printf("error reading file: %v\n",err)
+		fmt.Printf("error reading file: %v\n", err)
 		return
 	}
 
 	var gkErr *gkerr.GkErrDef
 
-
 	var index int
-	index = strings.LastIndex(*inputFileName,"/")
+	index = strings.LastIndex(*inputFileName, "/")
 	var prefix string
-	prefix = (*inputFileName)[index + 1:]
-	prefix = prefix[:len(prefix) - 4]
+	prefix = (*inputFileName)[index+1:]
+	prefix = prefix[:len(prefix)-4]
 
 	var outputData []byte
 
 	outputData, gkErr = gksvg.FixSvgData(inputData, prefix)
 	if gkErr != nil {
-		fmt.Printf("error fixing svg file: %s\n",gkErr.String())
+		fmt.Printf("error fixing svg file: %s\n", gkErr.String())
 		return
 	}
 
@@ -60,11 +59,11 @@ func main() {
 }
 
 func readSvgData(fileName string) ([]byte, error) {
-	var result []byte = make([]byte,0,0)
+	var result []byte = make([]byte, 0, 0)
 	var file *os.File
 	var err error
 
-	buf := make([]byte,128,128)
+	buf := make([]byte, 128, 128)
 
 	file, err = os.Open(fileName)
 	if err != nil {
@@ -96,7 +95,7 @@ func writeSvgData(fileName string, data []byte) error {
 	var err error
 	var writeCount int
 
-	file, err = os.OpenFile(fileName, os.O_WRONLY | os.O_TRUNC | os.O_CREATE, 0644)
+	file, err = os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
@@ -108,9 +107,8 @@ func writeSvgData(fileName string, data []byte) error {
 		return err
 	}
 	if writeCount != len(data) {
-		return errors.New(fmt.Sprintf("short write did: %d should: %d\n",writeCount, len(data)))
+		return errors.New(fmt.Sprintf("short write did: %d should: %d\n", writeCount, len(data)))
 	}
 
 	return nil
 }
-

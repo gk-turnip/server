@@ -26,8 +26,8 @@ import (
 import (
 	"gk/game/iso"
 	"gk/gkcommon"
-	"gk/gksvg"
 	"gk/gkerr"
+	"gk/gksvg"
 )
 
 type MessageToClientDef struct {

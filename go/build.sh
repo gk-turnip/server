@@ -54,6 +54,7 @@ then
 	go install gk/sec
 	go install gk/wf
 	go install gk/login
+	go install gk/game/persistence
 	go install gk/game/field
 	go install gk/game/iso
 	go install gk/game/config

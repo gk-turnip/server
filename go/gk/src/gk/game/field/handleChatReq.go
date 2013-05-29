@@ -18,11 +18,10 @@
 package field
 
 import (
-	"strings"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
-	"container/list"
 )
 
 import (
@@ -30,6 +29,7 @@ import (
 	"gk/gkerr"
 	"gk/gkjson"
 	"gk/gklog"
+	"gk/database"
 )
 
 type chatReqDef struct {
@@ -39,12 +39,9 @@ type chatReqDef struct {
 
 const maxSavedChatLines = 24
 
-//var savedChatMutex *sync.Mutex = new(sync.Mutex)
-//var savedChat *list.List = list.New()
-
 type chatMessageDef struct {
-	time time.Time
-	message string
+	time     time.Time
+	message  string
 	userName string
 }
 
@@ -86,48 +83,58 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 		fieldContext.savedChat.Remove(fieldContext.savedChat.Back())
 	}
 
+	gkErr = fieldContext.persistenceContext.AddNewChatMessage(chatMessage.userName, chatMessage.message)
+	if gkErr != nil {
+		// inserting chat is non critical
+		// so just log the error
+		gklog.LogGkErr("fieldContext.persistenceContext.AddNewChatMessage",gkErr)
+	}
+
 	return nil
 }
 
-func (fieldContext *FieldContextDef) getPastChatJsonData() []byte {
-	var element *list.Element
-	var returnValue []byte = make([]byte,0,0)
-	var firstElement bool = true
-	returnValue = append(returnValue,[]byte("{ \"pastChat\": [")...)
+func (fieldContext *FieldContextDef) getPastChatJsonData() ([]byte, *gkerr.GkErrDef) {
+	var returnValue []byte = make([]byte, 0, 0)
+	var gkErr *gkerr.GkErrDef
+	returnValue = append(returnValue, []byte("{ \"pastChat\": [")...)
 
-	for element = fieldContext.savedChat.Front(); element != nil; element = element.Next() {
+	var lugChatArchiveList []database.LugChatArchiveDef
+
+	lugChatArchiveList, gkErr = fieldContext.persistenceContext.GetLastChatArchiveEntries(maxSavedChatLines)
+	if gkErr != nil {
+		return nil, gkErr
+	}
+
+	for i := 0;i < len(lugChatArchiveList);i++ {
 		var line string
-		var chatMessage chatMessageDef
 
-		chatMessage = element.Value.(chatMessageDef)
+		lugChatArchive := lugChatArchiveList[i]
 
-		if !firstElement {
-			returnValue = append(returnValue,[]byte(",")...)
+		if i > 0 {
+			returnValue = append(returnValue, []byte(",")...)
 		}
-		firstElement = false
 
 		var escapedUserName, escapedMessage []byte
 		var err error
 
-		escapedUserName, err = json.Marshal(chatMessage.userName)
+		escapedUserName, err = json.Marshal(lugChatArchive.UserName)
 		if err != nil {
-			escapedUserName = []byte(fmt.Sprintf("%v",err))
+			escapedUserName = []byte(fmt.Sprintf("%v", err))
 		}
-		escapedMessage, err = json.Marshal(chatMessage.message)
+		escapedMessage, err = json.Marshal(lugChatArchive.ChatMessage)
 		if err != nil {
-			escapedMessage = []byte(fmt.Sprintf("%v",err))
+			escapedMessage = []byte(fmt.Sprintf("%v", err))
 		}
 
 		line = fmt.Sprintf(
 			"{ \"userName\": %s,\"message\":%s,\"time\":\"%d\"}",
-			string(escapedUserName), string(escapedMessage), chatMessage.time.Unix() * 1000)
+			string(escapedUserName), string(escapedMessage), lugChatArchive.MessageCreationDate.Unix()*1000)
 
-		returnValue = append(returnValue,[]byte(line)...)
+		returnValue = append(returnValue, []byte(line)...)
 	}
-	returnValue = append(returnValue,[]byte("]}")...)
+	returnValue = append(returnValue, []byte("]}")...)
 
 	gklog.LogTrace("chat history: " + string(returnValue))
 
-	return returnValue
+	return returnValue, nil
 }
-

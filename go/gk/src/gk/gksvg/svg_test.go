@@ -99,9 +99,9 @@ func testSvgMidLevel(t *testing.T) {
 	idMap["id1"] = "new_id1"
 	idMap["id2"] = "new_id2"
 
-	name="href"
-	space="xlink"
-	value="#id1"
+	name = "href"
+	space = "xlink"
+	value = "#id1"
 	result, gkErr = substituteOneAttributeId(idMap, space, name, value)
 	if gkErr != nil {
 		t.Logf("gkErr on substituteOneAttributeId")
@@ -112,9 +112,9 @@ func testSvgMidLevel(t *testing.T) {
 		t.Fail()
 	}
 
-	name="style"
-	space=""
-	value="fill:url(#id2);fill-opacity:1"
+	name = "style"
+	space = ""
+	value = "fill:url(#id2);fill-opacity:1"
 	result, gkErr = substituteOneAttributeId(idMap, space, name, value)
 	if gkErr != nil {
 		t.Logf("gkErr on substituteOneAttributeId " + gkErr.String())
@@ -125,9 +125,9 @@ func testSvgMidLevel(t *testing.T) {
 		t.Fail()
 	}
 
-	name="style"
-	space=""
-	value="stroke:none;fill-opacity:1"
+	name = "style"
+	space = ""
+	value = "stroke:none;fill-opacity:1"
 	result, gkErr = substituteOneAttributeId(idMap, space, name, value)
 	if gkErr != nil {
 		t.Logf("gkErr on substituteOneAttributeId " + gkErr.String())
@@ -142,9 +142,9 @@ func testSvgMidLevel(t *testing.T) {
 	idMap["linearGradient9986-0-1-3-1-1"] = "new_linearGradient9986-0-1-3-1-1"
 	idMap["filter8705-8-7-6-6-6-1"] = "new_filter8705-8-7-6-6-6-1"
 
-	name="style"
-	space=""
-	value="opacity:0.6;fill:url(#linearGradient9986-0-1-3-1-1);fill-opacity:1;filter:url(#filter8705-8-7-6-6-6-1)"
+	name = "style"
+	space = ""
+	value = "opacity:0.6;fill:url(#linearGradient9986-0-1-3-1-1);fill-opacity:1;filter:url(#filter8705-8-7-6-6-6-1)"
 	result, gkErr = substituteOneAttributeId(idMap, space, name, value)
 	if gkErr != nil {
 		t.Logf("gkErr on substituteOneAttributeId " + gkErr.String())
@@ -194,4 +194,3 @@ func testSvgHighLevel(t *testing.T) {
 		t.Fail()
 	}
 }
-

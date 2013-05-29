@@ -26,10 +26,10 @@ import (
 )
 
 func TestMessage(t *testing.T) {
-//	testTrimBetweenMarkers(t)
-//	testTrimCrLf(t)
+	//	testTrimBetweenMarkers(t)
+	//	testTrimCrLf(t)
 	testPopulateFromMessage(t)
-//	testTrimLeadingSpaces(t)
+	//	testTrimLeadingSpaces(t)
 	testValidateFileName(t)
 }
 
@@ -324,4 +324,3 @@ func testValidateFileName(t *testing.T) {
 		t.Fail()
 	}
 }
-

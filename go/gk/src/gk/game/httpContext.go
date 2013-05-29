@@ -26,6 +26,7 @@ import (
 
 import (
 	"gk/game/config"
+	"gk/game/persistence"
 	"gk/game/ses"
 	"gk/gkerr"
 	"gk/gklog"
@@ -51,9 +52,10 @@ var _gameTemplate *gktmpl.TemplateDef
 var _gameTemplateName string = "game"
 
 type httpContextDef struct {
-	sessionContext *ses.SessionContextDef
-	gameConfig     *config.GameConfigDef
-	tokenContext   *tokenContextDef
+	sessionContext     *ses.SessionContextDef
+	gameConfig         *config.GameConfigDef
+	tokenContext       *tokenContextDef
+	persistenceContext *persistence.PersistenceContextDef
 }
 
 type gameDataDef struct {
@@ -78,10 +80,11 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func NewHttpContext(gameConfig *config.GameConfigDef, sessionContext *ses.SessionContextDef, tokenContext *tokenContextDef) *httpContextDef {
+func NewHttpContext(gameConfig *config.GameConfigDef, persistenceContext *persistence.PersistenceContextDef, sessionContext *ses.SessionContextDef, tokenContext *tokenContextDef) *httpContextDef {
 	var httpContext *httpContextDef = new(httpContextDef)
 
 	httpContext.gameConfig = gameConfig
+	httpContext.persistenceContext = persistenceContext
 	httpContext.sessionContext = sessionContext
 	httpContext.tokenContext = tokenContext
 
@@ -160,7 +163,16 @@ func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, re
 		return
 	}
 
-	singleSession = httpContext.sessionContext.NewSingleSession(userName, req.RemoteAddr)
+	var lastPod string
+	lastPod, gkErr = httpContext.persistenceContext.GetLastPodName(userName)
+	if gkErr != nil {
+		errorMessage := "persistenceContext.getLastPodName"
+		gklog.LogGkErr(errorMessage, gkErr)
+		httpContext.redirectToError(errorMessage, res, req)
+		return
+	}
+
+	singleSession = httpContext.sessionContext.NewSingleSession(userName, lastPod, req.RemoteAddr)
 
 	gameData.Title = "game"
 	gameData.WebAddressPrefix = httpContext.gameConfig.WebAddressPrefix
@@ -171,8 +183,9 @@ func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, re
 
 	gkErr = _gameTemplate.Build(gameData)
 	if gkErr != nil {
-		gklog.LogGkErr("_gameTemplate.Build", gkErr)
-		httpContext.redirectToError("_gameTemplate.Build", res, req)
+		errorMessage := "_gameTemplate.Build"
+		gklog.LogGkErr(errorMessage, gkErr)
+		httpContext.redirectToError(errorMessage, res, req)
 		return
 	}
 

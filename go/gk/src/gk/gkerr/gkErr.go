@@ -37,7 +37,7 @@ type GkStackEntryDef struct {
 	line    int
 }
 
-// capture the current error stack 
+// capture the current error stack
 func GenGkErr(message string, err error, errorId uint32) *GkErrDef {
 	var gkErr *GkErrDef = new(GkErrDef)
 	var i int

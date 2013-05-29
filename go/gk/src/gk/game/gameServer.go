@@ -28,6 +28,7 @@ import (
 import (
 	"gk/game/config"
 	"gk/game/field"
+	"gk/game/persistence"
 	"gk/game/ses"
 	"gk/game/ws"
 	"gk/gkerr"
@@ -57,14 +58,20 @@ func GameServerStart() {
 	gklog.LogInit(gameConfig.LogDir)
 
 	var randContext *gkrand.GkRandContextDef
+	var persistenceContext *persistence.PersistenceContextDef
 	var tokenContext *tokenContextDef
 	var sessionContext *ses.SessionContextDef
 	var httpContext *httpContextDef
 
 	randContext = gkrand.NewGkRandContext()
+	persistenceContext, gkErr = persistence.NewPersistenceContext(gameConfig)
+	if gkErr != nil {
+		gklog.LogGkErr("persistence.NewPersisenceContext", gkErr)
+		return
+	}
 	tokenContext = NewTokenContext(gameConfig, randContext, sessionContext)
 	sessionContext = ses.NewSessionContext(randContext)
-	httpContext = NewHttpContext(gameConfig, sessionContext, tokenContext)
+	httpContext = NewHttpContext(gameConfig, persistenceContext, sessionContext, tokenContext)
 
 	gkErr = httpContext.gameInit()
 	if gkErr != nil {
@@ -83,7 +90,7 @@ func GameServerStart() {
 	var wsContext *ws.WsContextDef
 	var fieldContext *field.FieldContextDef
 
-	fieldContext, gkErr = field.NewFieldContext(gameConfig.AvatarSvgDir, gameConfig.TerrainSvgDir, sessionContext)
+	fieldContext, gkErr = field.NewFieldContext(gameConfig.AvatarSvgDir, gameConfig.TerrainSvgDir, sessionContext, persistenceContext)
 	if gkErr != nil {
 		gklog.LogGkErr("field.NewFieldContext", gkErr)
 		return

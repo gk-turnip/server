@@ -128,4 +128,3 @@ func (gkRandContext *GkRandContextDef) GetRandomByte() byte {
 
 	return byte(r)
 }
-
