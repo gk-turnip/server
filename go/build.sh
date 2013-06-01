@@ -22,35 +22,22 @@ fi
 
 if [ $ok == "y" ]
 then
-        if [ ! -d $GOBASE/gk/bin ]
-        then
-                echo "creating missing gk bin directory"
-                mkdir $GOBASE/gk/bin
-        fi
-        if [ ! -d $GOBASE/gk/pkg ]
-        then
-                echo "creating missing gk pkg directory"
-                mkdir $GOBASE/gk/pkg
-                mkdir $GOBASE/gk/pkg/linux_amd64
-        fi
 
-        if [ ! -d $GOBASE/pq/pkg ]
-        then
-                echo "creating missing gk pkg directory"
-                mkdir $GOBASE/gk/pkg
-                mkdir $GOBASE/gk/pkg/linux_amd64
-        fi
-
-	go clean all
-	rm -f */pkg/*/*.a
-	rm -f gk/bin/*
-
+	go install pq/pq
+	go install code.google.com/p/go.net/dict
+	go install code.google.com/p/go.net/html
+	go install code.google.com/p/go.net/html/atom
+	go install code.google.com/p/go.net/idna
+	go install code.google.com/p/go.net/ipv4
+	go install code.google.com/p/go.net/proxy
+	go install code.google.com/p/go.net/spdy
+	go install code.google.com/p/go.net/websocket
+	go install code.google.com/p/go.net/publicsuffix
 	go install gk/gkerr
 	go install gk/gklog
 	go install gk/gktmpl
 	go install gk/gkjson
 	go install gk/gksvg
-	go install pq/pq
 	go install gk/sec
 	go install gk/wf
 	go install gk/login
@@ -85,7 +72,7 @@ then
 	go test gk/database
 	go test gk/gkrand
 
-	go build -o gk/bin/wfToJsMain gk/src/gk/main/wfToJsMain.go
+	#go build -o gk/bin/wfToJsMain gk/src/gk/main/wfToJsMain.go
 
 	go build -o gk/bin/loginServerMain gk/src/gk/main/loginServerMain.go
 	go build -o gk/bin/gameServerMain gk/src/gk/main/gameServerMain.go
