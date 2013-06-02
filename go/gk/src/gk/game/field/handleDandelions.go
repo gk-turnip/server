@@ -24,6 +24,7 @@ import (
 
 import (
 	"gk/game/message"
+	"gk/game/ses"
 	"gk/gkerr"
 )
 
@@ -51,25 +52,30 @@ func (fieldContext *FieldContextDef) addDandelion() {
 	//	svgJsonData.IsoXYZ.X = int16(rand.Int31n(50))
 	//	svgJsonData.IsoXYZ.Y = int16(rand.Int31n(50))
 
-	var index = rand.Int31n(int32(len(fieldContext.terrainMap.jsonMapData.TileList)))
+	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+		var singleSession *ses.SingleSessionDef
+		singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
+		var terrainJson *terrainJsonDef
+		terrainJson = fieldContext.podMap[singleSession.GetCurrentPodId()].terrainJson
 
-	if fieldContext.terrainMap.jsonMapData.TileList[index].Terrain == "grass" {
+		var index = rand.Int31n(int32(len(terrainJson.jsonMapData.TileList)))
 
-		svgJsonData.IsoXYZ.X = int16(fieldContext.terrainMap.jsonMapData.TileList[index].X)
-		svgJsonData.IsoXYZ.Y = int16(fieldContext.terrainMap.jsonMapData.TileList[index].Y)
-		svgJsonData.IsoXYZ.Z = int16(fieldContext.terrainMap.jsonMapData.TileList[index].Z)
+		if terrainJson.jsonMapData.TileList[index].Terrain == "grass" {
 
-		messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.AddSvgReq, fileName, svgJsonData)
+			svgJsonData.IsoXYZ.X = int16(terrainJson.jsonMapData.TileList[index].X)
+			svgJsonData.IsoXYZ.Y = int16(terrainJson.jsonMapData.TileList[index].Y)
+			svgJsonData.IsoXYZ.Z = int16(terrainJson.jsonMapData.TileList[index].Z)
 
-		for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+			messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.AddSvgReq, fileName, svgJsonData)
+
 			fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
-		}
 
-		var fieldObject *fieldObjectDef = new(fieldObjectDef)
-		fieldObject.id = svgJsonData.Id
-		fieldObject.fileName = fileName
-		fieldObject.isoXYZ = svgJsonData.IsoXYZ
-		fieldContext.addTerrainObject(fieldObject)
+			var fieldObject *fieldObjectDef = new(fieldObjectDef)
+			fieldObject.id = svgJsonData.Id
+			fieldObject.fileName = fileName
+			fieldObject.isoXYZ = svgJsonData.IsoXYZ
+			fieldContext.addTerrainObject(fieldObject, singleSession.GetCurrentPodId())
+		}
 	}
 }
 
@@ -80,14 +86,16 @@ func (fieldContext *FieldContextDef) removeDandelion() {
 
 	messageToClient.Command = message.DelSvgReq
 
-	for _, fieldObject := range fieldContext.globalTerrainMap {
-		if fieldObject.fileName == fileName {
-			messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
-			for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
-				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+	for podId, podEntry := range fieldContext.podMap {
+		for _, fieldObject := range podEntry.objectMap {
+			if fieldObject.fileName == fileName {
+				messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
+				for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+					fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+				}
+				fieldContext.delTerrainObject(podId, fieldObject)
+				break
 			}
-			fieldContext.delTerrainObject(fieldObject)
-			break
 		}
 	}
 }

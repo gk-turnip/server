@@ -23,6 +23,7 @@ import (
 
 import (
 	"gk/game/message"
+	"gk/game/ses"
 	"gk/gkerr"
 )
 
@@ -55,6 +56,10 @@ func (fieldContext *FieldContextDef) handleGetAvatarSvgReq(messageFromClient *me
 		return gkErr
 	}
 
+	var singleSession *ses.SingleSessionDef
+	singleSession = fieldContext.sessionContext.GetSessionFromId(messageFromClient.SessionId)
+	var podId int32 = singleSession.GetCurrentPodId()
+
 	fieldContext.queueMessageToClient(messageFromClient.SessionId, messageToClient)
 
 	var fieldObject *fieldObjectDef = new(fieldObjectDef)
@@ -62,7 +67,7 @@ func (fieldContext *FieldContextDef) handleGetAvatarSvgReq(messageFromClient *me
 	fieldObject.fileName = getSvg.SvgName
 	fieldObject.isoXYZ = svgJsonData.IsoXYZ
 	fieldObject.sourceSessionId = messageFromClient.SessionId
-	fieldContext.addAvatarObject(fieldObject)
+	fieldContext.addAvatarObject(podId, fieldObject)
 
 	var websocketConnectionContext *websocketConnectionContextDef
 
@@ -74,7 +79,7 @@ func (fieldContext *FieldContextDef) handleGetAvatarSvgReq(messageFromClient *me
 
 	websocketConnectionContext.avatarId = fieldObject.id
 
-	gkErr = fieldContext.sendNewAvatarToAll(messageFromClient.SessionId, fieldObject.id)
+	gkErr = fieldContext.sendNewAvatarToAll(podId, messageFromClient.SessionId, fieldObject.id)
 	if gkErr != nil {
 		return gkErr
 	}

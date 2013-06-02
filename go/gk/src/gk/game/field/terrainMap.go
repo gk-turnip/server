@@ -21,13 +21,15 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+	"strconv"
 )
 
 import (
+//	"gk/game/persistence"
 	"gk/gkerr"
 )
 
-type terrainMapDef struct {
+type terrainJsonDef struct {
 	jsonMapData struct {
 		TileList []struct {
 			Terrain string
@@ -42,15 +44,32 @@ type terrainMapDef struct {
 	}
 }
 
-func NewTerrainMap(terrainSvgDir string) (*terrainMapDef, *gkerr.GkErrDef) {
-	var terrainMap *terrainMapDef = new(terrainMapDef)
+func (fieldContext *FieldContextDef) newTerrainMap(podId int32) (*terrainJsonDef, *gkerr.GkErrDef) {
+	//	var terrainMap *terrainMapDef = new(terrainMapDef)
+//	var terrainMap map[int32]*terrainJsonDef = make(map[int32]*terrainJsonDef)
 
-	var jsonFileName string = terrainSvgDir + string(os.PathSeparator) + "map_terrain.json"
+	var gkErr *gkerr.GkErrDef
 
+	var jsonFileName string
+
+	jsonFileName = fieldContext.terrainSvgDir + string(os.PathSeparator) + "map_terrain_" + strconv.FormatInt(int64(podId), 10) + ".json"
+
+	var terrainJson *terrainJsonDef
+
+	terrainJson, gkErr = getSingleTerrainMap(jsonFileName)
+	if gkErr != nil {
+		return nil, gkErr
+	}
+
+	return terrainJson, nil
+}
+
+func getSingleTerrainMap(jsonFileName string) (*terrainJsonDef, *gkerr.GkErrDef) {
+	var terrainJson *terrainJsonDef = new(terrainJsonDef)
 	var jsonFile *os.File
 	var err error
-	var gkErr *gkerr.GkErrDef
 	var jsonData []byte = make([]byte, 0, 256)
+	var gkErr *gkerr.GkErrDef
 
 	jsonFile, err = os.Open(jsonFileName)
 	if err != nil {
@@ -76,11 +95,11 @@ func NewTerrainMap(terrainSvgDir string) (*terrainMapDef, *gkerr.GkErrDef) {
 		}
 	}
 
-	err = json.Unmarshal(jsonData, &terrainMap.jsonMapData)
+	err = json.Unmarshal(jsonData, &terrainJson.jsonMapData)
 	if err != nil {
 		gkErr = gkerr.GenGkErr("json.Unmarshal", err, ERROR_ID_JSON_UNMARSHAL)
 		return nil, gkErr
 	}
 
-	return terrainMap, nil
+	return terrainJson, nil
 }

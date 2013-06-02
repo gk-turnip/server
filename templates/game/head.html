@@ -28,7 +28,6 @@
 	<script type="text/javascript">
 		var loaded;
 		var mode;
-		var moveMarker;
 		function init() {
 			console.log("calling init");
 
@@ -98,22 +97,24 @@
 
 			var isoXYZ = gkViewConvertWinToIso(x,gkViewContext.marginX,y,gkViewContext.marginY, 0);
 			var g = gkIsoCreateSingleDiamond(isoXYZ, "#00ff00", 0.5);
-			var objectLayer = document.getElementById("gkTerrainObjectLayer");
-			objectLayer.appendChild(g);
+//			var objectLayer = document.getElementById("gkTerrainObjectLayer");
+//			objectLayer.appendChild(g);
 
 			gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
 
 			gkAudioStartAudio(2, "boing", false);
 
-			if (moveMarker) {
-				objectLayer.removeChild(moveMarker);
-			}
-			moveMarker = g;
+			gkTerrainClearMoveMarker();
+			gkTerrainSetMoveMarker(g);
+//			if (moveMarker) {
+//				objectLayer.removeChild(moveMarker);
+//			}
+//			moveMarker = g;
 		}
 
-		function svgObjectClick(id, x, y, z, originX, originY) {
-			console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY);
-		}
+//		function svgObjectClick(id, x, y, z, originX, originY) {
+//			console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY);
+//		}
 
 		function changeAvatar() {
 			avatarName = document.getElementById("selectAvatar").value;

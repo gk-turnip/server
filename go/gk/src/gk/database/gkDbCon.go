@@ -24,7 +24,6 @@ import (
 
 import (
 	"gk/gkerr"
-	"gk/gklog"
 	"pq/pq"
 )
 
@@ -40,8 +39,6 @@ func NewGkDbCon(userName string, password string, host string, port int, databas
 	var connectionString string
 
 	connectionString = fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s", userName, password, host, port, database)
-
-	gklog.LogTrace(connectionString)
 
 	gkDbCon.sqlDb, err = sql.Open("postgres", connectionString)
 

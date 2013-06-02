@@ -52,6 +52,11 @@ func (fieldContext *FieldContextDef) handleMessageFromClient(messageFromClient *
 		if gkErr != nil {
 			return gkErr
 		}
+	case message.NewPodReq:
+		gkErr = fieldContext.handleNewPodReq(messageFromClient)
+		if gkErr != nil {
+			return gkErr
+		}
 	default:
 		gkErr = gkerr.GenGkErr("unknonwn websocket request: "+messageFromClient.Command, nil, ERROR_ID_UNKNOWN_WEBSOCKET_COMMAND)
 		return gkErr

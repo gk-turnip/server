@@ -40,11 +40,11 @@ function gkDispatchWsMessage(command, jsonData, data) {
 		break;
 	case "setTerrainSvgReq":
 		console.log("setTerrainSvgReq");
-		gkSetTerrainSvg(jsonData, data);
+		gkTerrainSetTerrainSvg(jsonData, data);
 		break;
 	case "setTerrainMapReq":
 		console.log("setTerrainMapReq");
-		gkSetTerrainMap(jsonData);
+		gkTerrainSetTerrainMap(jsonData);
 		break;
 	case "pingRes":
 		gkWsPingRes(jsonData);

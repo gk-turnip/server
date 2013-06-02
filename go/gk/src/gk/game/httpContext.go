@@ -163,8 +163,8 @@ func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, re
 		return
 	}
 
-	var lastPod string
-	lastPod, gkErr = httpContext.persistenceContext.GetLastPodName(userName)
+	var lastPodId int32
+	lastPodId, gkErr = httpContext.persistenceContext.GetLastPodId(userName)
 	if gkErr != nil {
 		errorMessage := "persistenceContext.getLastPodName"
 		gklog.LogGkErr(errorMessage, gkErr)
@@ -172,7 +172,7 @@ func (httpContext *httpContextDef) handleGameInitial(res http.ResponseWriter, re
 		return
 	}
 
-	singleSession = httpContext.sessionContext.NewSingleSession(userName, lastPod, req.RemoteAddr)
+	singleSession = httpContext.sessionContext.NewSingleSession(userName, lastPodId, req.RemoteAddr)
 
 	gameData.Title = "game"
 	gameData.WebAddressPrefix = httpContext.gameConfig.WebAddressPrefix

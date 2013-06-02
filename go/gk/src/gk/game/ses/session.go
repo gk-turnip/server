@@ -39,7 +39,7 @@ type SingleSessionDef struct {
 	createdTime     time.Time
 	isWebsocketOpen bool
 	userName        string
-	currentPod      string
+	currentPodId    int32
 }
 
 func NewSessionContext(randContext *gkrand.GkRandContextDef) *SessionContextDef {
@@ -51,12 +51,12 @@ func NewSessionContext(randContext *gkrand.GkRandContextDef) *SessionContextDef 
 	return sessionContext
 }
 
-func (sessionContext *SessionContextDef) NewSingleSession(userName string, podName string, remoteAddr string) *SingleSessionDef {
+func (sessionContext *SessionContextDef) NewSingleSession(userName string, podId int32, remoteAddr string) *SingleSessionDef {
 
 	var singleSession *SingleSessionDef = new(SingleSessionDef)
 	singleSession.remoteAddr = remoteAddr
 	singleSession.userName = userName
-	singleSession.currentPod = podName
+	singleSession.currentPodId = podId
 	singleSession.createdTime = time.Now()
 
 	sessionContext.sessionMutex.Lock()
@@ -167,4 +167,12 @@ func (singleSession *SingleSessionDef) GetUserName() string {
 
 func (sessionContext *SessionContextDef) genSessionString() string {
 	return sessionContext.RandContext.GetRandomString(12)
+}
+
+func (singleSession *SingleSessionDef) GetCurrentPodId() int32 {
+	return singleSession.currentPodId
+}
+
+func (singleSession *SingleSessionDef) SetCurrentPodId(podId int32) {
+	singleSession.currentPodId = podId
 }

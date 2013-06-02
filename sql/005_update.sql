@@ -7,8 +7,9 @@ create table context_users
 	last_position_x smallint,
 	last_position_y smallint,
 	last_position_z smallint,
-	last_pod varchar(4),
+	last_pod_id int,
 	primary key(id),
-	foreign key(id) references users(id)
+	foreign key(id) references users(id),
+	foreign key(last_pod_id) references pods(id)
 	);
 

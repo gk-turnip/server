@@ -39,3 +39,5 @@ const PingRes = "pingRes"
 
 const UserNameReq = "userNameReq"
 const ChatReq = "chatReq"
+
+const NewPodReq = "newPodReq"

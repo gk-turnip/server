@@ -5,15 +5,15 @@ import (
 )
 
 import (
+	"gk/database"
 	"gk/game/config"
 	"gk/gkerr"
-	"gk/database"
 )
 
 type PersistenceContextDef struct {
-	gameConfig *config.GameConfigDef
+	gameConfig      *config.GameConfigDef
 	connectionMutex *sync.Mutex
-	connection *database.GkDbConDef
+	connection      *database.GkDbConDef
 }
 
 func NewPersistenceContext(gameConfig *config.GameConfigDef) (*PersistenceContextDef, *gkerr.GkErrDef) {
@@ -31,11 +31,11 @@ func NewPersistenceContext(gameConfig *config.GameConfigDef) (*PersistenceContex
 	return persistenceContext, nil
 }
 
-func (persistenceContext *PersistenceContextDef) GetLastPodName(userName string) (string, *gkerr.GkErrDef) {
-	return "aaa", nil
+func (persistenceContext *PersistenceContextDef) GetLastPodId(userName string) (int32, *gkerr.GkErrDef) {
+	return 1, nil
 }
 
-func (persistenceContext *PersistenceContextDef) AddNewChatMessage (userName string, chatMessage string) *gkerr.GkErrDef {
+func (persistenceContext *PersistenceContextDef) AddNewChatMessage(userName string, chatMessage string) *gkerr.GkErrDef {
 	return persistenceContext.connection.AddNewChatMessage(userName, chatMessage)
 }
 
@@ -43,3 +43,6 @@ func (persistenceContext *PersistenceContextDef) GetLastChatArchiveEntries(count
 	return persistenceContext.connection.GetLastChatArchiveEntries(count)
 }
 
+func (persistenceContext *PersistenceContextDef) GetPodsList() ([]database.DbPodDef, *gkerr.GkErrDef) {
+	return persistenceContext.connection.GetPodsList()
+}

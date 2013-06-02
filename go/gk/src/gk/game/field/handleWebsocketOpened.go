@@ -51,15 +51,7 @@ func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessag
 		return gkErr
 	}
 
-	gkErr = fieldContext.loadTerrain(websocketConnectionContext)
-	if gkErr != nil {
-		return gkErr
-	}
-
-	gkErr = fieldContext.sendAllAvatarObjects(websocketConnectionContext)
-	if gkErr != nil {
-		return gkErr
-	}
+	gkErr = fieldContext.uploadNewPodInfo(websocketConnectionContext, 1)
 
 	gkErr = fieldContext.sendAllPastChat(websocketConnectionContext)
 	if gkErr != nil {

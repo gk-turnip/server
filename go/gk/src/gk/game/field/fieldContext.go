@@ -28,21 +28,20 @@ import (
 )
 
 import (
+	"gk/database"
 	"gk/game/iso"
 	"gk/game/message"
-	"gk/game/ses"
 	"gk/game/persistence"
+	"gk/game/ses"
 	"gk/gkcommon"
 	"gk/gkerr"
 	"gk/gklog"
 )
 
 type FieldContextDef struct {
-	globalAvatarMap        map[string]*fieldObjectDef
-	globalTerrainMap       map[string]*fieldObjectDef
 	websocketConnectionMap map[string]*websocketConnectionContextDef
 	sessionContext         *ses.SessionContextDef
-	persistenceContext         *persistence.PersistenceContextDef
+	persistenceContext     *persistence.PersistenceContextDef
 	WebsocketOpenedChan    chan WebsocketOpenedMessageDef
 	WebsocketClosedChan    chan WebsocketClosedMessageDef
 	MessageFromClientChan  chan *message.MessageFromClientDef
@@ -51,9 +50,17 @@ type FieldContextDef struct {
 	lastObjectId           int64
 	lastObjectIdMutex      sync.Mutex
 	rainContext            rainContextDef
-	terrainMap             *terrainMapDef
 	savedChatMutex         *sync.Mutex
 	savedChat              *list.List
+	podMap					map[int32]*podEntryDef
+}
+
+type podEntryDef struct {
+	podId int32
+	title string
+	terrainJson      *terrainJsonDef
+	avatarMap        map[string]*fieldObjectDef
+	objectMap        map[string]*fieldObjectDef
 }
 
 type websocketConnectionContextDef struct {
@@ -92,20 +99,43 @@ func NewFieldContext(avatarSvgDir string, terrainSvgDir string, sessionContext *
 	fieldContext.terrainSvgDir = terrainSvgDir
 	fieldContext.sessionContext = sessionContext
 	fieldContext.persistenceContext = persistenceContext
-	fieldContext.globalAvatarMap = make(map[string]*fieldObjectDef)
-	fieldContext.globalTerrainMap = make(map[string]*fieldObjectDef)
+//	fieldContext.globalAvatarMap = make(map[string]*fieldObjectDef)
+//	fieldContext.globalObjectMap = make(map[int32]map[string]*fieldObjectDef)
 	fieldContext.websocketConnectionMap = make(map[string]*websocketConnectionContextDef)
 	fieldContext.WebsocketOpenedChan = make(chan WebsocketOpenedMessageDef)
 	fieldContext.WebsocketClosedChan = make(chan WebsocketClosedMessageDef)
 	fieldContext.MessageFromClientChan = make(chan *message.MessageFromClientDef)
 
-	fieldContext.terrainMap, gkErr = NewTerrainMap(fieldContext.terrainSvgDir)
+	var podList []database.DbPodDef
+
+	podList, gkErr = persistenceContext.GetPodsList()
 	if gkErr != nil {
 		return nil, gkErr
 	}
 
+	fieldContext.podMap = make(map[int32]*podEntryDef)
+	for _, dbPod := range podList {
+gklog.LogTrace(fmt.Sprintf("populate pod %+v",dbPod))
+		var podEntry *podEntryDef = new(podEntryDef)
+		podEntry.podId = dbPod.Id
+		podEntry.title = dbPod.Title
+		podEntry.avatarMap = make(map[string]*fieldObjectDef)
+		podEntry.objectMap = make(map[string]*fieldObjectDef)
+
+		podEntry.terrainJson, gkErr = fieldContext.newTerrainMap(podEntry.podId)
+		if gkErr != nil {
+			return nil, gkErr
+		}
+		fieldContext.podMap[podEntry.podId] = podEntry
+	}
+
 	fieldContext.savedChatMutex = new(sync.Mutex)
 	fieldContext.savedChat = list.New()
+
+//	fieldContext.terrainMap, gkErr = fieldContext.newTerrainMap(fieldContext, fieldContext.terrainSvgDir, fieldContext.persistenceContext)
+//	if gkErr != nil {
+//		return nil, gkErr
+//	}
 
 	return fieldContext, nil
 }
@@ -133,27 +163,43 @@ func (fieldContext *FieldContextDef) getNextObjectId() string {
 	return "gki_" + strconv.FormatInt(fieldContext.lastObjectId, 36)
 }
 
-func (fieldContext *FieldContextDef) addAvatarObject(fieldObject *fieldObjectDef) {
-	fieldContext.globalAvatarMap[fieldObject.id] = fieldObject
+func (fieldContext *FieldContextDef) addAvatarObject(podId int32, fieldObject *fieldObjectDef) {
+
+	fieldContext.podMap[podId].avatarMap[fieldObject.id] = fieldObject
 }
 
-func (fieldContext *FieldContextDef) addTerrainObject(fieldObject *fieldObjectDef) {
-	fieldContext.globalTerrainMap[fieldObject.id] = fieldObject
+func (fieldContext *FieldContextDef) addTerrainObject(fieldObject *fieldObjectDef, podId int32) {
+
+	if fieldContext.podMap[podId].objectMap == nil {
+		fieldContext.podMap[podId].objectMap = make(map[string]*fieldObjectDef)
+	}
+
+	fieldContext.podMap[podId].objectMap[fieldObject.id] = fieldObject
+
+//	_, ok := fieldContext.globalObjectMap[podId]
+//	_, ok := fieldContext.podMap[podId]
+//	if ok {
+//		podEntry.globalObjectMap = make(map[string]*fieldObjectDef)
+//		fieldContext.globalObjectMap[podId] = make(map[string]*fieldObjectDef)
+//	}
+//	fieldContext.globalObjectMap[podId][fieldObject.id] = fieldObject
 }
 
-func (fieldContext *FieldContextDef) delAvatarObject(fieldObject *fieldObjectDef) {
-	delete(fieldContext.globalAvatarMap, fieldObject.id)
+func (fieldContext *FieldContextDef) delAvatarObject(podId int32, fieldObject *fieldObjectDef) {
+	delete(fieldContext.podMap[podId].avatarMap, fieldObject.id)
 }
 
-func (fieldContext *FieldContextDef) delTerrainObject(fieldObject *fieldObjectDef) {
-	delete(fieldContext.globalTerrainMap, fieldObject.id)
+func (fieldContext *FieldContextDef) delTerrainObject(podId int32, fieldObject *fieldObjectDef) {
+
+	delete(fieldContext.podMap[podId].objectMap, fieldObject.id)
+//	delete(fieldContext.globalObjectMap[podId], fieldObject.id)
 }
 
-func (fieldContext *FieldContextDef) sendAllAvatarObjects(websocketConnectionContext *websocketConnectionContextDef) *gkerr.GkErrDef {
+func (fieldContext *FieldContextDef) sendAllAvatarObjects(podId int32, websocketConnectionContext *websocketConnectionContextDef) *gkerr.GkErrDef {
 
 	var gkErr *gkerr.GkErrDef
 
-	for _, fieldObject := range fieldContext.globalAvatarMap {
+	for _, fieldObject := range fieldContext.podMap[podId].avatarMap {
 
 		gkErr = fieldContext.sendSingleAvatarObject(websocketConnectionContext, fieldObject)
 		if gkErr != nil {
@@ -208,13 +254,13 @@ func (fieldContext *FieldContextDef) sendAllPastChat(websocketConnectionContext 
 }
 
 // all except for the current session
-func (fieldContext *FieldContextDef) sendNewAvatarToAll(sessionId string, id string) *gkerr.GkErrDef {
+func (fieldContext *FieldContextDef) sendNewAvatarToAll(podId int32, sessionId string, id string) *gkerr.GkErrDef {
 
 	var fieldObject *fieldObjectDef
 	var gkErr *gkerr.GkErrDef
 	var ok bool
 
-	fieldObject, ok = fieldContext.globalAvatarMap[id]
+	fieldObject, ok = fieldContext.podMap[podId].avatarMap[id]
 
 	if ok {
 		for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
@@ -232,7 +278,12 @@ func (fieldContext *FieldContextDef) sendNewAvatarToAll(sessionId string, id str
 
 func (fieldContext *FieldContextDef) removeAllAvatarBySessionId(sessionId string) {
 	gklog.LogTrace("removing all object by session id")
-	for _, fieldObject := range fieldContext.globalAvatarMap {
+
+	var singleSession *ses.SingleSessionDef
+	singleSession = fieldContext.sessionContext.GetSessionFromId(sessionId)
+	var podId int32 = singleSession.GetCurrentPodId()
+
+	for _, fieldObject := range fieldContext.podMap[podId].avatarMap {
 		if fieldObject.sourceSessionId == sessionId {
 			var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 
@@ -240,10 +291,23 @@ func (fieldContext *FieldContextDef) removeAllAvatarBySessionId(sessionId string
 			messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
 			messageToClient.Data = make([]byte, 0, 0)
 
-			for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
-				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
-			}
-			delete(fieldContext.globalAvatarMap, fieldObject.id)
+			fieldContext.removeSendRemoveAvatarBySessionId(podId, messageToClient)
+//			for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+//				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+//			}
+			delete(fieldContext.podMap[podId].avatarMap, fieldObject.id)
+		}
+	}
+}
+
+func (fieldContext *FieldContextDef) removeSendRemoveAvatarBySessionId(podIdFromDisconnect int32, messageToClient *message.MessageToClientDef) {
+	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+		var singleSession *ses.SingleSessionDef
+		singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
+		var podIdFromWebsocket int32 = singleSession.GetCurrentPodId()
+
+		if (podIdFromWebsocket == podIdFromDisconnect) {
+			fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 		}
 	}
 }
@@ -267,6 +331,9 @@ func (fieldContext *FieldContextDef) sendMessageToAll(messageToClient *message.M
 func (fieldContext *FieldContextDef) removeAvatarBySessionId(sessionId string) *gkerr.GkErrDef {
 	var websocketConnectionContext *websocketConnectionContextDef
 	var gkErr *gkerr.GkErrDef
+	var singleSession *ses.SingleSessionDef
+	singleSession = fieldContext.sessionContext.GetSessionFromId(sessionId)
+	var podId int32 = singleSession.GetCurrentPodId()
 
 	websocketConnectionContext, gkErr = fieldContext.getWebsocketConnectionContextById(sessionId)
 	if gkErr != nil {
@@ -276,13 +343,13 @@ func (fieldContext *FieldContextDef) removeAvatarBySessionId(sessionId string) *
 	var fieldObject *fieldObjectDef
 	var ok bool
 
-	fieldObject, ok = fieldContext.globalAvatarMap[websocketConnectionContext.avatarId]
+	fieldObject, ok = fieldContext.podMap[podId].avatarMap[websocketConnectionContext.avatarId]
 	if ok {
 		fieldContext.sendAllRemoveMessageForObject(websocketConnectionContext.sessionId, fieldObject)
 	}
 
 	if websocketConnectionContext.avatarId != "" {
-		delete(fieldContext.globalAvatarMap, websocketConnectionContext.avatarId)
+		delete(fieldContext.podMap[podId].avatarMap, websocketConnectionContext.avatarId)
 	}
 
 	return nil
@@ -312,8 +379,15 @@ func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *we
 	var terrainSentMap map[string]string = make(map[string]string)
 	var gkErr *gkerr.GkErrDef
 
-	for i := 0; i < len(fieldContext.terrainMap.jsonMapData.TileList); i++ {
-		var terrain string = fieldContext.terrainMap.jsonMapData.TileList[i].Terrain
+	var singleSession *ses.SingleSessionDef
+	singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
+
+	var terrainJson *terrainJsonDef
+
+	terrainJson = fieldContext.podMap[singleSession.GetCurrentPodId()].terrainJson
+
+	for i := 0; i < len(terrainJson.jsonMapData.TileList); i++ {
+		var terrain string = terrainJson.jsonMapData.TileList[i].Terrain
 		var ok bool
 
 		_, ok = terrainSentMap[terrain]
@@ -329,8 +403,8 @@ func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *we
 		}
 	}
 
-	for i := 0; i < len(fieldContext.terrainMap.jsonMapData.ObjectList); i++ {
-		var terrain string = fieldContext.terrainMap.jsonMapData.ObjectList[i].Object
+	for i := 0; i < len(terrainJson.jsonMapData.ObjectList); i++ {
+		var terrain string = terrainJson.jsonMapData.ObjectList[i].Object
 		var ok bool
 
 		_, ok = terrainSentMap[terrain]
@@ -353,9 +427,12 @@ func (fieldContext *FieldContextDef) doTerrainMap(websocketConnectionContext *we
 
 	var gkErr *gkerr.GkErrDef
 
+	var singleSession *ses.SingleSessionDef
+	singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
+
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 	messageToClient.Command = message.SetTerrainMapReq
-	var jsonFileName string = fieldContext.terrainSvgDir + string(os.PathSeparator) + "map_terrain.json"
+	var jsonFileName string = fieldContext.terrainSvgDir + string(os.PathSeparator) + "map_terrain_" + strconv.FormatInt(int64(singleSession.GetCurrentPodId()), 10) + ".json"
 	messageToClient.JsonData, gkErr = gkcommon.GetFileContents(jsonFileName)
 	if gkErr != nil {
 		return gkErr
@@ -387,4 +464,9 @@ func (fieldContext *FieldContextDef) sendUserName(websocketConnectionContext *we
 	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 
 	return nil
+}
+
+func (fieldContext *FieldContextDef) isPodIdValid(podId int32) bool {
+	_, ok := fieldContext.podMap[podId]
+	return ok
 }

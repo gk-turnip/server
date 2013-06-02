@@ -19,13 +19,11 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 )
 
 import (
 	"gk/gkerr"
-	"gk/gklog"
 )
 
 type DbUserDef struct {
@@ -125,8 +123,6 @@ func (gkDbCon *GkDbConDef) AddNewUser(userName string, passwordHash string, pass
 	if err != nil {
 		return gkerr.GenGkErr("stmt.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
-
-	gklog.LogTrace(fmt.Sprintf("%s %s", passwordHash, passwordSalt))
 
 	var accountCreationDate time.Time = time.Now()
 	var lastLoginDate time.Time = time.Now()

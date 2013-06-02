@@ -128,7 +128,9 @@ function gkFieldDelSvg(jsonData) {
 	var refObject = gkFieldContext.refObjectMap[jsonData.id];
 	if (refObject != undefined) {
 		var ref = document.getElementById("ref_" + refObject.id);
-		ref.parentNode.removeChild(ref);
+		if (ref != undefined) {
+			ref.parentNode.removeChild(ref);
+		}
 		delete gkFieldContext.refObjectMap[jsonData.id];
 	}
 }
