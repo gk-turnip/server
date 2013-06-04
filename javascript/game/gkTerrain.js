@@ -302,6 +302,8 @@ function gkTerrainSvgObjectClick(id, x, y, z, originX, originY, originZ, podId) 
 	if (podId != undefined) {
 console.log("podId: " + podId);
 		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\" }~");
+		var a = new GkIsoXYZDef(0, 0, 0);
+		gkFieldSetNewAvatarDestination(a)
 	}
 }
 
