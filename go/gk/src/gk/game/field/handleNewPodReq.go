@@ -28,10 +28,12 @@ import (
 	"gk/game/ses"
 	"gk/gkerr"
 	"gk/gklog"
+	"gk/game/iso"
 )
 
 type newPodReqDef struct {
 	PodId string
+	destination *iso.IsoXYZDef
 }
 
 // websocketConnectionContext entry must be moved from old pod to new pod
@@ -76,6 +78,8 @@ func (fieldContext *FieldContextDef) handleNewPodReq(messageFromClient *message.
 		fieldContext.podMap[int32(newPodId)].websocketConnectionMap[messageFromClient.SessionId] = websocketConnectionContext
 
 		fieldContext.uploadNewPodInfo(websocketConnectionContext, int32(newPodId))
+
+		
 	} else {
 		gkErr = gkerr.GenGkErr(fmt.Sprintf("invalid podId: %d", newPodId), nil, ERROR_ID_INVALID_POD_ID)
 		gklog.LogGkErr("", gkErr)

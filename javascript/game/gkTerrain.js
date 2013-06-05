@@ -130,12 +130,13 @@ console.log("tileList.length: " + jsonData.tileList.length);
 
 console.log("objectList.length: " + jsonData.oList.length);
 	for (i = 0;i < jsonData.oList.length; i++) {
-		var x, y, z, objectName, podId;
+		var x, y, z, objectName, podId, destination;
 		x = jsonData.oList[i].x;
 		y = jsonData.oList[i].y;
 		z = jsonData.oList[i].z;
 		if (jsonData.oList[i].podId != undefined) {
 			podId = jsonData.oList[i].podId;
+			destination = jsonData.oList[i].destination;
 		}
 		objectName = jsonData.oList[i].o;
 
@@ -292,18 +293,18 @@ function gkTerrainGetElevation2(x, y) {
 	return z;
 }
 
-function gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, originX, originY, originZ, podId) {
-	ref.onclick = function() { gkTerrainSvgObjectClick(objectName, isoXYZ.x, isoXYZ.y, isoXYZ.z, originX, originY, originZ, podId) };
+function gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, originX, originY, originZ, podId, destination) {
+	ref.onclick = function() { gkTerrainSvgObjectClick(objectName, isoXYZ.x, isoXYZ.y, isoXYZ.z, originX, originY, originZ, podId, destination) };
 }
 
-function gkTerrainSvgObjectClick(id, x, y, z, originX, originY, originZ, podId) {
+function gkTerrainSvgObjectClick(id, x, y, z, originX, originY, originZ, podId, destination) {
 	console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY);
 
 	if (podId != undefined) {
 console.log("podId: " + podId);
-		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\" }~");
-		var a = new GkIsoXYZDef(0, 0, 0);
-		gkFieldSetNewAvatarDestination(a)
+		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\" " + JSON.stringify(destination) + " }~");
+		
+///////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 }
 
