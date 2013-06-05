@@ -24,17 +24,17 @@ import (
 
 import (
 	"gk/game/message"
-	"gk/game/ses"
+//	"gk/game/ses"
 	"gk/gkerr"
 )
 
 func (fieldContext *FieldContextDef) handleDandelions() *gkerr.GkErrDef {
 	if fieldContext.rainContext.rainCurrentlyOn {
-		if rand.Int31n(5) == 1 {
+		if rand.Int31n(5) == 10 {
 			fieldContext.addDandelion()
 		}
 	} else {
-		if rand.Int31n(4) == 1 {
+		if rand.Int31n(4) == 10 {
 			fieldContext.removeDandelion()
 		}
 	}
@@ -52,11 +52,13 @@ func (fieldContext *FieldContextDef) addDandelion() {
 	//	svgJsonData.IsoXYZ.X = int16(rand.Int31n(50))
 	//	svgJsonData.IsoXYZ.Y = int16(rand.Int31n(50))
 
-	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
-		var singleSession *ses.SingleSessionDef
-		singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
+	var podId int32 = firstPodId // dandelions are only in the first pod
+
+	for _, websocketConnectionContext := range fieldContext.podMap[podId].websocketConnectionMap {
+//		var singleSession *ses.SingleSessionDef
+//		singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
 		var terrainJson *terrainJsonDef
-		terrainJson = fieldContext.podMap[singleSession.GetCurrentPodId()].terrainJson
+		terrainJson = fieldContext.podMap[podId].terrainJson
 
 		var index = rand.Int31n(int32(len(terrainJson.jsonMapData.TileList)))
 
@@ -74,7 +76,7 @@ func (fieldContext *FieldContextDef) addDandelion() {
 			fieldObject.id = svgJsonData.Id
 			fieldObject.fileName = fileName
 			fieldObject.isoXYZ = svgJsonData.IsoXYZ
-			fieldContext.addTerrainObject(fieldObject, singleSession.GetCurrentPodId())
+			fieldContext.addTerrainObject(fieldObject, podId)
 		}
 	}
 }
@@ -90,7 +92,7 @@ func (fieldContext *FieldContextDef) removeDandelion() {
 		for _, fieldObject := range podEntry.objectMap {
 			if fieldObject.fileName == fileName {
 				messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
-				for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+				for _, websocketConnectionContext := range podEntry.websocketConnectionMap {
 					fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 				}
 				fieldContext.delTerrainObject(podId, fieldObject)

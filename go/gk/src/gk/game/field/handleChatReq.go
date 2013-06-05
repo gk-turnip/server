@@ -72,7 +72,7 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 	messageToClient.Command = message.ChatReq
 	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"userName\": \"%s\", \"message\": \"%s\" }", chatMessage.userName, gkjson.JsonEscape(chatMessage.message)))
 
-	fieldContext.sendMessageToAll(messageToClient)
+	fieldContext.sendChatMessageToAll(messageToClient)
 
 	fieldContext.savedChatMutex.Lock()
 	defer fieldContext.savedChatMutex.Unlock()

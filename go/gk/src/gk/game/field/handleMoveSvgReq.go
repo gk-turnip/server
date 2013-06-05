@@ -84,18 +84,16 @@ func (fieldContext *FieldContextDef) moveAllAvatars(sessionId string, fieldObjec
 	messageToClient.Command = message.MoveSvgReq
 	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\", \"x\": %d, \"y\": %d, \"z\": %d }", fieldObject.id, fieldObject.isoXYZ.X, fieldObject.isoXYZ.Y, fieldObject.isoXYZ.Z))
 
-	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+	var singleSession *ses.SingleSessionDef
+	singleSession = fieldContext.sessionContext.GetSessionFromId(sessionId)
+	var podId int32 = singleSession.GetCurrentPodId()
+
+	for _, websocketConnectionContext := range fieldContext.podMap[podId].websocketConnectionMap {
 		gklog.LogTrace("compare session " + websocketConnectionContext.sessionId + " " + sessionId)
 
-		var singleSession *ses.SingleSessionDef
-		singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
-		var podId int32 = singleSession.GetCurrentPodId()
-
 		if websocketConnectionContext.sessionId != sessionId {
-			if podId == singleSession.GetCurrentPodId() {
-				gklog.LogTrace("Trace about to queue up move command")
-				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
-			}
+			gklog.LogTrace("Trace about to queue up move command")
+			fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 		}
 	}
 }

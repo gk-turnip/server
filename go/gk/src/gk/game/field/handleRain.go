@@ -48,7 +48,9 @@ func (fieldContext *FieldContextDef) sendEveryoneRainEvent() {
 	} else {
 		rainCommand = message.TurnOffRainReq
 	}
-	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+	var podId int32 = firstPodId // rain only in the first pod
+
+	for _, websocketConnectionContext := range fieldContext.podMap[podId].websocketConnectionMap {
 		var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 		messageToClient.Command = rainCommand
 		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)

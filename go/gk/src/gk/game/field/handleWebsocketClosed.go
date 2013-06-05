@@ -23,21 +23,21 @@ import (
 
 func (fieldContext *FieldContextDef) handleWebsocketClosed(websocketClosedMessage WebsocketClosedMessageDef) *gkerr.GkErrDef {
 
-	var websocketConnectionContext *websocketConnectionContextDef
-	var gkErr *gkerr.GkErrDef
+//	var gkErr *gkerr.GkErrDef
 	var ok bool
 
-	websocketConnectionContext, ok = fieldContext.websocketConnectionMap[websocketClosedMessage.SessionId]
-	if !ok {
-		gkErr = gkerr.GenGkErr("closing already closed session", nil, ERROR_ID_CLOSING_ALREADY_CLOSED_SESSION)
-		return gkErr
+	for _, podEntry := range fieldContext.podMap {
+		var websocketConnectionContext *websocketConnectionContextDef
+
+		websocketConnectionContext, ok = podEntry.websocketConnectionMap[websocketClosedMessage.SessionId]
+		if ok {
+			websocketConnectionContext.closeQueue()
+
+			delete(podEntry.websocketConnectionMap, websocketClosedMessage.SessionId)
+
+			fieldContext.removeAllAvatarBySessionId(websocketClosedMessage.SessionId)
+		}
 	}
-
-	websocketConnectionContext.closeQueue()
-
-	delete(fieldContext.websocketConnectionMap, websocketClosedMessage.SessionId)
-
-	fieldContext.removeAllAvatarBySessionId(websocketClosedMessage.SessionId)
 
 	return nil
 }

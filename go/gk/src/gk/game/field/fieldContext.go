@@ -38,8 +38,9 @@ import (
 	"gk/gklog"
 )
 
+const firstPodId = 1
+
 type FieldContextDef struct {
-	websocketConnectionMap map[string]*websocketConnectionContextDef
 	sessionContext         *ses.SessionContextDef
 	persistenceContext     *persistence.PersistenceContextDef
 	WebsocketOpenedChan    chan WebsocketOpenedMessageDef
@@ -59,6 +60,7 @@ type podEntryDef struct {
 	podId int32
 	title string
 	terrainJson      *terrainJsonDef
+	websocketConnectionMap map[string]*websocketConnectionContextDef
 	avatarMap        map[string]*fieldObjectDef
 	objectMap        map[string]*fieldObjectDef
 }
@@ -99,9 +101,6 @@ func NewFieldContext(avatarSvgDir string, terrainSvgDir string, sessionContext *
 	fieldContext.terrainSvgDir = terrainSvgDir
 	fieldContext.sessionContext = sessionContext
 	fieldContext.persistenceContext = persistenceContext
-//	fieldContext.globalAvatarMap = make(map[string]*fieldObjectDef)
-//	fieldContext.globalObjectMap = make(map[int32]map[string]*fieldObjectDef)
-	fieldContext.websocketConnectionMap = make(map[string]*websocketConnectionContextDef)
 	fieldContext.WebsocketOpenedChan = make(chan WebsocketOpenedMessageDef)
 	fieldContext.WebsocketClosedChan = make(chan WebsocketClosedMessageDef)
 	fieldContext.MessageFromClientChan = make(chan *message.MessageFromClientDef)
@@ -119,6 +118,7 @@ gklog.LogTrace(fmt.Sprintf("populate pod %+v",dbPod))
 		var podEntry *podEntryDef = new(podEntryDef)
 		podEntry.podId = dbPod.Id
 		podEntry.title = dbPod.Title
+		podEntry.websocketConnectionMap = make(map[string]*websocketConnectionContextDef)
 		podEntry.avatarMap = make(map[string]*fieldObjectDef)
 		podEntry.objectMap = make(map[string]*fieldObjectDef)
 
@@ -141,11 +141,15 @@ gklog.LogTrace(fmt.Sprintf("populate pod %+v",dbPod))
 }
 
 func (fieldContext *FieldContextDef) getWebsocketConnectionContextById(sessionId string) (*websocketConnectionContextDef, *gkerr.GkErrDef) {
-	var websocketConnectionContext *websocketConnectionContextDef
+	var websocketConnectionContext *websocketConnectionContextDef = nil
 	var gkErr *gkerr.GkErrDef
 	var ok bool
 
-	websocketConnectionContext, ok = fieldContext.websocketConnectionMap[sessionId]
+	var singleSession *ses.SingleSessionDef
+	singleSession = fieldContext.sessionContext.GetSessionFromId(sessionId)
+	var podId int32 = singleSession.GetCurrentPodId()
+
+	websocketConnectionContext, ok = fieldContext.podMap[podId].websocketConnectionMap[sessionId]
 	if !ok {
 		gkErr = gkerr.GenGkErr("getWebsocketConnectionContextById", nil, ERROR_ID_COULD_NOT_GET_WEBSOCKET_CONNECTION_CONTEXT)
 		return nil, gkErr
@@ -201,9 +205,11 @@ func (fieldContext *FieldContextDef) sendAllAvatarObjects(podId int32, websocket
 
 	for _, fieldObject := range fieldContext.podMap[podId].avatarMap {
 
-		gkErr = fieldContext.sendSingleAvatarObject(websocketConnectionContext, fieldObject)
-		if gkErr != nil {
-			return gkErr
+		if fieldObject.sourceSessionId != websocketConnectionContext.sessionId {
+			gkErr = fieldContext.sendSingleAvatarObject(websocketConnectionContext, fieldObject)
+			if gkErr != nil {
+				return gkErr
+			}
 		}
 	}
 
@@ -263,7 +269,7 @@ func (fieldContext *FieldContextDef) sendNewAvatarToAll(podId int32, sessionId s
 	fieldObject, ok = fieldContext.podMap[podId].avatarMap[id]
 
 	if ok {
-		for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+		for _, websocketConnectionContext := range fieldContext.podMap[podId].websocketConnectionMap {
 			if websocketConnectionContext.sessionId != sessionId {
 				gkErr = fieldContext.sendSingleAvatarObject(websocketConnectionContext, fieldObject)
 				if gkErr != nil {
@@ -291,16 +297,52 @@ func (fieldContext *FieldContextDef) removeAllAvatarBySessionId(sessionId string
 			messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
 			messageToClient.Data = make([]byte, 0, 0)
 
-			fieldContext.removeSendRemoveAvatarBySessionId(podId, messageToClient)
-//			for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
-//				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
-//			}
+			//fieldContext.removeSendRemoveAvatarBySessionId(podId, messageToClient)
+			for _, websocketConnectionContext := range fieldContext.podMap[podId].websocketConnectionMap {
+				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+			}
 			delete(fieldContext.podMap[podId].avatarMap, fieldObject.id)
 		}
 	}
 }
 
+func (fieldContext *FieldContextDef) moveAllAvatarBySessionId(sessionId string, oldPodId int32, newPodId int32) *gkerr.GkErrDef {
+	gklog.LogTrace("moving all object by session id")
+	var gkErr *gkerr.GkErrDef
+
+	for _, fieldObject := range fieldContext.podMap[oldPodId].avatarMap {
+		if fieldObject.sourceSessionId == sessionId {
+			var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
+
+			messageToClient.Command = message.DelSvgReq
+			messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
+			messageToClient.Data = make([]byte, 0, 0)
+
+			//fieldContext.removeSendRemoveAvatarBySessionId(podId, messageToClient)
+			for _, websocketConnectionContext := range fieldContext.podMap[oldPodId].websocketConnectionMap {
+				if (sessionId != websocketConnectionContext.sessionId) {
+					fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+				}
+			}
+
+			for _, websocketConnectionContext := range fieldContext.podMap[newPodId].websocketConnectionMap {
+				if (sessionId != websocketConnectionContext.sessionId) {
+					gkErr = fieldContext.sendSingleAvatarObject(websocketConnectionContext, fieldObject)
+					if gkErr != nil {
+						return gkErr
+					}
+				}
+			}
+
+			delete(fieldContext.podMap[oldPodId].avatarMap, fieldObject.id)
+			fieldContext.podMap[newPodId].avatarMap[fieldObject.id] = fieldObject
+		}
+	}
+	return nil
+}
+/*
 func (fieldContext *FieldContextDef) removeSendRemoveAvatarBySessionId(podIdFromDisconnect int32, messageToClient *message.MessageToClientDef) {
+
 	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
 		var singleSession *ses.SingleSessionDef
 		singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
@@ -311,20 +353,27 @@ func (fieldContext *FieldContextDef) removeSendRemoveAvatarBySessionId(podIdFrom
 		}
 	}
 }
+*/
 
 func (fieldContext *FieldContextDef) sendAllRemoveMessageForObject(sessionId string, fieldObject *fieldObjectDef) {
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 
+	var singleSession *ses.SingleSessionDef
+	singleSession = fieldContext.sessionContext.GetSessionFromId(sessionId)
+	var podId int32 = singleSession.GetCurrentPodId()
+
 	messageToClient.Command = message.DelSvgReq
 	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
-	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
+	for _, websocketConnectionContext := range fieldContext.podMap[podId].websocketConnectionMap {
 		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 	}
 }
 
-func (fieldContext *FieldContextDef) sendMessageToAll(messageToClient *message.MessageToClientDef) {
-	for _, websocketConnectionContext := range fieldContext.websocketConnectionMap {
-		fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+func (fieldContext *FieldContextDef) sendChatMessageToAll(messageToClient *message.MessageToClientDef) {
+	for _, podEntry := range fieldContext.podMap {
+		for _, websocketConnectionContext := range podEntry.websocketConnectionMap {
+			fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+		}
 	}
 }
 

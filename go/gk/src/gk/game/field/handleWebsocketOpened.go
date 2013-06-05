@@ -24,11 +24,16 @@ import (
 
 func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessage WebsocketOpenedMessageDef) *gkerr.GkErrDef {
 
+	var singleSession *ses.SingleSessionDef
+
+	singleSession = fieldContext.sessionContext.GetSessionFromId(websocketOpenedMessage.SessionId)
+	var podId int32 = singleSession.GetCurrentPodId();
+
 	var websocketConnectionContext *websocketConnectionContextDef
 	var gkErr *gkerr.GkErrDef
 	var ok bool
 
-	websocketConnectionContext, ok = fieldContext.websocketConnectionMap[websocketOpenedMessage.SessionId]
+	websocketConnectionContext, ok = fieldContext.podMap[podId].websocketConnectionMap[websocketOpenedMessage.SessionId]
 	if ok {
 		gkErr = gkerr.GenGkErr("opening already opened session", nil, ERROR_ID_OPENING_ALREADY_OPEN_SESSION)
 		return gkErr
@@ -40,10 +45,8 @@ func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessag
 	websocketConnectionContext.messageToClientChan = websocketOpenedMessage.MessageToClientChan
 	websocketConnectionContext.initQueue()
 
-	fieldContext.websocketConnectionMap[websocketOpenedMessage.SessionId] = websocketConnectionContext
+	fieldContext.podMap[podId].websocketConnectionMap[websocketOpenedMessage.SessionId] = websocketConnectionContext
 
-	var singleSession *ses.SingleSessionDef
-	singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
 	var userName string = singleSession.GetUserName()
 
 	gkErr = fieldContext.sendUserName(websocketConnectionContext, userName)
