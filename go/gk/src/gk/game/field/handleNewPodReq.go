@@ -80,7 +80,7 @@ func (fieldContext *FieldContextDef) handleNewPodReq(messageFromClient *message.
 		var fieldObjectIso iso.IsoXYZDef
 
 		for objKey, fieldObject := range fieldContext.podMap[newPodId].avatarMap {
-			if fieldObject.sourceSessionId != websocketConnectionContext.sessionId {
+			if fieldObject.sourceSessionId == websocketConnectionContext.sessionId {
 				fieldObjectIso = newPodReq.destination
 			}
 		}
