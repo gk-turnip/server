@@ -58,16 +58,21 @@ function gkFieldObjectDef(id, g) {
 
 // the attributes for a single reference on the field <use> tag
 function gkFieldRefObjectDef(id, userName, isoXYZCurrent, isoXYZDestination, originX, originY, originZ) {
-	this.id = id
-	this.userName = userName
-	this.isoXYZCurrent = isoXYZCurrent
-	this.isoXYZDestination = isoXYZDestination
-	this.originX = originX
-	this.originY = originY
-	this.originZ = originZ
+	this.id = id;
+	this.userName = userName;
+	this.isoXYZCurrent = isoXYZCurrent;
+	this.isoXYZDestination = isoXYZDestination;
+	this.originX = originX;
+	this.originY = originY;
+	this.originZ = originZ;
+	this.pushIsoXYZDestination = null;
 
 	gkFieldRefObjectDef.prototype.setDestination = function (isoXYZ) {
-		this.isoXYZDestination = isoXYZ
+		this.isoXYZDestination = isoXYZ;
+	}
+
+	gkFieldRefObjectDef.prototype.setPushDestination = function (isoXYZ) {
+		this.pushIsoXYZDestination = isoXYZ;
 	}
 }
 // add an svg image into the field
@@ -194,6 +199,23 @@ function gkFieldRemoveExistingAvatar() {
 	}
 }
 
+function gkFieldRemoveOtherAvatars() {
+	for (var prop in gkFieldContext.refObjectMap) {
+		var refObject;
+		refObject = gkFieldContext.refObjectMap[prop];
+
+		if (gkFieldContext.avatarId != refObject.id) {
+			var ref = document.getElementById("ref_" + refObject.id);
+			if (ref == undefined) {
+				console.error("ERROR undefined g trying to remove avatar");
+			} else {
+				ref.parentNode.removeChild(ref);
+				delete gkFieldContext.refObjectMap[refObject.id];
+			}
+		}
+	}
+}
+
 // add a new avatar to the field for the current user
 function gkFieldAddAvatar(jsonData, data) {
 	gkFieldContext.avatarId = jsonData.id
@@ -211,6 +233,19 @@ function gkFieldSetNewAvatarDestination(isoXYZ) {
 	if (refObject != undefined) {
 		refObject.setDestination(isoXYZ)
 		gkWsSendMessage("moveAvatarSvgReq~{ \"id\":\"" + refObject.id + "\", \"x\":\"" + isoXYZ.x + "\", \"y\": \"" + isoXYZ.y + "\", \"z\": \"" + isoXYZ.z + "\" }~");
+console.log("setting new destination: " + isoXYZ.x + "," + isoXYZ.y);
+	}
+}
+
+// push the current users avatar to a new position, delayed for new pod
+function gkFieldPushNewAvatarDestination(isoXYZ) {
+	var refObject
+	if (gkFieldContext.avatarId != undefined) {
+		refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId]
+	}
+	if (refObject != undefined) {
+		refObject.setPushDestination(isoXYZ)
+console.log("pushing new destination: " + isoXYZ.x + "," + isoXYZ.y);
 	}
 }
 
@@ -226,6 +261,21 @@ function gkFieldMoveObjects() {
 		var refObject;
 		refObject = gkFieldContext.refObjectMap[prop];
 		if (refObject.id != undefined) {
+			if (refObject.pushIsoXYZDestination != null) {
+console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," + refObject.pushIsoXYZDestination.y);
+				curIsoXYZ = refObject.pushIsoXYZDestination;
+				refObject.isoXYZCurrent.x = refObject.pushIsoXYZDestination.x;
+				refObject.isoXYZCurrent.y = refObject.pushIsoXYZDestination.y;
+				refObject.isoXYZCurrent.z = refObject.pushIsoXYZDestination.z;
+				destIsoXYZ = refObject.pushIsoXYZDestination;
+				refObject.isoXYZDestination.x = refObject.pushIsoXYZDestination.x;
+				refObject.isoXYZDestination.y = refObject.pushIsoXYZDestination.y;
+				refObject.isoXYZDestination.z = refObject.pushIsoXYZDestination.z;
+				var ref = document.getElementById("ref_" + refObject.id);
+				gkIsoSetSvgObjectPositionWithOffset(ref, refObject.isoXYZCurrent, refObject.originX, refObject.originY, refObject.originZ);
+				gkViewContext.viewOffsetIsoXYZ.x = refObject.isoXYZDestination.x - 40;
+				refObject.pushIsoXYZDestination = null;
+			}
 			// now test to see if it needs to be moved
 			var curIsoXYZ = refObject.isoXYZCurrent
 			var destIsoXYZ = refObject.isoXYZDestination

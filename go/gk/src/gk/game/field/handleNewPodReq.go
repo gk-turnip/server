@@ -28,12 +28,10 @@ import (
 	"gk/game/ses"
 	"gk/gkerr"
 	"gk/gklog"
-	"gk/game/iso"
 )
 
 type newPodReqDef struct {
 	PodId string
-	destination iso.IsoXYZDef
 }
 
 // websocketConnectionContext entry must be moved from old pod to new pod
@@ -76,13 +74,6 @@ func (fieldContext *FieldContextDef) handleNewPodReq(messageFromClient *message.
 		singleSession.SetCurrentPodId(int32(newPodId))
 
 		fieldContext.podMap[int32(newPodId)].websocketConnectionMap[messageFromClient.SessionId] = websocketConnectionContext
-
-		for objKey, fieldObject := range fieldContext.podMap[newPodId].avatarMap {
-			if fieldObject.sourceSessionId == websocketConnectionContext.sessionId {
-				fieldContext.podMap[newPodId].avatarMap[objKey].isoXYZ = newPodReq.destination
-				break
-			}
-		}
 
 		fieldContext.uploadNewPodInfo(websocketConnectionContext, int32(newPodId))
 	} else {

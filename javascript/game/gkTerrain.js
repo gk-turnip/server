@@ -96,11 +96,14 @@ function gkTerrainSetTerrainMap(jsonData) {
 	var i;
 
 	// clear out old terrain map
+	gkFieldRemoveOtherAvatars();
 	gkTerrainClearMoveMarker();
 	gkTerrainClearTerrainBaseLayer();
 	gkTerrainClearTerrainDandelionLayer();
 	gkTerrainClearTerrainObjectLayer();
 	this.terrainMapMap = new Object();
+	this.terrainWallMap = new Object();
+	this.terrainElevationMap = new Object();
 
 	var baseLayer = document.getElementById("gkTerrainBaseLayer");
 
@@ -155,7 +158,7 @@ console.log("objectList.length: " + jsonData.oList.length);
 			ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#t_" + objectName);
 			gkIsoSetSvgUsePositionWithOffset(ref, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
 
-			gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ, podId);
+			gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ, podId, destination);
 
 			objectLayer.appendChild(ref);
 		}
@@ -298,11 +301,19 @@ function gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, originX, originY,
 }
 
 function gkTerrainSvgObjectClick(id, x, y, z, originX, originY, originZ, podId, destination) {
-	console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY);
+	console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY + " dest: " + destination.x + "," + destination.y);
 
 	if (podId != undefined) {
-		console.log("podId: " + podId);
-		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\", \"destination\":" + JSON.stringify(destination) + " }~");
+console.log("podId: " + podId);
+		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\" }~");
+
+		var x = destination.x;
+		var y = destination.y;
+		
+		x = x + (((Math.floor(Math.random() * 2) * 2) - 1) * ((Math.floor(Math.random() * 20) + 1)));
+		y = y + (((Math.floor(Math.random() * 2) * 2) - 1) * ((Math.floor(Math.random() * 20) + 1)));
+		var dest = new GkIsoXYZDef(x, y, destination.z);
+		gkFieldPushNewAvatarDestination(dest);
 	}
 }
 
