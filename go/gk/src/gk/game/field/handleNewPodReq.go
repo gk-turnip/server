@@ -77,15 +77,12 @@ func (fieldContext *FieldContextDef) handleNewPodReq(messageFromClient *message.
 
 		fieldContext.podMap[int32(newPodId)].websocketConnectionMap[messageFromClient.SessionId] = websocketConnectionContext
 
-		var fieldObjectIso iso.IsoXYZDef
-
 		for objKey, fieldObject := range fieldContext.podMap[newPodId].avatarMap {
 			if fieldObject.sourceSessionId == websocketConnectionContext.sessionId {
-				fieldObjectIso = newPodReq.destination
+				fieldContext.podMap[newPodId].avatarMap[objKey].isoXYZ = newPodReq.destination
+				break
 			}
 		}
-
-		fieldContext.podMap[newPodId].avatarMap[objKey].isoXYZ = fieldObjectIso
 
 		fieldContext.uploadNewPodInfo(websocketConnectionContext, int32(newPodId))
 	} else {
