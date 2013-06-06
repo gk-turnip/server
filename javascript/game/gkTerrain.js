@@ -301,10 +301,8 @@ function gkTerrainSvgObjectClick(id, x, y, z, originX, originY, originZ, podId, 
 	console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY);
 
 	if (podId != undefined) {
-console.log("podId: " + podId);
-		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\" " + JSON.stringify(destination) + " }~");
-		
-///////////////////////////////////////////////////////////////////////////////////////////////////
+		console.log("podId: " + podId);
+		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\", \"destination\":" + JSON.stringify(destination) + " }~");
 	}
 }
 
