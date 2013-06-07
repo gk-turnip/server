@@ -148,7 +148,11 @@ console.log("objectList.length: " + jsonData.oList.length);
 //		var mapKey = gkTerrainGetMapKey(x, y);
 //		gkTerrainContext.terrainMapMap[mapKey] = objectMapMapEntry;
 
-		var objectLayer = document.getElementById("gkTerrainObjectLayer");
+		if (jsonData.oList[i].yesFront != undefined) {
+			var objectLayer = document.getElementById("gkTerrainInteractiveLayer");
+		} else {
+			var objectLayer = document.getElementById("gkTerrainObjectLayer");
+		}
 
 		var isoXYZ = new GkIsoXYZDef(x,y,z);
 		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(objectName);
