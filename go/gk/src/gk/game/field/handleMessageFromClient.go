@@ -42,6 +42,11 @@ func (fieldContext *FieldContextDef) handleMessageFromClient(messageFromClient *
 		if gkErr != nil {
 			return gkErr
 		}
+	case message.SetAvatarSvgReq:
+		gkErr = fieldContext.handleSetAvatarSvgReq(messageFromClient)
+		if gkErr != nil {
+			return gkErr
+		}
 	case message.PingReq:
 		gkErr = fieldContext.handlePingReq(messageFromClient)
 		if gkErr != nil {

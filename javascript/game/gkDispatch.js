@@ -38,6 +38,9 @@ function gkDispatchWsMessage(command, jsonData, data) {
 	case "moveSvgReq":
 		gkFieldMoveSvg(jsonData);
 		break;
+	case "setSvgReq":
+		gkFieldSetSvg(jsonData);
+		break;
 	case "setTerrainSvgReq":
 		console.log("setTerrainSvgReq");
 		gkTerrainSetTerrainSvg(jsonData, data);

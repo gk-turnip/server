@@ -140,7 +140,7 @@ function gkFieldDelSvg(jsonData) {
 	}
 }
 
-// move the svg object in the field
+// move the svg object in the field, animated move
 function gkFieldMoveSvg(jsonData) {
 //console.log("gkFieldMoveSvg id: " + jsonData.id);
 	var refObject = gkFieldContext.refObjectMap[jsonData.id];
@@ -148,6 +148,24 @@ function gkFieldMoveSvg(jsonData) {
 		refObject.isoXYZDestination.x = parseInt(jsonData.x)
 		refObject.isoXYZDestination.y = parseInt(jsonData.y)
 		refObject.isoXYZDestination.z = parseInt(jsonData.z)
+	}
+}
+
+// set the svg object position in the field directly
+function gkFieldSetSvg(jsonData) {
+console.log("gkFieldSetSvg id: " + jsonData.id);
+	var refObject = gkFieldContext.refObjectMap[jsonData.id];
+	if (refObject != undefined) {
+		refObject.isoXYZDestination.x = parseInt(jsonData.x)
+		refObject.isoXYZDestination.y = parseInt(jsonData.y)
+		refObject.isoXYZDestination.z = parseInt(jsonData.z)
+		refObject.isoXYZCurrent.x = parseInt(jsonData.x)
+		refObject.isoXYZCurrent.y = parseInt(jsonData.y)
+		refObject.isoXYZCurrent.z = parseInt(jsonData.z)
+
+		var ref = document.getElementById("ref_" + refObject.id);
+
+		gkIsoSetSvgObjectPositionWithOffset(ref, refObject.isoXYZCurrent, refObject.originX, refObject.originY, refObject.originZ);
 	}
 }
 
@@ -224,6 +242,20 @@ function gkFieldAddAvatar(jsonData, data) {
 	gkFieldUpdatePositionDisplay(refObject.isoXYZCurrent);
 }
 
+function gkFieldHandleFieldClick(winX, winY) {
+	console.log("doClick " + winX + "," + winY);
+
+	var isoXYZ = gkViewConvertWinToIso(winX, gkViewContext.marginX, winY, gkViewContext.marginY, 0);
+	var g = gkIsoCreateSingleDiamond(isoXYZ, "#00ff00", 0.5);
+
+	gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
+
+	gkAudioStartAudio(2, "boing", false);
+
+	gkTerrainClearMoveMarker();
+	gkTerrainSetMoveMarker(g);
+}
+
 // set the current users avatar to a new position
 function gkFieldSetNewAvatarDestination(isoXYZ) {
 	var refObject
@@ -274,6 +306,9 @@ console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," +
 				var ref = document.getElementById("ref_" + refObject.id);
 				gkIsoSetSvgObjectPositionWithOffset(ref, refObject.isoXYZCurrent, refObject.originX, refObject.originY, refObject.originZ);
 				gkViewContext.viewOffsetIsoXYZ.x = refObject.isoXYZDestination.x - 40;
+
+				gkWsSendMessage("setAvatarSvgReq~{ \"id\":\"" + refObject.id + "\", \"x\":\"" + refObject.isoXYZCurrent.x + "\", \"y\": \"" + refObject.isoXYZCurrent.y + "\", \"z\": \"" + refObject.isoXYZCurrent.z + "\" }~");
+
 				refObject.pushIsoXYZDestination = null;
 			}
 			// now test to see if it needs to be moved

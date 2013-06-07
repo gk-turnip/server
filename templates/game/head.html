@@ -81,35 +81,22 @@
 		}
 
 		function doClick(e) {
-			console.log("doClick");
-			var x, y
-
-			x = e.pageX;
-			y = e.pageY;
-
-//			x = e.pageX - GK_SVG_MARGIN_X;
-//			y = e.pageY - GK_SVG_MARGIN_Y;
+			gkFieldHandleFieldClick(e.pageX, e.pageY);
+//			console.log("doClick");
+//			var x, y
 //
-//			var winXY;
+//			x = e.pageX;
+//			y = e.pageY;
 //
-//			winXY = new GkWinXYDef(x,y);
-//			//gkAvatarSetNewDestination(winXY.convertToIso(0));
-
-			var isoXYZ = gkViewConvertWinToIso(x,gkViewContext.marginX,y,gkViewContext.marginY, 0);
-			var g = gkIsoCreateSingleDiamond(isoXYZ, "#00ff00", 0.5);
-//			var objectLayer = document.getElementById("gkTerrainObjectLayer");
-//			objectLayer.appendChild(g);
-
-			gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
-
-			gkAudioStartAudio(2, "boing", false);
-
-			gkTerrainClearMoveMarker();
-			gkTerrainSetMoveMarker(g);
-//			if (moveMarker) {
-//				objectLayer.removeChild(moveMarker);
-//			}
-//			moveMarker = g;
+//			var isoXYZ = gkViewConvertWinToIso(x,gkViewContext.marginX,y,gkViewContext.marginY, 0);
+//			var g = gkIsoCreateSingleDiamond(isoXYZ, "#00ff00", 0.5);
+//
+//			gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
+//
+//			gkAudioStartAudio(2, "boing", false);
+//
+//			gkTerrainClearMoveMarker();
+//			gkTerrainSetMoveMarker(g);
 		}
 
 //		function svgObjectClick(id, x, y, z, originX, originY) {

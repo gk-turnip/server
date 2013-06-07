@@ -21,10 +21,12 @@ const GetAvatarSvgReq = "getAvatarSvgReq"
 const GetAvatarSvgRes = "getAvatarSvgRes"
 const DelAvatarSvgReq = "delAvatarSvgReq"
 const MoveAvatarSvgReq = "moveAvatarSvgReq"
+const SetAvatarSvgReq = "setAvatarSvgReq"
 
 const AddSvgReq = "addSvgReq"
 const DelSvgReq = "delSvgReq"
 const MoveSvgReq = "moveSvgReq"
+const SetSvgReq = "setSvgReq"
 
 const SendPastChatReq = "sendPastChatReq"
 

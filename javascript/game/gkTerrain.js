@@ -95,16 +95,6 @@ function gkTerrainSetTerrainMap(jsonData) {
 //console.log("gkTerrainSetTerrainMap");
 	var i;
 
-	// clear out old terrain map
-	gkFieldRemoveOtherAvatars();
-	gkTerrainClearMoveMarker();
-	gkTerrainClearTerrainBaseLayer();
-	gkTerrainClearTerrainDandelionLayer();
-	gkTerrainClearTerrainObjectLayer();
-	this.terrainMapMap = new Object();
-	this.terrainWallMap = new Object();
-	this.terrainElevationMap = new Object();
-
 	var baseLayer = document.getElementById("gkTerrainBaseLayer");
 
 console.log("tileList.length: " + jsonData.tileList.length);
@@ -301,7 +291,7 @@ function gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, originX, originY,
 }
 
 function gkTerrainSvgObjectClick(id, x, y, z, originX, originY, originZ, podId, destination) {
-	console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY + " dest: " + destination.x + "," + destination.y);
+	console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY);
 
 	if (podId != undefined) {
 console.log("podId: " + podId);
@@ -323,6 +313,16 @@ function gkTerrainSetTerrainSvg(jsonData, rawSvgData) {
 //console.log("gkTerrainSetTerrainSvg");
 	if (jsonData.terrain != undefined) {
 		var terrainName, originX, originY, originZ, layer;
+
+		// clear out old terrain map
+		gkFieldRemoveOtherAvatars();
+		gkTerrainClearMoveMarker();
+		gkTerrainClearTerrainBaseLayer();
+		gkTerrainClearTerrainDandelionLayer();
+		gkTerrainClearTerrainObjectLayer();
+		this.terrainMapMap = new Object();
+		this.terrainWallMap = new Object();
+		this.terrainElevationMap = new Object();
 
 //console.log("gkTerrainSetTerrainSvg name: " + jsonData.terrain);
 		terrainName = jsonData.terrain;
