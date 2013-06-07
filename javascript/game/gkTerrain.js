@@ -133,7 +133,7 @@ console.log("tileList.length: " + jsonData.tileList.length);
 
 console.log("objectList.length: " + jsonData.oList.length);
 	for (i = 0;i < jsonData.oList.length; i++) {
-		var x, y, z, objectName, podId, destination;
+		var x, y, z, objectName, podId, destination, yesFront;
 		x = jsonData.oList[i].x;
 		y = jsonData.oList[i].y;
 		z = jsonData.oList[i].z;
@@ -148,7 +148,11 @@ console.log("objectList.length: " + jsonData.oList.length);
 //		var mapKey = gkTerrainGetMapKey(x, y);
 //		gkTerrainContext.terrainMapMap[mapKey] = objectMapMapEntry;
 
-		var objectLayer = document.getElementById("gkTerrainObjectLayer");
+		if (yesFront != undefined) {
+			var objectLayer = document.getElementById("gkTerrainInteractiveLayer");
+		} else {
+			var objectLayer = document.getElementById("gkTerrainObjectLayer");
+		}
 
 		var isoXYZ = new GkIsoXYZDef(x,y,z);
 		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(objectName);
