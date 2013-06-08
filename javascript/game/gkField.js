@@ -36,6 +36,7 @@ function gkFieldContextDef() {
 	this.inFocus = true;
 	this.frameRate = 0;
 	this.maxElevationMove = 11;
+	this.oldAvatarDestination = undefined;
 }
 
 function gkFieldInit() {
@@ -191,17 +192,18 @@ function gkFieldEnumObjects(scanIsoXYZ, acceptedOffset) {
 
 // request a new avatar svg and jsonData from the server
 function gkFieldLoadNewAvatar(avatarName) {
-	gkFieldRemoveExistingAvatar()
+	gkFieldContext.oldAvatarDestination = gkFieldRemoveExistingAvatar();
 	gkWsSendMessage("delAvatarSvgReq~~");
 	if (avatarName != "") {
 		gkWsSendMessage("getAvatarSvgReq~{\"SvgName\":\"" + avatarName + "\"}~");
 	}
 }
 
-// if there is an avarar already, remove it
+// if there is an avarar already, remove it and return position
 function gkFieldRemoveExistingAvatar() {
 	if (gkFieldContext.avatarId != undefined) {
 		var refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId];
+		var refPos = refObject.isoXYZCurrent;
 		if (refObject == undefined) {
 			console.error("ERROR undefined fieldObject trying to remove avatar");
 		} else {
@@ -214,6 +216,7 @@ function gkFieldRemoveExistingAvatar() {
 				delete gkFieldContext.avatarId;
 			}
 		}
+		return refPos;
 	}
 }
 
@@ -239,6 +242,9 @@ function gkFieldAddAvatar(jsonData, data) {
 	gkFieldContext.avatarId = jsonData.id
 	gkFieldAddSvg(jsonData, data);
 	var refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId]
+	if (gkFieldContext.oldAvatarDestination != undefined) {
+		gkFieldSetNewAvatarDestination(gkFieldContext.oldAvatarDestination);
+		gkFieldContext.oldAvatarDestination = undefined;
 	gkFieldUpdatePositionDisplay(refObject.isoXYZCurrent);
 }
 
