@@ -35,7 +35,7 @@ type terrainJsonDef struct {
 			Terrain string
 			X       int
 			Y       int
-			Z       int
+			Z       []int
 		}
 
 		ObjectList []struct {

@@ -66,7 +66,8 @@ func (fieldContext *FieldContextDef) addDandelion() {
 
 			svgJsonData.IsoXYZ.X = int16(terrainJson.jsonMapData.TileList[index].X)
 			svgJsonData.IsoXYZ.Y = int16(terrainJson.jsonMapData.TileList[index].Y)
-			svgJsonData.IsoXYZ.Z = int16(terrainJson.jsonMapData.TileList[index].Z)
+			//svgJsonData.IsoXYZ.Z = int16(terrainJson.jsonMapData.TileList[index].Z)
+			svgJsonData.IsoXYZ.Z = 0
 
 			messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.AddSvgReq, fileName, svgJsonData)
 

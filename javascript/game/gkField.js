@@ -333,6 +333,18 @@ console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," +
 					newCurrentY -= 1;
 				}
 
+				var testMove = gkTerrainTestMoveElevation(newCurrentX, newCurrentY, refObject.isoXYZCurrent.z, gkFieldContext.maxElevationMove)
+
+				if (testMove.canMove) {
+					refObject.isoXYZCurrent.x = newCurrentX;
+					refObject.isoXYZCurrent.y = newCurrentY;
+					refObject.isoXYZCurrent.z = testMove.z;
+				} else {
+					refObject.isoXYZDestination.x = refObject.isoXYZCurrent.x;
+					refObject.isoXYZDestination.y = refObject.isoXYZCurrent.y;
+					refObject.isoXYZDestination.z = refObject.isoXYZCurrent.z;
+				}
+/*
 				var z = gkFieldGetElevation2(newCurrentX, newCurrentY);
 				if (Math.abs(z - refObject.isoXYZCurrent.z) <= gkFieldContext.maxElevationMove) {
 					refObject.isoXYZCurrent.x = newCurrentX;
@@ -350,6 +362,7 @@ console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," +
 						refObject.isoXYZDestination.z = refObject.isoXYZCurrent.z;
 					}
 				}
+*/
 
 				var ref = document.getElementById("ref_" + refObject.id);
 
@@ -471,6 +484,7 @@ console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," +
 	gkFieldContext.lastIntervalTime = endTime;
 }
 
+/*
 function gkFieldGetElevation1(x, y) {
 	return gkTerrainGetElevation1(x,y);
 }
@@ -478,6 +492,7 @@ function gkFieldGetElevation1(x, y) {
 function gkFieldGetElevation2(x, y) {
 	return gkTerrainGetElevation2(x,y);
 }
+*/
 
 // delete all objects from the field
 // called if we lose communications from the server
