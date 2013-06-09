@@ -18,7 +18,7 @@
 var gkChatContext = new gkChatContextDef();
 
 function gkChatContextDef() {
-	this.chatLines = 24;
+	this.chatLines = 50;
 }
 
 function gkChatInit() {

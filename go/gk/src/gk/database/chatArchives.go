@@ -33,24 +33,70 @@ type DbChatArchiveDef struct {
 	chatMessage         string
 }
 
+func (gkDbCon *GkDbConDef) getMaxChatId() (int32, *gkerr.GkErrDef) {
+	var stmt *sql.Stmt
+	var maxId int32 = 0
+	var err error
+
+	stmt, err = gkDbCon.sqlDb.Prepare("select max(id) from chat_archives")
+	if err != nil {
+		return 0, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
+	}
+
+	defer stmt.Close()
+
+	var rows *sql.Rows
+
+	rows, err = stmt.Query()
+	if err != nil {
+		return 0, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
+	}
+
+	defer rows.Close()
+
+	if rows.Next() {
+		err = rows.Scan(&maxId)
+		if err != nil {
+			return 0, gkerr.GenGkErr("rows.Scan"+getDatabaseErrorMessage(err), err, ERROR_ID_ROWS_SCAN)
+		}
+	}
+
+	return maxId, nil
+}
+
 // return error if row not found
 // this could be improved by saving recent "id" values
 func (gkDbCon *GkDbConDef) GetLastChatArchiveEntries(count int) ([]LugChatArchiveDef, *gkerr.GkErrDef) {
 	var stmt *sql.Stmt
 	var err error
 	var results []LugChatArchiveDef = make([]LugChatArchiveDef, 0, count)
+	var gkErr *gkerr.GkErrDef
 
-	stmt, err = gkDbCon.sqlDb.Prepare("select chat_archives.message_creation_date, chat_archives.chat_message, users.user_name from users, chat_archives where users.id = chat_archives.user_id order by chat_archives.message_creation_date desc")
+	var maxId int32
+	var startId int32 = 0
+	maxId, gkErr = gkDbCon.getMaxChatId()
+	if gkErr != nil {
+		return nil, gkErr
+	}
+
+	stmt, err = gkDbCon.sqlDb.Prepare("select chat_archives.message_creation_date, chat_archives.chat_message, users.user_name from users, chat_archives where users.id = chat_archives.user_id and chat_archives.id > $1 order by chat_archives.message_creation_date desc")
 	if err != nil {
 		return nil, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
+	defer stmt.Close()
+
 	var rows *sql.Rows
 
-	rows, err = stmt.Query()
+	if maxId > 0 {
+		startId = maxId - (int32(count) + 20)
+	}
+	rows, err = stmt.Query(startId)
 	if err != nil {
 		return nil, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		var lugChatArchive LugChatArchiveDef
@@ -60,6 +106,10 @@ func (gkDbCon *GkDbConDef) GetLastChatArchiveEntries(count int) ([]LugChatArchiv
 			return nil, gkerr.GenGkErr("rows.Scan"+getDatabaseErrorMessage(err), err, ERROR_ID_ROWS_SCAN)
 		}
 		results = append(results,lugChatArchive)
+
+		if len(results) >= count {
+			break
+		}
 	}
 
 	return results, nil
@@ -82,6 +132,8 @@ func (gkDbCon *GkDbConDef) AddNewChatMessage(userName string, chatMessage string
 	if err != nil {
 		return gkerr.GenGkErr("stmt.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
+
+	defer stmt.Close()
 
 	var dbUser *DbUserDef
 	dbUser, gkErr = gkDbCon.GetUser(userName)
@@ -111,12 +163,16 @@ func (gkDbCon *GkDbConDef) getNextChatArchivesId() (int32, *gkerr.GkErrDef) {
 		return 0, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
+	defer stmt.Close()
+
 	var rows *sql.Rows
 
 	rows, err = stmt.Query()
 	if err != nil {
 		return 0, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
 	}
+
+	defer rows.Close()
 
 	var id int32
 

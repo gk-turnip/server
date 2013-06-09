@@ -55,12 +55,16 @@ func (gkDbCon *GkDbConDef) GetUser(userName string) (*DbUserDef, *gkerr.GkErrDef
 		return nil, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
+	defer stmt.Close()
+
 	var rows *sql.Rows
 
 	rows, err = stmt.Query(userName)
 	if err != nil {
 		return nil, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
 	}
+
+	defer rows.Close()
 
 	if rows.Next() {
 		err = rows.Scan(&dbUser.id, &dbUser.UserName, &dbUser.PasswordHash, &dbUser.PasswordSalt, &dbUser.Email, &dbUser.accountCreationDate, &dbUser.lastLoginDate)
@@ -86,12 +90,16 @@ func (gkDbCon *GkDbConDef) GetContextUser(userName string) (*DbContextUserDef, b
 		return nil, false, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
+	defer stmt.Close()
+
 	var rows *sql.Rows
 
 	rows, err = stmt.Query(userName)
 	if err != nil {
 		return nil, false, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
 	}
+
+	defer rows.Close()
 
 	if rows.Next() {
 		err = rows.Scan(&dbContextUser.id, &dbContextUser.LastPositionX, &dbContextUser.LastPositionY, &dbContextUser.LastPositionZ, &dbContextUser.LastPod)
@@ -124,6 +132,8 @@ func (gkDbCon *GkDbConDef) AddNewUser(userName string, passwordHash string, pass
 		return gkerr.GenGkErr("stmt.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
+	defer stmt.Close()
+
 	var accountCreationDate time.Time = time.Now()
 	var lastLoginDate time.Time = time.Now()
 
@@ -150,6 +160,8 @@ func (gkDbCon *GkDbConDef) UpdateUserLoginDate(userName string) *gkerr.GkErrDef 
 		return gkerr.GenGkErr("stmt.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
+	defer stmt.Close()
+
 	var lastLoginDate time.Time = time.Now()
 
 	_, err = stmt.Exec(lastLoginDate, userName)
@@ -172,6 +184,8 @@ func (gkDbCon *GkDbConDef) ChangePassword(userName string, passwordHash string, 
 		return gkerr.GenGkErr("stmt.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
+	defer stmt.Close()
+
 	_, err = stmt.Exec(passwordHash, passwordSalt, userName)
 	if err != nil {
 		return gkerr.GenGkErr("stmt.Exec"+getDatabaseErrorMessage(err), err, ERROR_ID_EXECUTE)
@@ -189,12 +203,16 @@ func (gkDbCon *GkDbConDef) getNextUsersId() (int64, *gkerr.GkErrDef) {
 		return 0, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
+	defer stmt.Close()
+
 	var rows *sql.Rows
 
 	rows, err = stmt.Query()
 	if err != nil {
 		return 0, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
 	}
+
+	defer rows.Close()
 
 	var userId int64
 

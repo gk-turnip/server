@@ -8,7 +8,13 @@ import (
 type readBuf []byte
 
 func (b *readBuf) int32() (n int) {
-	n = int(binary.BigEndian.Uint32(*b))
+	n = int(int32(binary.BigEndian.Uint32(*b)))
+	*b = (*b)[4:]
+	return
+}
+
+func (b *readBuf) oid() (n oid) {
+	n = oid(binary.BigEndian.Uint32(*b))
 	*b = (*b)[4:]
 	return
 }

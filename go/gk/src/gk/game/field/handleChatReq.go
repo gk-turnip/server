@@ -37,7 +37,7 @@ type chatReqDef struct {
 	Message  string
 }
 
-const maxSavedChatLines = 24
+const maxSavedChatLines = 50
 
 type chatMessageDef struct {
 	time     time.Time
@@ -104,6 +104,8 @@ func (fieldContext *FieldContextDef) getPastChatJsonData() ([]byte, *gkerr.GkErr
 	if gkErr != nil {
 		return nil, gkErr
 	}
+
+	gklog.LogTrace(fmt.Sprintf("len lugChatArchiveList: %d",len(lugChatArchiveList)))
 
 	for i := 0;i < len(lugChatArchiveList);i++ {
 		var line string

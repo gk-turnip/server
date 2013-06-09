@@ -40,12 +40,16 @@ func (gkDbCon *GkDbConDef) GetPodsList() ([]DbPodDef, *gkerr.GkErrDef) {
 		return nil, gkerr.GenGkErr("sql.Prepare"+getDatabaseErrorMessage(err), err, ERROR_ID_PREPARE)
 	}
 
+	defer stmt.Close()
+
 	var rows *sql.Rows
 
 	rows, err = stmt.Query()
 	if err != nil {
 		return nil, gkerr.GenGkErr("stmt.Query"+getDatabaseErrorMessage(err), err, ERROR_ID_QUERY)
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		var dbPod DbPodDef

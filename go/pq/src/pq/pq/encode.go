@@ -8,22 +8,28 @@ import (
 	"time"
 )
 
-func encode(x interface{}) []byte {
-	const timeFormat = "2006-01-02 15:04:05.0000-07"
-
+func encode(x interface{}, pgtypoid oid) []byte {
 	switch v := x.(type) {
 	case int64:
 		return []byte(fmt.Sprintf("%d", v))
 	case float32, float64:
 		return []byte(fmt.Sprintf("%f", v))
 	case []byte:
-		return []byte(fmt.Sprintf("\\x%x", v))
+		if pgtypoid == t_bytea {
+			return []byte(fmt.Sprintf("\\x%x", v))
+		}
+
+		return v
 	case string:
+		if pgtypoid == t_bytea {
+			return []byte(fmt.Sprintf("\\x%x", v))
+		}
+
 		return []byte(v)
 	case bool:
 		return []byte(fmt.Sprintf("%t", v))
 	case time.Time:
-		return []byte(v.Format(timeFormat))
+		return []byte(v.Format(time.RFC3339Nano))
 	default:
 		errorf("encode: unknown type for %T", v)
 	}
@@ -31,7 +37,7 @@ func encode(x interface{}) []byte {
 	panic("not reached")
 }
 
-func decode(s []byte, typ int) interface{} {
+func decode(s []byte, typ oid) interface{} {
 	switch typ {
 	case t_bytea:
 		s = s[2:] // trim off "\\x"
@@ -42,15 +48,15 @@ func decode(s []byte, typ int) interface{} {
 		}
 		return d
 	case t_timestamptz:
-		return mustParse("2006-01-02 15:04:05-07", s)
+		return mustParse("2006-01-02 15:04:05-07", typ, s)
 	case t_timestamp:
-		return mustParse("2006-01-02 15:04:05", s)
+		return mustParse("2006-01-02 15:04:05", typ, s)
 	case t_time:
-		return mustParse("15:04:05", s)
+		return mustParse("15:04:05", typ, s)
 	case t_timetz:
-		return mustParse("15:04:05-07", s)
+		return mustParse("15:04:05-07", typ, s)
 	case t_date:
-		return mustParse("2006-01-02", s)
+		return mustParse("2006-01-02", typ, s)
 	case t_bool:
 		return s[0] == 't'
 	case t_int8, t_int2, t_int4:
@@ -74,12 +80,19 @@ func decode(s []byte, typ int) interface{} {
 	return s
 }
 
-func mustParse(f string, s []byte) time.Time {
+func mustParse(f string, typ oid, s []byte) time.Time {
 	str := string(s)
+
 	// Special case until time.Parse bug is fixed:
 	// http://code.google.com/p/go/issues/detail?id=3487
 	if str[len(str)-2] == '.' {
 		str += "0"
+	}
+
+	// check for a 30-minute-offset timezone
+	if (typ == t_timestamptz || typ == t_timetz) &&
+		str[len(str)-3] == ':' {
+		f += ":00"
 	}
 	t, err := time.Parse(f, str)
 	if err != nil {
