@@ -141,7 +141,7 @@ func (gkDbCon *GkDbConDef) AddNewChatMessage(userName string, chatMessage string
 		return gkErr
 	}
 
-	var messageCreationDate time.Time = time.Now()
+	var messageCreationDate time.Time = time.Now().UTC()
 
 	_, err = stmt.Exec(id, dbUser.id, messageCreationDate, chatMessage)
 	if err != nil {
