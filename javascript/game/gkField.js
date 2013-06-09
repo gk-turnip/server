@@ -245,6 +245,7 @@ function gkFieldAddAvatar(jsonData, data) {
 	if (gkFieldContext.oldAvatarDestination != undefined) {
 		gkFieldSetNewAvatarDestination(gkFieldContext.oldAvatarDestination);
 		gkFieldContext.oldAvatarDestination = undefined;
+	}
 	gkFieldUpdatePositionDisplay(refObject.isoXYZCurrent);
 }
 
