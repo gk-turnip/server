@@ -78,7 +78,7 @@
 			svgHeightInput.value = gkViewContext.svgHeight;
 			doSvgWidthHeightChange();
 
-			if (localStorage != {}) {
+			if (JSON.stringify(localStorage) != "{}") {
 				for (var i=1;i<5;i++) {
 					var volumeSelect = document.getElementById("volume" + i);
 					if (parseFloat(localStorage.gk.volume.i) != NaN) {
