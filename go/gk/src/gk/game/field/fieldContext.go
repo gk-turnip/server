@@ -409,6 +409,12 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 
 	var gkErr *gkerr.GkErrDef
 
+	// the clear terrain must be done before the terrain svg
+	gkErr = fieldContext.doTerrainClear(websocketConnectionContext)
+	if gkErr != nil {
+		return gkErr
+	}
+
 	// the terrain svg must be done before the terrain map
 	gkErr = fieldContext.doTerrainSvg(websocketConnectionContext)
 	if gkErr != nil {
@@ -419,6 +425,17 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 	if gkErr != nil {
 		return gkErr
 	}
+
+	return nil
+}
+
+func (fieldContext *FieldContextDef) doTerrainClear(websocketConnectionContext *websocketConnectionContextDef) *gkerr.GkErrDef {
+
+	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
+	messageToClient.Command = message.ClearTerrain
+	messageToClient.JsonData = []byte("{}")
+	messageToClient.Data = make([]byte, 0, 0)
+	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 
 	return nil
 }
