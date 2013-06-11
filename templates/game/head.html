@@ -30,6 +30,7 @@
 		var mode;
 		function init() {
 			console.log("calling init");
+			loadCache();
 			scriptUse = document.getElementById("scriptUse");
 			var loader = document.createTextNode("Loaded!");
 			var loaded = scriptUse.appendChild(loader);
@@ -72,9 +73,10 @@
 
 			var svgWidthInput = document.getElementById("svgWidthInput");
 			var svgHeightInput = document.getElementById("svgHeightInput");
-
-
-
+		}
+		
+		function loadCache() {
+			console.log("Loading cache");
 			if (JSON.stringify(localStorage) != "{}") {
 				try {
 					for (var i=1;i<5;i++) {
