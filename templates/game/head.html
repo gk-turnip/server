@@ -70,9 +70,13 @@
 			gkTerrainInit(5);
 			//gkAvatarInit();
 			gkFieldInit();
+			setValue("zoomValue",gkViewContext.scale);
 
 			var svgWidthInput = document.getElementById("svgWidthInput");
 			var svgHeightInput = document.getElementById("svgHeightInput");
+			svgWidthInput.value = gkViewContext.svgWidth;
+			svgHeightInput.value = gkViewContext.svgHeight;
+			doSvgWidthHeightChange();
 		}
 		
 		function loadCache() {
