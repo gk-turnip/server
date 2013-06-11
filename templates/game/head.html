@@ -70,43 +70,62 @@
 			//gkAvatarInit();
 			gkFieldInit();
 
-			setValue("zoomValue",gkViewContext.scale);
 			var svgWidthInput = document.getElementById("svgWidthInput");
 			var svgHeightInput = document.getElementById("svgHeightInput");
 
-			svgWidthInput.value = gkViewContext.svgWidth;
-			svgHeightInput.value = gkViewContext.svgHeight;
-			doSvgWidthHeightChange();
+
 
 			if (JSON.stringify(localStorage) != "{}") {
-				for (var i=1;i<5;i++) {
-					var volumeSelect = document.getElementById("volume" + i);
-					if (parseFloat(localStorage.gk.volume.i) != NaN) {
-						volumeSelect.value = parseFloat(localStorage.gk.volume.i);
-						volumeChange(i);
+				try {
+					for (var i=1;i<5;i++) {
+						var volumeSelect = document.getElementById("volume" + i);
+						if (parseFloat(localStorage.gk.volume[i]) != NaN) {
+							volumeSelect.value = parseFloat(localStorage.gk.volume[i]);
+							volumeChange(i);
+						}
 					}
-				}
-				var avatarName = document.getElementById("selectAvatar");
-				if (localStorage.gk.avatarName) {
-					avatarName.value = localStorage.gk.avatarName;
-					changeAvatar();
-				}
-				var sW = document.getElementById("svgWidthInput");
-				var sH = document.getElementById("svgHeightInput");
-				if ((parseInt(localStorage.gk.field.width) != NaN) && (parseInt(localStorage.gk.field.height) != NaN)) {
-					sW.value = parseInt(localStorage.gk.field.width);
-					sH.value = parseInt(localStorage.gk.field.height);
-					doSvgWidthHeightChange();
-				}
-				if (parseFloat(localStorage.gk.field.zoom) != NaN) {
-					setValue("zoomValue", parseFloat(localStorage.gk.field.zoom));
-					doZoomChange(parseFloat(localStorage.gk.field.zoom) - 1.0);
+					var avatarName = document.getElementById("selectAvatar");
+					if (localStorage.gk.avatarName) {
+						avatarName.value = localStorage.gk.avatarName;
+						changeAvatar();
+					} else {
+						console.warn("cache: no avatar");
+					}
+					var sW = document.getElementById("svgWidthInput");
+					var sH = document.getElementById("svgHeightInput");
+					if ((parseInt(localStorage.gk.field.width) != NaN) && (parseInt(localStorage.gk.field.height) != NaN)) {
+						sW.value = parseInt(localStorage.gk.field.width);
+						sH.value = parseInt(localStorage.gk.field.height);
+						doSvgWidthHeightChange();
+					} else {
+						console.warn("cache: no height/width");
+						sW.value = gkViewContext.svgWidth;
+						sH.value = gkViewContext.svgHeight;
+						doSvgWidthHeightChange();
+					}
+					if (parseFloat(localStorage.gk.field.zoom) != NaN) {
+						setValue("zoomValue", parseFloat(localStorage.gk.field.zoom));
+						doZoomChange(parseFloat(localStorage.gk.field.zoom) - 1.0);
+					} else {
+						console.warn("cache: no zoom");
+						setValue("zoomValue",gkViewContext.scale);
+					}
+				} catch {
+					console.error("Something went wrong. Rebuilding cache.")
+					buildCache();
 				}
 			} else {
 				console.warn("No local cache. Is this the first run?");
+				buildCache();
 			}
 		}
 
+		function buildCache() {
+			localStorage.gk = new Object();
+			localStorage.gk.field = new Object();
+			localStorage.gk.volume = new Array();
+			console.log("cache built");
+		}
 		function doClick(e) {
 			gkFieldHandleFieldClick(e.pageX, e.pageY);
 //			console.log("doClick");
@@ -142,7 +161,7 @@
 			volumeSelect = document.getElementById("volume" + volumeId);
 			value = volumeSelect.options[volumeSelect.selectedIndex].value
 			gkAudioVolumeChange(volumeId, value);
-			localStorage.gk.volume.volumeId = value;
+			localStorage.gk.volume[volumeId] = value;
 		}
 
 /*
