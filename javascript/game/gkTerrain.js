@@ -10,9 +10,6 @@ function gkTerrainContextDef() {
 	// map holding the svg data for each terrain diamond
 	this.terrainSvgMap = new Object();
 
-	// map holding the elevation data for each terrain diamond
-//	this.terrainElevationMap = new Object();
-
 	// map holding the places an avatar cannot go
 	this.terrainWallMap = new Object();
 
@@ -86,6 +83,19 @@ function gkTerrainClearLayer(layer) {
 	while (layer.firstChild) {
 		layer.removeChild(layer.firstChild);
 	}
+}
+
+function gkTerrainClearTerrain(jsonData) {
+	// clear out old terrain map
+	gkFieldRemoveOtherAvatars();
+	gkTerrainClearMoveMarker();
+	gkTerrainClearTerrainBaseLayer();
+	gkTerrainClearTerrainDandelionLayer();
+	gkTerrainClearTerrainObjectLayer();
+	gkTerrainContext.terrainMapMap = new Object();
+	gkTerrainContext.terrainSvgMap = new Object();
+	gkTerrainContext.terrainWallMap = new Object();
+	gkTerrainContext.terrainAudioMap = new Array();
 }
 
 // called as a request from the server
@@ -173,21 +183,6 @@ console.log("objectList.length: " + jsonData.oList.length);
 			objectLayer.appendChild(ref);
 		}
 	}
-/*
-	for (i = 0;i < jsonData.elevationList.length; i++) {
-		var x, y, z;
-
-		x = jsonData.elevationList[i].x;
-		y = jsonData.elevationList[i].y;
-		z = jsonData.elevationList[i].z;
-
-		var mapKey = gkTerrainGetMapKey(x, y);
-
-		var elevationMapEntry = new gkTerrainElevationMapEntryDef(x, y, z);
-
-		gkTerrainContext.terrainElevationMap[mapKey] = elevationMapEntry;
-	}
-*/
 
 	for (i = 0;i < jsonData.audioList.length; i++) {
 		var clip, x, y, z;
@@ -275,83 +270,6 @@ function gkTerrainTestMoveElevation(x, y, z, maxOffset) {
 
 	return testMove;
 }
-/*
-function gkTerrainGetElevation1(x, y) {
-	var localX;
-	var localY;
-	if (x.substring) {
-		localX = parseInt(x);
-	} else {
-		localX = x;
-	}
-	if (y.substring) {
-		localY = parseInt(y);
-	} else {
-		localY = y;
-	}
-
-	localX = localX / 10;
-	localY = localY / 10;
-
-	localX = Math.floor(localX);
-	localY = Math.floor(localY);
-
-	localX = localX * 10;
-	localY = localY * 10;
-
-	var z = gkTerrainContext.terrainUndefinedZ;
-
-	var mapKey = gkTerrainGetMapKey(localX, localY);
-
-	var terrainWallEntry = gkTerrainContext.terrainWallMap[mapKey];
-	if (terrainWallEntry == undefined) {
-		var terrainMapMapEntry = gkTerrainContext.terrainMapMap[mapKey];
-		if (terrainMapMapEntry != undefined) {
-			z = terrainMapMapEntry.z;
-		}
-	}
-
-	return z;
-}
-
-function gkTerrainGetElevation2(x, y) {
-	var localX;
-	var localY;
-	if (x.substring) {
-		localX = parseInt(x);
-	} else {
-		localX = x;
-	}
-	if (y.substring) {
-		localY = parseInt(y);
-	} else {
-		localY = y;
-	}
-
-	localX = localX / 10;
-	localY = localY / 10;
-
-	localX = Math.floor(localX);
-	localY = Math.floor(localY);
-
-	localX = localX * 10;
-	localY = localY * 10;
-
-	var mapKey = gkTerrainGetMapKey(localX, localY);
-
-	var elevationMapEntry;
-
-	elevationMapEntry = gkTerrainContext.terrainElevationMap[mapKey];
-
-	var z = gkTerrainContext.terrainUndefinedZ;
-
-	if (elevationMapEntry != undefined) {
-		z = elevationMapEntry.z;
-	}
-
-	return z;
-}
-*/
 
 function gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, originX, originY, originZ, podId, destination) {
 	ref.onclick = function() { gkTerrainSvgObjectClick(objectName, isoXYZ.x, isoXYZ.y, isoXYZ.z, originX, originY, originZ, podId, destination) };
@@ -377,19 +295,9 @@ console.log("podId: " + podId);
 // called as a request from the server
 // to set all the svg files for the require terrain
 function gkTerrainSetTerrainSvg(jsonData, rawSvgData) {
-//console.log("gkTerrainSetTerrainSvg");
+console.log("gkTerrainSetTerrainSvg");
 	if (jsonData.terrain != undefined) {
-		var terrainName, originX, originY, originZ, layer;
-
-		// clear out old terrain map
-		gkFieldRemoveOtherAvatars();
-		gkTerrainClearMoveMarker();
-		gkTerrainClearTerrainBaseLayer();
-		gkTerrainClearTerrainDandelionLayer();
-		gkTerrainClearTerrainObjectLayer();
-		this.terrainMapMap = new Object();
-		this.terrainWallMap = new Object();
-		//this.terrainElevationMap = new Object();
+		var terrainName, originX, originY, originZ, layer
 
 //console.log("gkTerrainSetTerrainSvg name: " + jsonData.terrain);
 		terrainName = jsonData.terrain;

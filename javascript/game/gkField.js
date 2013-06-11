@@ -252,15 +252,26 @@ function gkFieldAddAvatar(jsonData, data) {
 function gkFieldHandleFieldClick(winX, winY) {
 	console.log("doClick " + winX + "," + winY);
 
-	var isoXYZ = gkViewConvertWinToIso(winX, gkViewContext.marginX, winY, gkViewContext.marginY, 0);
-	var g = gkIsoCreateSingleDiamond(isoXYZ, "#00ff00", 0.5);
+	var refObject
+	if (gkFieldContext.avatarId != undefined) {
+		refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId]
+	}
+	if (refObject != undefined) {
 
-	gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
+		var isoXYZ = gkViewConvertWinToIso(winX, gkViewContext.marginX, winY, gkViewContext.marginY, 0);
 
-	gkAudioStartAudio(2, "boing", false);
+		var g = gkIsoCreateSingleDiamond(isoXYZ, "#00ff00", 0.5);
 
-	gkTerrainClearMoveMarker();
-	gkTerrainSetMoveMarker(g);
+		isoXYZ = new GkIsoXYZDef(isoXYZ.x + refObject.isoXYZCurrent.z, isoXYZ.y + refObject.isoXYZCurrent.z, 0);
+
+		//gkFieldSetNewAvatarDestination(winXY.convertToIso(0));
+		gkFieldSetNewAvatarDestination(isoXYZ);
+
+		gkAudioStartAudio(2, "boing", false);
+
+		gkTerrainClearMoveMarker();
+		gkTerrainSetMoveMarker(g);
+	}
 }
 
 // set the current users avatar to a new position
