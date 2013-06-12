@@ -244,6 +244,7 @@ console.log(jsonData);
 	gkFieldAddSvg(jsonData, data);
 	var refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId]
 	if (gkFieldContext.oldAvatarDestination != undefined) {
+		gkFieldContext.refObjectMap[gkFieldContext.avatarId].pushIsoXYZDestination = gkFieldContext.oldAvatarDestination;
 		gkFieldSetNewAvatarDestination(gkFieldContext.oldAvatarDestination);
 		gkFieldContext.oldAvatarDestination = undefined;
 	}
