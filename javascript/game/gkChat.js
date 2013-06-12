@@ -53,7 +53,6 @@ function gkChatSubmit() {
 	var inputText = document.getElementById("chatInput");
 	var message = inputText.value.replace("~","&#126;");
 	message = message.replace("\\", "&#92;");
-	message = message.replace("&", "&amp;");
 	if (message.replace(" ", "").length == 0) {
 		return false;
 	}
