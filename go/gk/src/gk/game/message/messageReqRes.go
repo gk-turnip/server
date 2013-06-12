@@ -22,6 +22,7 @@ const GetAvatarSvgRes = "getAvatarSvgRes"
 const DelAvatarSvgReq = "delAvatarSvgReq"
 const MoveAvatarSvgReq = "moveAvatarSvgReq"
 const SetAvatarSvgReq = "setAvatarSvgReq"
+const NewPodTitleReq = "newPodTitleReq"
 
 const AddSvgReq = "addSvgReq"
 const DelSvgReq = "delSvgReq"

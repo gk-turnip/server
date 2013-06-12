@@ -48,8 +48,8 @@ func (fieldContext *FieldContextDef) handleGetAvatarSvgReq(messageFromClient *me
 	randomByte = fieldContext.sessionContext.RandContext.GetRandomByte()
 	var svgJsonData *message.SvgJsonDataDef = new(message.SvgJsonDataDef)
 	svgJsonData.Id = fieldContext.getNextObjectId()
-	svgJsonData.IsoXYZ.X = int16(20 + ((randomByte & 0x0f) * 3))
-	svgJsonData.IsoXYZ.Y = int16(20 + (((randomByte >> 4) & 0x0f) * 3))
+	svgJsonData.IsoXYZ.X = int16((randomByte & 0x07) * 3) - 10
+	svgJsonData.IsoXYZ.Y = int16(((randomByte >> 4) & 0x07) * 3) - 10
 
 	gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.avatarSvgDir, message.GetAvatarSvgRes, getSvg.SvgName, svgJsonData)
 	if gkErr != nil {

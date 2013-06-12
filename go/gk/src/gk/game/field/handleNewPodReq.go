@@ -99,5 +99,13 @@ func (fieldContext *FieldContextDef) uploadNewPodInfo(websocketConnectionContext
 		return gkErr
 	}
 
+	var messageToClient *message.MessageToClientDef = new (message.MessageToClientDef)
+	var podTitle string = fieldContext.podMap[podId].title
+	messageToClient.Command = message.NewPodTitleReq
+	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"podTitle\": \"%s\" }", podTitle))
+	messageToClient.Data = make([]byte, 0, 0)
+
+	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+
 	return nil
 }

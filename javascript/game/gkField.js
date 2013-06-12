@@ -239,6 +239,7 @@ function gkFieldRemoveOtherAvatars() {
 
 // add a new avatar to the field for the current user
 function gkFieldAddAvatar(jsonData, data) {
+console.log(jsonData);
 	gkFieldContext.avatarId = jsonData.id
 	gkFieldAddSvg(jsonData, data);
 	var refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId]
@@ -541,6 +542,13 @@ function gkFieldUpdatePositionDisplay(isoXYZCurrent) {
 	v.innerHTML = isoXYZCurrent.y;
 	v = document.getElementById("posValueZ");
 	v.innerHTML = isoXYZCurrent.z;
+}
+
+function gkFieldNewPodTitleReq(jsonData) {
+	var v;
+
+	v = document.getElementById("podTitle");
+	v.innerHTML = jsonData.podTitle;
 }
 
 function gkFieldSetArrowKeyDestination(x,y) {
