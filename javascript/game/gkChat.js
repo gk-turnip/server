@@ -53,6 +53,9 @@ function gkChatSubmit() {
 	var inputText = document.getElementById("chatInput");
 	var message = inputText.value.replace("~","&#126;");
 	message = message.replace("\\", "&#92;");
+	if (message.replace(" ", "").length == 0) {
+		return false;
+	}
 	if (message.search("<") + message.search(">") != -2) {
 		console.warn("HTML possibly detected! message:" + message);
 		if (!confirm("Your message may contain HTML tags. These tags, if any, will be shown in their plaintext form. If you want to submit your message as-is, press OK. Press Cancel to edit your message.")) {

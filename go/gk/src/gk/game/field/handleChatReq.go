@@ -68,6 +68,12 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 	chatMessage.message = strings.Replace(chatMessage.message, "<", "&lt;", -1)
 	chatMessage.message = strings.Replace(chatMessage.message, ">", "&gt;", -1)
 	chatMessage.message = strings.Replace(chatMessage.message, "\\", "&#92;", -1)
+	chatMessage.message = strings.Replace(chatMessage.message, "&nbsp;", " ", -1)
+	chatMessage.message = strings.Replace(chatMessage.message, "&", "&amp;", -1)
+	if !strings.ContainsAny(strings.ToLower(chatMessage.message), "abcdefghijklmnopqrstuvwxyz1234567890") {
+		// drop message since it has nothing of value
+		return nil
+	}
 
 	messageToClient.Command = message.ChatReq
 	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"userName\": \"%s\", \"message\": \"%s\" }", chatMessage.userName, gkjson.JsonEscape(chatMessage.message)))
