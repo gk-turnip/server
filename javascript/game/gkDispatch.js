@@ -45,7 +45,7 @@ function gkDispatchWsMessage(command, jsonData, data) {
 		gkTerrainClearTerrain(jsonData);
 		break;
 	case "setTerrainSvgReq":
-		console.log("setTerrainSvgReq");
+//		console.log("setTerrainSvgReq");
 		gkTerrainSetTerrainSvg(jsonData, data);
 		break;
 	case "setTerrainMapReq":

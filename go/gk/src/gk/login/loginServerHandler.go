@@ -201,8 +201,6 @@ func handleLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req *http
 	email = req.Form.Get(_emailParam)
 	token = req.Form.Get(_tokenParam)
 
-	gklog.LogTrace("password: " + password)
-
 	// for security
 	// sleep between 10 and 19 milliseconds
 	randMilliseconds := int(rand.Int31n(1000)) + 1000

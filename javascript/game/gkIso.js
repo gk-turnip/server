@@ -30,6 +30,7 @@ function gkIsoContextDef() {
 	this.svgNameSpace = "http://www.w3.org/2000/svg";
 	this.xlinkNameSpace = "http://www.w3.org/1999/xlink";
 	this.zFactor = 5;
+	this.gridListIndexNamePrefix = "gl_"
 }
 
 // create and return a single small diamond (1/10 fern sized)
@@ -100,6 +101,7 @@ function gkIsoSetSvgObjectPositionWithOffset(svgDiamond, isoXYZ, originX, origin
 }
 
 // set the position of the <use>, with originX and originY offsets
+/*
 function gkIsoSetSvgUsePositionWithOffset(useObj, isoXYZ, originX, originY, originZ) {
 	var winXY;
 	winXY = isoXYZ.convertToWin();
@@ -109,6 +111,7 @@ function gkIsoSetSvgUsePositionWithOffset(useObj, isoXYZ, originX, originY, orig
 	useObj.setAttribute("x",winXY.x);
 	useObj.setAttribute("y",winXY.y);
 }
+*/
 
 // a windows x,y object
 function GkWinXYDef(x, y) {
@@ -142,5 +145,25 @@ function GkIsoXYZDef(x, y, z) {
 
 		return new GkWinXYDef(winX, winY);
 	}
+}
+
+// this must return a string that can be orderd
+// for grid list
+// x and y range should be -32768 to 32767
+// so a constant is added to produce a string
+// that will always have a 6 digit suffix
+function gkIsoGetGridListIndexName(x, y, z) {
+	var localX = gkIsoGetFernFromDecifern(x);
+	var localY = gkIsoGetFernFromDecifern(y);
+
+	return gkIsoContext.gridListIndexNamePrefix + (165536 + localX + localY);
+}
+
+// get the fern coordinate from a decifern coordinate
+function gkIsoGetFernFromDecifern(x) {
+	localX = x / 10;
+	localX = Math.floor(localX);
+	localX = localX * 10;
+	return localX;
 }
 

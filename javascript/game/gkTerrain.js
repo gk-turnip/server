@@ -79,6 +79,12 @@ function gkTerrainClearTerrainObjectLayer() {
 	gkTerrainClearLayer(layer);
 }
 
+function gkTerrainClearTerrainGridListLayer() {
+	var layer = document.getElementById("gkTerrainGridListLayer");
+
+	gkTerrainClearLayer(layer);
+}
+
 function gkTerrainClearLayer(layer) {
 	while (layer.firstChild) {
 		layer.removeChild(layer.firstChild);
@@ -92,6 +98,7 @@ function gkTerrainClearTerrain(jsonData) {
 	gkTerrainClearTerrainBaseLayer();
 	gkTerrainClearTerrainDandelionLayer();
 	gkTerrainClearTerrainObjectLayer();
+	gkTerrainClearTerrainGridListLayer();
 	gkTerrainContext.terrainMapMap = new Object();
 	gkTerrainContext.terrainSvgMap = new Object();
 	gkTerrainContext.terrainWallMap = new Object();
@@ -108,6 +115,52 @@ function gkTerrainSetTerrainMap(jsonData) {
 	var baseLayer = document.getElementById("gkTerrainBaseLayer");
 
 console.log("tileList.length: " + jsonData.tileList.length);
+	// list of unique grid list names
+	var gridListMap = new Object();
+
+	for (i = 0;i < jsonData.tileList.length; i++) {
+		var x, y, z, zList, terrainName;
+		x = parseInt(jsonData.tileList[i].x);
+		y = parseInt(jsonData.tileList[i].y);
+		terrainName = jsonData.tileList[i].t;
+
+		var gridListIndexName = gkIsoGetGridListIndexName(x,y,0)
+		gridListMap[gridListIndexName] = gridListIndexName;
+
+		zList = jsonData.tileList[i].z;
+		
+		var terrainMapMapEntry = new gkTerrainMapMapEntryDef(x, y, zList, terrainName)
+
+		var mapKey = gkTerrainGetMapKey(x, y);
+		gkTerrainContext.terrainMapMap[mapKey] = terrainMapMapEntry;
+
+//		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(terrainName);
+//
+//		if (terrainSvgMapEntry != undefined) {
+//			for (var j = 0;j < zList.length;j++) {
+//				var isoXYZ = new GkIsoXYZDef(x,y,zList[j]);
+//
+//				gkFieldAddObjectToGridList(gkFieldContext.defsTerrainPrefix, terrainName, terrainName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ, null, null);
+////				var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
+////				ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#t_" + terrainName);
+////				gkIsoSetSvgUsePositionWithOffset(ref, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
+////				baseLayer.appendChild(ref);
+//			}
+//		}
+	}
+
+	var gridListArray = new Array();
+	for (prop in gridListMap) {
+		gridListArray.push(prop);
+	}
+
+console.log("grid array size: " + gridListArray.length);
+	// grid list must be added in order
+	gridListArray = gridListArray.sort();
+	for (var i = 0;i < gridListArray.length;i++) {
+		gkFieldAddGridListEntry(gridListArray[i]);
+	}
+
 	for (i = 0;i < jsonData.tileList.length; i++) {
 		var x, y, z, zList, terrainName;
 		x = parseInt(jsonData.tileList[i].x);
@@ -116,37 +169,22 @@ console.log("tileList.length: " + jsonData.tileList.length);
 
 		zList = jsonData.tileList[i].z;
 		
-/*
-		if (jsonData.tileList[i].z == undefined) {
-			zList = new Array();
-			z = 0;
-			zList.push(z);
-		} else {
-			zList = jsonData.tileList[i].z;
-			if (zList instanceof Array) {
-				z = zList[0];
-			} else {
-				z = parseInt(zList);
-				zList = new Array();
-				zList.push(z);
-			}
-		}
-*/
+//		var terrainMapMapEntry = new gkTerrainMapMapEntryDef(x, y, zList, terrainName)
 
-		var terrainMapMapEntry = new gkTerrainMapMapEntryDef(x, y, zList, terrainName)
-
-		var mapKey = gkTerrainGetMapKey(x, y);
-		gkTerrainContext.terrainMapMap[mapKey] = terrainMapMapEntry;
+//		var mapKey = gkTerrainGetMapKey(x, y);
+//		gkTerrainContext.terrainMapMap[mapKey] = terrainMapMapEntry;
 
 		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(terrainName);
 
 		if (terrainSvgMapEntry != undefined) {
 			for (var j = 0;j < zList.length;j++) {
 				var isoXYZ = new GkIsoXYZDef(x,y,zList[j]);
-				var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
-				ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#t_" + terrainName);
-				gkIsoSetSvgUsePositionWithOffset(ref, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
-				baseLayer.appendChild(ref);
+
+				gkFieldAddObjectToGridList(gkFieldContext.defsTerrainPrefix, gkFieldContext.terrainObjectPrefix + i, terrainName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ, null, null);
+//				var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
+//				ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#t_" + terrainName);
+//				gkIsoSetSvgUsePositionWithOffset(ref, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
+//				baseLayer.appendChild(ref);
 			}
 		}
 	}
@@ -174,13 +212,14 @@ console.log("objectList.length: " + jsonData.oList.length);
 		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(objectName);
 
 		if (terrainSvgMapEntry != undefined) {
-			var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
-			ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#t_" + objectName);
-			gkIsoSetSvgUsePositionWithOffset(ref, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
-
-			gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ, podId, destination);
-
-			objectLayer.appendChild(ref);
+			gkFieldAddObjectToGridList(gkFieldContext.defsTerrainPrefix, gkFieldContext.terrainTilePrefix + i, objectName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ, podId, destination);
+//			var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
+//			ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#t_" + objectName);
+//			gkIsoSetSvgUsePositionWithOffset(ref, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
+//
+//			gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ, podId, destination);
+//
+//			objectLayer.appendChild(ref);
 		}
 	}
 
@@ -243,14 +282,17 @@ function gkTerrainTestMoveElevation(x, y, z, maxOffset) {
 		localY = y;
 	}
 
-	localX = localX / 10;
-	localY = localY / 10;
+	localX = gkIsoGetFernFromDecifern(localX);
+	localY = gkIsoGetFernFromDecifern(localY);
 
-	localX = Math.floor(localX);
-	localY = Math.floor(localY);
-
-	localX = localX * 10;
-	localY = localY * 10;
+//	localX = localX / 10;
+//	localY = localY / 10;
+//
+//	localX = Math.floor(localX);
+//	localY = Math.floor(localY);
+//
+//	localX = localX * 10;
+//	localY = localY * 10;
 
 	var mapKey = gkTerrainGetMapKey(localX, localY);
 
@@ -279,7 +321,6 @@ function gkTerrainSvgObjectClick(id, x, y, z, originX, originY, originZ, podId, 
 	console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY);
 
 	if (podId != undefined) {
-console.log("podId: " + podId);
 		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\" }~");
 
 		var x = destination.x;
@@ -295,7 +336,7 @@ console.log("podId: " + podId);
 // called as a request from the server
 // to set all the svg files for the require terrain
 function gkTerrainSetTerrainSvg(jsonData, rawSvgData) {
-console.log("gkTerrainSetTerrainSvg");
+//console.log("gkTerrainSetTerrainSvg");
 	if (jsonData.terrain != undefined) {
 		var terrainName, originX, originY, originZ, layer
 
@@ -311,7 +352,7 @@ console.log("gkTerrainSetTerrainSvg");
 		var gkDefs = document.getElementById("gkDefs");
 
 		g = gkIsoCreateSvgObject(rawSvgData);
-		g.setAttribute("id","t_" + jsonData.terrain);
+		g.setAttribute("id",gkFieldContext.defsTerrainPrefix + jsonData.terrain);
 
 		gkDefs.appendChild(g);
 	}
