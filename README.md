@@ -16,5 +16,5 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-These are the server side programs for the Gourdian Knot system at http://gourdianknot.com.
+These are the server side programs for the Gourdian Knot system at http://gourdianknot.com
 

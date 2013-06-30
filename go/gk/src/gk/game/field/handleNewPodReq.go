@@ -32,6 +32,9 @@ import (
 
 type newPodReqDef struct {
 	PodId string
+	X string
+	Y string
+	Z string
 }
 
 // websocketConnectionContext entry must be moved from old pod to new pod
@@ -46,6 +49,12 @@ func (fieldContext *FieldContextDef) handleNewPodReq(messageFromClient *message.
 		gkErr = gkerr.GenGkErr("json.Unmarshal", err, ERROR_ID_JSON_UNMARSHAL)
 		return gkErr
 	}
+
+	var destinationX, destinationY, destinationZ int
+
+	destinationX, _ = strconv.Atoi(newPodReq.X)
+	destinationY, _ = strconv.Atoi(newPodReq.Y)
+	destinationZ, _ = strconv.Atoi(newPodReq.Z)
 
 	var websocketConnectionContext *websocketConnectionContextDef
 
@@ -64,7 +73,8 @@ func (fieldContext *FieldContextDef) handleNewPodReq(messageFromClient *message.
 
 
 	if (fieldContext.isPodIdValid(int32(newPodId))) && (oldPodId != int32(newPodId)) {
-		gkErr = fieldContext.moveAllAvatarBySessionId(messageFromClient.SessionId, oldPodId, int32(newPodId))
+
+		gkErr = fieldContext.moveAllAvatarBySessionId(messageFromClient.SessionId, oldPodId, int32(newPodId), int16(destinationX), int16(destinationY), int16(destinationZ))
 		if gkErr != nil {
 			gklog.LogGkErr("", gkErr)
 			return gkErr
@@ -76,6 +86,12 @@ func (fieldContext *FieldContextDef) handleNewPodReq(messageFromClient *message.
 		fieldContext.podMap[int32(newPodId)].websocketConnectionMap[messageFromClient.SessionId] = websocketConnectionContext
 
 		fieldContext.uploadNewPodInfo(websocketConnectionContext, int32(newPodId))
+
+		gkErr = fieldContext.reAddAvatarBySessionId(messageFromClient.SessionId, int32(newPodId))
+		if gkErr != nil {
+			gklog.LogGkErr("", gkErr)
+			return gkErr
+		}
 	} else {
 		gkErr = gkerr.GenGkErr(fmt.Sprintf("invalid podId: %d", newPodId), nil, ERROR_ID_INVALID_POD_ID)
 		gklog.LogGkErr("", gkErr)

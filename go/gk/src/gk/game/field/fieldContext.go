@@ -306,7 +306,10 @@ func (fieldContext *FieldContextDef) removeAllAvatarBySessionId(sessionId string
 	}
 }
 
-func (fieldContext *FieldContextDef) moveAllAvatarBySessionId(sessionId string, oldPodId int32, newPodId int32) *gkerr.GkErrDef {
+// an avatar is moving from one pod to another
+// so delete any object matching by sessionId from old pod
+// then add them to the new pod
+func (fieldContext *FieldContextDef) moveAllAvatarBySessionId(sessionId string, oldPodId int32, newPodId int32, destinationX int16, destinationY int16, destinationZ int16) *gkerr.GkErrDef {
 	gklog.LogTrace("moving all object by session id")
 	var gkErr *gkerr.GkErrDef
 
@@ -318,19 +321,20 @@ func (fieldContext *FieldContextDef) moveAllAvatarBySessionId(sessionId string, 
 			messageToClient.JsonData = []byte(fmt.Sprintf("{ \"id\": \"%s\"}", fieldObject.id))
 			messageToClient.Data = make([]byte, 0, 0)
 
-			//fieldContext.removeSendRemoveAvatarBySessionId(podId, messageToClient)
 			for _, websocketConnectionContext := range fieldContext.podMap[oldPodId].websocketConnectionMap {
-				if (sessionId != websocketConnectionContext.sessionId) {
-					fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+				if (sessionId == websocketConnectionContext.sessionId) {
+					fieldObject.isoXYZ.X = destinationX;
+					fieldObject.isoXYZ.Y = destinationY;
+					fieldObject.isoXYZ.Z = destinationZ;
+	gklog.LogTrace(fmt.Sprintf("moveAllAvatarBySessionId new destination: %d,%d,%d",fieldObject.isoXYZ.X, fieldObject.isoXYZ.Y, fieldObject.isoXYZ.Z))
 				}
+				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 			}
 
 			for _, websocketConnectionContext := range fieldContext.podMap[newPodId].websocketConnectionMap {
-				if (sessionId != websocketConnectionContext.sessionId) {
-					gkErr = fieldContext.sendSingleAvatarObject(websocketConnectionContext, fieldObject)
-					if gkErr != nil {
-						return gkErr
-					}
+				gkErr = fieldContext.sendSingleAvatarObject(websocketConnectionContext, fieldObject)
+				if gkErr != nil {
+					return gkErr
 				}
 			}
 
@@ -340,6 +344,32 @@ func (fieldContext *FieldContextDef) moveAllAvatarBySessionId(sessionId string, 
 	}
 	return nil
 }
+
+// put the avatar back
+func (fieldContext *FieldContextDef) reAddAvatarBySessionId(sessionId string, newPodId int32) *gkerr.GkErrDef {
+	gklog.LogTrace("re adding an avatar by session id")
+	var gkErr *gkerr.GkErrDef
+
+	for _, fieldObject := range fieldContext.podMap[newPodId].avatarMap {
+		if fieldObject.sourceSessionId == sessionId {
+			websocketConnectionContext := fieldContext.podMap[newPodId].websocketConnectionMap[sessionId]
+		gklog.LogTrace(fmt.Sprintf("reAddAvatarBySessionId new destination: %d,%d,%d",fieldObject.isoXYZ.X, fieldObject.isoXYZ.Y, fieldObject.isoXYZ.Z))
+			gkErr = fieldContext.sendSingleAvatarObject(websocketConnectionContext, fieldObject)
+			if gkErr != nil {
+				return gkErr
+			}
+
+//			for _, websocketConnectionContext := range fieldContext.podMap[newPodId].websocketConnectionMap {
+
+//				if (sessionId == websocketConnectionContext.sessionId) {
+//				}
+//			}
+		}
+	}
+
+	return nil
+}
+
 /*
 func (fieldContext *FieldContextDef) removeSendRemoveAvatarBySessionId(podIdFromDisconnect int32, messageToClient *message.MessageToClientDef) {
 
@@ -432,7 +462,7 @@ func (fieldContext *FieldContextDef) loadTerrain(websocketConnectionContext *web
 func (fieldContext *FieldContextDef) doTerrainClear(websocketConnectionContext *websocketConnectionContextDef) *gkerr.GkErrDef {
 
 	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-	messageToClient.Command = message.ClearTerrain
+	messageToClient.Command = message.ClearTerrainReq
 	messageToClient.JsonData = []byte("{}")
 	messageToClient.Data = make([]byte, 0, 0)
 	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)

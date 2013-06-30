@@ -42,6 +42,7 @@ function gkFieldContextDef() {
 	this.frameRate = 0;
 	this.maxElevationMove = 11;
 	this.oldAvatarDestination = undefined;
+	this.baseLayer = "gkTerrainBaseLayer"
 	this.gridListLayer = "gkTerrainGridListLayer"
 	this.defsTerrainPrefix = "t_"
 	this.defsObjectPrefix = "o_"
@@ -93,8 +94,10 @@ function gkFieldRefObjectDef(id, userName, isoXYZCurrent, isoXYZDestination, ori
 function gkFieldAddSvg(jsonData, rawSvgData) {
 //console.log("gkFieldAddSvg id: " + jsonData.id);
 
+console.log("gkFieldAddSvg: " + JSON.stringify(jsonData));
 	var fieldObject = gkFieldContext.objectMap[jsonData.id];
 	if (fieldObject == undefined) {
+console.log("create svg object: " + rawSvgData);
 		var g = gkIsoCreateSvgObject(rawSvgData);
 		g.setAttribute("id",gkFieldContext.defsObjectPrefix + jsonData.id);
 		var gkDefs = document.getElementById("gkDefs");
@@ -103,9 +106,12 @@ function gkFieldAddSvg(jsonData, rawSvgData) {
 		gkFieldContext.objectMap[fieldObject.id] = fieldObject
 	}
 
+//z	if (gkFieldContext.avatarId != refObject.id) {
+
 //	var g2 = document.createElementNS(gkIsoContext.svgNameSpace,"g");
 
 	var isoXYZ = new GkIsoXYZDef(parseInt(jsonData.x), parseInt(jsonData.y), parseInt(jsonData.z))
+
 	var originX = parseInt(jsonData.originX)
 	var originY = parseInt(jsonData.originY)
 	var originZ = parseInt(jsonData.originZ)
@@ -583,6 +589,23 @@ function gkFieldNewPodTitleReq(jsonData) {
 
 	v = document.getElementById("podTitle");
 	v.innerHTML = jsonData.podTitle;
+
+	// put the avatar back on the field after a pod transfer
+//	var refObject
+//	if (gkFieldContext.avatarId != undefined) {
+//		refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId]
+//	}
+//	if (refObject != undefined) {
+//		refObject.setPushDestination(isoXYZ)
+
+/*
+console.log("pushing new destination: " + isoXYZ.x + "," + isoXYZ.y);
+;z
+	gkFieldAddObjectToGridList(gkFieldContext.defsObjectPrefix, refObject.id, refObject.id, isoXYZ, 0, 0, 0, null, null);
+gkFieldAddObjectToGridList(hrefPrefix, refId, objectName, isoXYZ, originX, originY, originZ, podId, destination)
+*/
+
+//	}
 }
 
 function gkFieldSetArrowKeyDestination(x,y) {
@@ -662,9 +685,9 @@ function gkFieldAddObjectToGridList(hrefPrefix, refId, objectName, isoXYZ, origi
 
 	var gridListIndexName = gkIsoGetGridListIndexName(isoXYZ.x, isoXYZ.y, isoXYZ.z);
 
-if (objectName != "grass") {
-console.log("gkFieldAddObjectToGridList origin: " + originX + "," + originY + " refId: " + refId + " objectName: " + objectName + " gridListIndexName: " + gridListIndexName);
-}
+//if (objectName != "grass") {
+//console.log("gkFieldAddObjectToGridList origin: " + originX + "," + originY + " refId: " + refId + " objectName: " + objectName + " gridListIndexName: " + gridListIndexName + " x,y,z: " + isoXYZ.x + "," + isoXYZ.y + "," + isoXYZ.z);
+//}
 
 // temporary to fix terrain problem
 // until proper movement of "use" entries is implemented
@@ -687,18 +710,38 @@ console.log("gkFieldAddObjectToGridList origin: " + originX + "," + originY + " 
 	gridListG.appendChild(useG);
 }
 
+function gkFieldAddTerrainObject(hrefPrefix, refId, objectName, isoXYZ, originX, originY, originZ) {
+	var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
+
+	ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#" + hrefPrefix + objectName);
+	ref.id = gkFieldContext.useObjectPrefix + refId;
+
+	var useG = document.createElementNS(gkIsoContext.svgNameSpace,"g");
+	useG.id = gkFieldContext.useGPrefix + objectName;
+	gkIsoSetSvgObjectPositionWithOffset(useG, isoXYZ, originX, originY, originZ);
+	useG.appendChild(ref);
+
+	var baseLayer = document.getElementById(gkFieldContext.baseLayer);
+
+	baseLayer.appendChild(useG);
+}
+
 function gkFieldChangeGridListPosition(refObject) {
 	var ref = document.getElementById(gkFieldContext.useGPrefix + refObject.id);
 
-	gkIsoSetSvgObjectPositionWithOffset(ref, refObject.isoXYZCurrent, refObject.originX, refObject.originY, refObject.originZ);
+	if (ref == undefined) {
+		console.log("gkFieldChangeGridListPosition id: " + refObject.id + " could not find ref");
+	} else {
+		gkIsoSetSvgObjectPositionWithOffset(ref, refObject.isoXYZCurrent, refObject.originX, refObject.originY, refObject.originZ);
 
-	var parNode = ref.parentNode;
-	console.log("gkFieldChangeGridListPosition id: " + refObject.id + " parNode id: " + parNode.id);
+		var parNode = ref.parentNode;
+		console.log("gkFieldChangeGridListPosition id: " + refObject.id + " parNode id: " + parNode.id);
 
-	var isoXYZ = refObject.isoXYZCurrent;
-	var newGridListIndexName = gkIsoGetGridListIndexName(isoXYZ.x, isoXYZ.y, isoXYZ.z);
+		var isoXYZ = refObject.isoXYZCurrent;
+		var newGridListIndexName = gkIsoGetGridListIndexName(isoXYZ.x, isoXYZ.y, isoXYZ.z);
 
-	ref.parentNode.removeChild(ref);
-	var gridListG = document.getElementById(newGridListIndexName);
-	gridListG.appendChild(ref);
+		ref.parentNode.removeChild(ref);
+		var gridListG = document.getElementById(newGridListIndexName);
+		gridListG.appendChild(ref);
+	}
 }

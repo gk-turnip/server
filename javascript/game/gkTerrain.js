@@ -180,7 +180,9 @@ console.log("grid array size: " + gridListArray.length);
 			for (var j = 0;j < zList.length;j++) {
 				var isoXYZ = new GkIsoXYZDef(x,y,zList[j]);
 
-				gkFieldAddObjectToGridList(gkFieldContext.defsTerrainPrefix, gkFieldContext.terrainObjectPrefix + i, terrainName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ, null, null);
+				gkFieldAddTerrainObject(gkFieldContext.defsTerrainPrefix, gkFieldContext.terrainObjectPrefix + i, terrainName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
+				//gkFieldAddObjectToGridList(gkFieldContext.defsTerrainPrefix, gkFieldContext.terrainObjectPrefix + i, terrainName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ, null, null);
+
 //				var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
 //				ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#t_" + terrainName);
 //				gkIsoSetSvgUsePositionWithOffset(ref, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
@@ -321,15 +323,21 @@ function gkTerrainSvgObjectClick(id, x, y, z, originX, originY, originZ, podId, 
 	console.log("svgObjectClick id: " + id + " xyz: " + x + "," + y + "," + z + " origin: " + originX + "," + originY);
 
 	if (podId != undefined) {
-		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\" }~");
-
 		var x = destination.x;
 		var y = destination.y;
+		var z = destination.z;
 		
 		x = x + (((Math.floor(Math.random() * 2) * 2) - 1) * ((Math.floor(Math.random() * 20) + 1)));
 		y = y + (((Math.floor(Math.random() * 2) * 2) - 1) * ((Math.floor(Math.random() * 20) + 1)));
+
+console.log("destination: " + x + "," + y + "," + z);
+
+		gkWsSendMessage("newPodReq~{ \"podId\":\"" + podId + "\", \"x\":\"" + x + "\", \"y\":\"" + y + "\", \"z\": \"" + z + "\" }~");
+
+/*
 		var dest = new GkIsoXYZDef(x, y, destination.z);
 		gkFieldPushNewAvatarDestination(dest);
+*/
 	}
 }
 
