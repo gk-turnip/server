@@ -224,7 +224,7 @@ func (fieldContext *FieldContextDef) sendSingleAvatarObject(websocketConnectionC
 	svgJsonData.Id = fieldObject.id
 	svgJsonData.IsoXYZ = fieldObject.isoXYZ
 	gklog.LogTrace("sourceSessionId: " + fieldObject.sourceSessionId)
-	if fieldObject.sourceSessionId != "" {
+	if fieldObject.sourceSessionId != websocketConnectionContext.sessionId {
 		var singleSession *ses.SingleSessionDef
 		singleSession = fieldContext.sessionContext.GetSessionFromId(fieldObject.sourceSessionId)
 		svgJsonData.UserName = singleSession.GetUserName()

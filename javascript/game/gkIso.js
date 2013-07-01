@@ -100,19 +100,6 @@ function gkIsoSetSvgObjectPositionWithOffset(svgDiamond, isoXYZ, originX, origin
 	svgDiamond.setAttribute("transform","translate(" + winXY.x + "," + winXY.y + ")");
 }
 
-// set the position of the <use>, with originX and originY offsets
-/*
-function gkIsoSetSvgUsePositionWithOffset(useObj, isoXYZ, originX, originY, originZ) {
-	var winXY;
-	winXY = isoXYZ.convertToWin();
-	winXY.x -= originX;
-	winXY.y -= originY;
-	winXY.y -= originZ;
-	useObj.setAttribute("x",winXY.x);
-	useObj.setAttribute("y",winXY.y);
-}
-*/
-
 // a windows x,y object
 function GkWinXYDef(x, y) {
 	this.x = x;

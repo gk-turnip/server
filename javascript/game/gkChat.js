@@ -57,21 +57,9 @@ function gkChatSubmit() {
 		return false;
 	}
 	if (message.search("<") + message.search(">") != -2) {
-		console.warn("HTML possibly detected! message:" + message);
-		if (!confirm("Your message may contain HTML tags. These tags, if any, will be shown in their plaintext form. If you want to submit your message as-is, press OK. Press Cancel to edit your message.")) {
-			return false;
-		}
 		message = message.replace("<", "&lt;");
 		message = message.replace(">", "&gt;");
 	}
-//	if ((message.search("[") + message.search("]")) != -2) {
-//		console.warn("BBCode possibly detected! message:" + message);
-//		if (!confirm("Your message may contain BBCode. This markup, if any, will be shown in plaintext. If you want to submit your message as-is, press OK. Press Cancel to edit your message.")) {
-//			return false;
-//		}
-//		message = message.replace("[", "&#91;");
-//		message = message.replace("]", "&#93;");
-//	}
 
 	var jsonMessage = JSON.stringify({ userName: gkWsContext.userName, message: message });
 	if (message.length > 0) {

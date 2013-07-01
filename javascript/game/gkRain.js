@@ -167,7 +167,6 @@ function GkDropDef() {
 	var tempWinXY;
 	tempWinXY = new GkWinXYDef(x,y);
 	this.isoXYZ = tempWinXY.convertToIso(z);
-	//this.diamond = null;
 
 	this.speed = Math.floor(Math.random() * 4);
 	this.scale = 0.1 + (Math.floor(Math.random() * 3) / 20);

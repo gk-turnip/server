@@ -53,8 +53,6 @@ function gkWsInit(dispatchFunction, websocketAddressPrefix, websocketPath, sessi
 	gkWsContext.ws.onmessage = function(evt) { gkWsDoMessage(evt); };
 	gkWsContext.ws.onclose = function() { gkWsDoOnClose(); };
 	gkWsContext.ws.onerror = function() { gkWsDoOnError(); };
-	//scriptUse = document.getElementById("scriptUse");
-	//scriptUse.removeChild(loaded);
 }
 
 // this is called (by the browser) when the websocket completes a connection
@@ -74,7 +72,6 @@ function gkWsDoPing() {
 // this is called (by the browser) when a new message is received from the server
 // it is decoded and sent to gkDispatch
 function gkWsDoMessage(e) {
-//	console.log("gkWsDoMessage");
 	var nlIndex1 = -1;
 	var nlIndex2 = -1;
 
