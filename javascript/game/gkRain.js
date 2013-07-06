@@ -20,6 +20,7 @@
 // rain is "global" so if it is raining in one browser,
 // it is raining in all browsers
 
+/*
 var rainVolumeOriginal;
 var rainFadeAmount;
 var rainFadeInterval;
@@ -195,4 +196,4 @@ function GkDropDef() {
 
 	this.setTranslate();
 }
-
+*/

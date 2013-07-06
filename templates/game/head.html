@@ -48,7 +48,7 @@
 
 			gkWsInit(gkDispatchWsMessage, "{{.WebsocketAddressPrefix}}", "{{.WebsocketPath}}", "{{.SessionId}}");
 
-			gkRainStart();
+			//gkRainStart();
 
 			gkAudioInit("{{.AudioAddressPrefix}}");
 			var canPlay = document.getElementById("canPlay");
@@ -61,11 +61,11 @@
 			if (gkAudioContext.canPlayOgg) {
 				canPlay.innerHTML += " .ogg";
 			}
-			gkAudioStartAudio(1, "Underwater2", true);
-			gkAudioStartAudio(3, "Rain", true);
-			var rainTBP = document.getElementById("audio3");
-			rainTBP.pause();
-			var rainTBP;
+			//gkAudioStartAudio(1, "Underwater2", true);
+			//gkAudioStartAudio(3, "Rain", true);
+			//var rainTBP = document.getElementById("audio3");
+			//rainTBP.pause();
+			//var rainTBP;
 
 			gkTerrainInit(5);
 			//gkAvatarInit();
@@ -207,11 +207,11 @@
 		}
 		function nothing() {
 		}
-		function setRainStatus() {
-			var rs = document.getElementById("rainswitcher");
-			gkRainContext.override = rs.checked;
-			return false;
-		}
+		//function setRainStatus() {
+		//	var rs = document.getElementById("rainswitcher");
+		//	gkRainContext.override = rs.checked;
+		//	return false;
+		//}
 	</script>
 </head>
 {{end}}

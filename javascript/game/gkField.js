@@ -38,8 +38,11 @@ function gkFieldContextDef() {
 	this.duration1 = 0;
 	this.duration2 = 0;
 	this.duration3 = 0;
+	this.duration4 = 0;
+	this.duration5 = 0;
 	this.inFocus = true;
 	this.frameRate = 0;
+	this.frameRateDisplayCount = 0;
 	this.maxElevationMove = 11;
 	this.oldAvatarDestination = undefined;
 	this.baseLayer = "gkTerrainBaseLayer"
@@ -215,7 +218,7 @@ function gkFieldRemoveOtherAvatars() {
 
 // add a new avatar to the field for the current user
 function gkFieldAddAvatar(jsonData, data) {
-console.log("gkFieldAddAvatar jsonData: " + jsonData);
+//console.log("gkFieldAddAvatar jsonData: " + jsonData);
 	gkFieldContext.avatarId = jsonData.id
 	gkFieldAddSvg(jsonData, data);
 	var refObject = gkFieldContext.refObjectMap[gkFieldContext.avatarId]
@@ -282,11 +285,40 @@ function gkFieldMoveObjects() {
 
 	var moveFlag = false;
 
+	var incOne = 1;
+	if (gkFieldContext.frameRate < 10) {
+		incOne = 2;
+	}
+	var moveX, moveY
+	moveX = 0;
+	moveY = 0;
+	if (gkFieldContext.leftKeyDown) {
+		moveX -= incOne;
+		moveY += incOne;
+	}
+	if (gkFieldContext.rightKeyDown) {
+		moveX += incOne;
+		moveY -= incOne;
+	}
+	if (gkFieldContext.upKeyDown) {
+		moveX -= incOne;
+		moveY -= incOne;
+	}
+	if (gkFieldContext.downKeyDown) {
+		moveX += incOne;
+		moveY += incOne;
+	}
+	if ((gkFieldContext.inFocus) && ((gkFieldContext.leftKeyDown) || (gkFieldContext.rightKeyDown) || (gkFieldContext.upKeyDown) || (gkFieldContext.downKeyDown))) {
+		gkFieldSetArrowKeyDestination(moveX, moveY);
+		moveFlag = true;
+	}
+
 	// check all of the svg objects	in the pod
 	for (var prop in gkFieldContext.refObjectMap) {
 		var refObject;
 		refObject = gkFieldContext.refObjectMap[prop];
 		if (refObject.id != undefined) {
+
 			if (refObject.pushIsoXYZDestination != null) {
 console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," + refObject.pushIsoXYZDestination.y);
 				curIsoXYZ = refObject.pushIsoXYZDestination;
@@ -305,6 +337,7 @@ console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," +
 
 				refObject.pushIsoXYZDestination = null;
 			}
+
 			// now test to see if it needs to be moved
 			var curIsoXYZ = refObject.isoXYZCurrent
 			var destIsoXYZ = refObject.isoXYZDestination
@@ -325,6 +358,22 @@ console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," +
 				}
 				if (destIsoXYZ.y < curIsoXYZ.y) {
 					newCurrentY -= 1;
+				}
+
+				if (gkFieldContext.frameRate < 10) {
+					if (destIsoXYZ.x > (curIsoXYZ.x + 1)) {
+						newCurrentX += 1;
+					}
+					if (destIsoXYZ.x < (curIsoXYZ.x - 1)) {
+						newCurrentX -= 1;
+					}
+					if (destIsoXYZ.y > (curIsoXYZ.y + 1)) {
+						newCurrentY += 1;
+					}
+					if (destIsoXYZ.y < (curIsoXYZ.y - 1)) {
+						newCurrentY -= 1;
+					}
+					console.log("jump:");
 				}
 
 				var testMove = gkTerrainTestMoveElevation(newCurrentX, newCurrentY, refObject.isoXYZCurrent.z, gkFieldContext.maxElevationMove)
@@ -366,64 +415,36 @@ console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," +
 				localIsoXYZ.y -= gkViewContext.viewOffsetIsoXYZ.y;
 				localIsoXYZ.z -= gkViewContext.viewOffsetIsoXYZ.z;
 
-				var renderFlag = false;
-
+				var incOne = 1;
+				if (gkFieldContext.frameRate < 10) {
+					incOne = 2;
+				}
 				var winXY = localIsoXYZ.convertToWin();
 				if (winXY.x < gkViewContext.scrollEdgeX) {
-					gkViewContext.viewOffsetIsoXYZ.x -= 1;
-					gkViewContext.viewOffsetIsoXYZ.y += 1;
-					renderFlag = true;
+					gkViewContext.viewOffsetIsoXYZ.x -= incOne;
+					gkViewContext.viewOffsetIsoXYZ.y += incOne;
+					moveFlag = true;
 				}
 				if ((winXY.x + gkViewContext.scrollEdgeX) > (gkViewContext.svgWidth / gkViewContext.scale)) {
-					gkViewContext.viewOffsetIsoXYZ.x += 1;
-					gkViewContext.viewOffsetIsoXYZ.y -= 1;
-					renderFlag = true;
+					gkViewContext.viewOffsetIsoXYZ.x += incOne;
+					gkViewContext.viewOffsetIsoXYZ.y -= incOne;
+					moveFlag = true;
 				}
 				if (winXY.y < gkViewContext.scrollEdgeY) {
-					gkViewContext.viewOffsetIsoXYZ.x -= 1;
-					gkViewContext.viewOffsetIsoXYZ.y -= 1;
-					renderFlag = true;
+					gkViewContext.viewOffsetIsoXYZ.x -= incOne;
+					gkViewContext.viewOffsetIsoXYZ.y -= incOne;
+					moveFlag = true;
 				}
 				if ((winXY.y + gkViewContext.scrollEdgeY) > (gkViewContext.svgHeight / gkViewContext.scale)) {
-					gkViewContext.viewOffsetIsoXYZ.x += 1;
-					gkViewContext.viewOffsetIsoXYZ.y += 1;
-					renderFlag = true;
-				}
-
-				if (renderFlag) {
+					gkViewContext.viewOffsetIsoXYZ.x += incOne;
+					gkViewContext.viewOffsetIsoXYZ.y += incOne;
 					moveFlag = true;
-					gkViewRender();
 				}
+//console.log("viewOffset: " + gkViewContext.viewOffsetIsoXYZ.x + "," + gkViewContext.viewOffsetIsoXYZ.y);
 			}
 		}
 	}
-
-	var moveX, moveY
-	moveX = 0;
-	moveY = 0;
-	if (gkFieldContext.leftKeyDown) {
-		moveX -= 1;
-		moveY += 1;
-	}
-	if (gkFieldContext.rightKeyDown) {
-		moveX += 1;
-		moveY -= 1;
-	}
-	if (gkFieldContext.upKeyDown) {
-		moveX -= 1;
-		moveY -= 1;
-	}
-	if (gkFieldContext.downKeyDown) {
-		moveX += 1;
-		moveY += 1;
-	}
-	if ((gkFieldContext.inFocus) && ((gkFieldContext.leftKeyDown) || (gkFieldContext.rightKeyDown) || (gkFieldContext.upKeyDown) || (gkFieldContext.downKeyDown))) {
-		gkFieldSetArrowKeyDestination(moveX, moveY);
-		moveFlag = true;
-	}
-
-	var endTime = (new Date()).getTime();
-
+/*
 	if (moveFlag) {
 		for (var evAC=0;evAC<gkTerrainContext.terrainAudioMap.length;evAC++) {
 			if (gkFieldContext.avatarId == undefined) {
@@ -443,18 +464,32 @@ console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," +
 				eAudio.pause();
 			}
 		}
-		if (gkFieldContext.lastIntervalTime > 0) {
-			var duration = endTime - gkFieldContext.lastIntervalTime;
-			gkFieldContext.duration3 = gkFieldContext.duration2;
-			gkFieldContext.duration2 = gkFieldContext.duration1;
-			gkFieldContext.duration1 = duration;
-			gkFieldContext.frameRate = (3000.0 / (gkFieldContext.duration1 + gkFieldContext.duration2 + gkFieldContext.duration3)).toFixed(2);
+
+	}
+*/
+
+	if (moveFlag) {
+		gkViewRender();
+	}
+
+	gkFieldContext.frameRateDisplayCount += 1;
+	if ((gkFieldContext.frameRateDisplayCount & 3) == 0) {
+		var endTime = (new Date()).getTime();
+
+		var duration = endTime - gkFieldContext.lastIntervalTime;
+//console.log("duration: " + duration);
+		gkFieldContext.duration5 = gkFieldContext.duration4;
+		gkFieldContext.duration4 = gkFieldContext.duration3;
+		gkFieldContext.duration3 = gkFieldContext.duration2;
+		gkFieldContext.duration2 = gkFieldContext.duration1;
+		gkFieldContext.duration1 = duration;
+		if ((gkFieldContext.duration1 + gkFieldContext.duration2) > 0) {
+			gkFieldContext.frameRate = (20000.0 / (gkFieldContext.duration1 + gkFieldContext.duration2 + gkFieldContext.duration3 + gkFieldContext.duration4 + gkFieldContext.duration5)).toFixed(2);
 			var frameRate = document.getElementById("frameRate");
 			frameRate.innerHTML = "fps: " + gkFieldContext.frameRate;
 		}
+		gkFieldContext.lastIntervalTime = endTime;
 	}
-
-	gkFieldContext.lastIntervalTime = endTime;
 }
 
 // delete all objects from the field
@@ -555,13 +590,13 @@ function gkFieldLoseFocus() {
 // add another grid list entry
 // must be called in gridListIndexName order
 function gkFieldAddGridListEntry(gridListIndexName) {
-	console.log("adding gridListIndexName: " + gridListIndexName);
+//	console.log("adding gridListIndexName: " + gridListIndexName);
 
 	var gridListLayer = document.getElementById(gkFieldContext.gridListLayer);
 
 	var g = document.createElementNS(gkIsoContext.svgNameSpace,"g");
 	g.id = gridListIndexName;
-console.log("setting g id: " + g.id);
+//console.log("setting g id: " + g.id);
 	gridListLayer.appendChild(g);
 }
 
@@ -604,12 +639,12 @@ function gkFieldChangeGridListPosition(refObject) {
 	var ref = document.getElementById(gkFieldContext.useGPrefix + refObject.id);
 
 	if (ref == undefined) {
-		console.log("gkFieldChangeGridListPosition id: " + refObject.id + " could not find ref");
+//		console.log("gkFieldChangeGridListPosition id: " + refObject.id + " could not find ref");
 	} else {
 		gkIsoSetSvgObjectPositionWithOffset(ref, refObject.isoXYZCurrent, refObject.originX, refObject.originY, refObject.originZ);
 
 		var parNode = ref.parentNode;
-		console.log("gkFieldChangeGridListPosition id: " + refObject.id + " parNode id: " + parNode.id);
+//		console.log("gkFieldChangeGridListPosition id: " + refObject.id + " parNode id: " + parNode.id);
 
 		var isoXYZ = refObject.isoXYZCurrent;
 		var newGridListIndexName = gkIsoGetGridListIndexName(isoXYZ.x, isoXYZ.y, isoXYZ.z);

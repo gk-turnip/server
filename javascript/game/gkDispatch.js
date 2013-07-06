@@ -21,10 +21,10 @@ function gkDispatchWsMessage(command, jsonData, data) {
 //console.log("got command: " + command);
 	switch (command) {
 	case "turnOnRainReq":
-		gkRainOn();
+		//gkRainOn();
 		break;
 	case "turnOffRainReq":
-		gkRainOff();
+		//gkRainOff();
 		break;
 	case "getAvatarSvgRes":
 		//console.log("gkDispatch getAvatarSvgRes");
