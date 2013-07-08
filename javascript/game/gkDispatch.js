@@ -27,42 +27,42 @@ function gkDispatchWsMessage(command, jsonData, data) {
 		//gkRainOff();
 		break;
 	case "getAvatarSvgRes":
-		//console.log("gkDispatch getAvatarSvgRes");
+		console.log("gkDispatch getAvatarSvgRes");
 		gkFieldAddAvatar(jsonData, data)
 		break;
 	case "addSvgReq":
-		//console.log("gkDispatch addSvgReq");
+		console.log("gkDispatch addSvgReq");
 		gkFieldAddSvg(jsonData, data);
 		break;
 	case "delSvgReq":
-		//console.log("gkDispatch delSvgReq");
+		console.log("gkDispatch delSvgReq");
 		gkFieldDelSvg(jsonData);
 		break;
 	case "moveSvgReq":
-		//console.log("gkDispatch moveSvgReq");
+		console.log("gkDispatch moveSvgReq");
 		gkFieldMoveSvg(jsonData);
 		break;
 	case "setSvgReq":
-		//console.log("gkDispatch setSvgReq");
+		console.log("gkDispatch setSvgReq");
 		gkFieldSetSvg(jsonData);
 		break;
 	case "clearTerrainReq":
-		//console.log("gkDispatch clearTerrainReq");
+		console.log("gkDispatch clearTerrainReq");
 		gkTerrainClearTerrain(jsonData);
 		break;
 	case "setTerrainSvgReq":
-		//console.log("gkDispatch setTerrainSvgReq");
+		console.log("gkDispatch setTerrainSvgReq");
 		gkTerrainSetTerrainSvg(jsonData, data);
 		break;
 	case "setTerrainMapReq":
-		//console.log("gkDispatch setTerrainMapReq");
+		console.log("gkDispatch setTerrainMapReq");
 		gkTerrainSetTerrainMap(jsonData);
 		break;
 	case "pingRes":
 		gkWsPingRes(jsonData);
 		break;
 	case "userNameReq":
-		//console.log("gkDispatch userNameReq");
+		console.log("gkDispatch userNameReq");
 		gkWsUserNameReq(jsonData);
 		break;
 	case "chatReq":
@@ -72,7 +72,7 @@ function gkDispatchWsMessage(command, jsonData, data) {
 		gkWsChatSendPastChatReq(jsonData);
 		break;
 	case "newPodTitleReq":
-		//console.log("gkDispatch newPodTitleReq");
+		console.log("gkDispatch newPodTitleReq");
 		gkFieldNewPodTitleReq(jsonData);
 		break;
 	default:

@@ -28,7 +28,9 @@ function gkTerrainMapMapEntryDef(x, y, zList, terrainName) {
 	this.x = x
 	this.y = y
 	this.zList = zList
-	this.terrainName = terrainName
+	if (terrainName != undefined) {
+		this.terrainName = terrainName
+	}
 }
 
 function gkTerrainElevationMapEntryDef(x, y, z) {
@@ -122,7 +124,11 @@ console.log("tileList.length: " + jsonData.tileList.length);
 		var x, y, z, zList, terrainName;
 		x = parseInt(jsonData.tileList[i].x);
 		y = parseInt(jsonData.tileList[i].y);
-		terrainName = jsonData.tileList[i].t;
+		if (jsonData.tileList[i].t != undefined) {
+			terrainName = jsonData.tileList[i].t;
+		} else {
+			terrainName = undefined;
+		}
 
 		var gridListIndexName = gkIsoGetGridListIndexName(x,y,0)
 		gridListMap[gridListIndexName] = gridListIndexName;
@@ -151,17 +157,23 @@ console.log("grid array size: " + gridListArray.length);
 		var x, y, z, zList, terrainName;
 		x = parseInt(jsonData.tileList[i].x);
 		y = parseInt(jsonData.tileList[i].y);
-		terrainName = jsonData.tileList[i].t;
+		if (jsonData.tileList[i].t != undefined) {
+			terrainName = jsonData.tileList[i].t;
+		} else {
+			terrainName = undefined;
+		}
 
 		zList = jsonData.tileList[i].z;
-		
-		var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(terrainName);
 
-		if (terrainSvgMapEntry != undefined) {
-			for (var j = 0;j < zList.length;j++) {
-				var isoXYZ = new GkIsoXYZDef(x,y,zList[j]);
+		if (terrainName != undefined) {		
+			var terrainSvgMapEntry = gkTerrainGetSvgMapEntry(terrainName);
 
-				gkFieldAddTerrainObject(gkFieldContext.defsTerrainPrefix, gkFieldContext.terrainObjectPrefix + i, terrainName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
+			if (terrainSvgMapEntry != undefined) {
+				for (var j = 0;j < zList.length;j++) {
+					var isoXYZ = new GkIsoXYZDef(x,y,zList[j]);
+
+					gkFieldAddTerrainObject(gkFieldContext.defsTerrainPrefix, gkFieldContext.terrainObjectPrefix + i, terrainName, isoXYZ, terrainSvgMapEntry.originX, terrainSvgMapEntry.originY, terrainSvgMapEntry.originZ);
+				}
 			}
 		}
 	}

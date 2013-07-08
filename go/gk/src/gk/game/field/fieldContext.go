@@ -486,16 +486,18 @@ func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *we
 		var terrain string = terrainJson.jsonMapData.TileList[i].Terrain
 		var ok bool
 
-		_, ok = terrainSentMap[terrain]
-		if !ok {
-			var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
-			gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.SetTerrainSvgReq, terrain, nil)
-			if gkErr != nil {
-				return gkErr
-			}
-			fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+		if (terrain != "") {
+			_, ok = terrainSentMap[terrain]
+			if !ok {
+				var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
+				gkErr = messageToClient.BuildSvgMessageToClient(fieldContext.terrainSvgDir, message.SetTerrainSvgReq, terrain, nil)
+				if gkErr != nil {
+					return gkErr
+				}
+				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 
-			terrainSentMap[terrain] = terrain
+				terrainSentMap[terrain] = terrain
+			}
 		}
 	}
 

@@ -85,7 +85,11 @@ func (fieldContext *FieldContextDef) handleNewPodReq(messageFromClient *message.
 
 		fieldContext.podMap[int32(newPodId)].websocketConnectionMap[messageFromClient.SessionId] = websocketConnectionContext
 
-		fieldContext.uploadNewPodInfo(websocketConnectionContext, int32(newPodId))
+		gkErr = fieldContext.uploadNewPodInfo(websocketConnectionContext, int32(newPodId))
+		if gkErr != nil {
+			gklog.LogGkErr("", gkErr)
+			return gkErr
+		}
 
 		gkErr = fieldContext.reAddAvatarBySessionId(messageFromClient.SessionId, int32(newPodId))
 		if gkErr != nil {

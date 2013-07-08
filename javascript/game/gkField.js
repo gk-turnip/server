@@ -590,7 +590,7 @@ function gkFieldLoseFocus() {
 // add another grid list entry
 // must be called in gridListIndexName order
 function gkFieldAddGridListEntry(gridListIndexName) {
-//	console.log("adding gridListIndexName: " + gridListIndexName);
+	console.log("adding gridListIndexName: " + gridListIndexName);
 
 	var gridListLayer = document.getElementById(gkFieldContext.gridListLayer);
 
@@ -605,18 +605,24 @@ function gkFieldAddObjectToGridList(hrefPrefix, refId, objectName, isoXYZ, origi
 	var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
 
 	var gridListIndexName = gkIsoGetGridListIndexName(isoXYZ.x, isoXYZ.y, isoXYZ.z);
+	console.log("gkFieldAddObjectToGridList: " + gridListIndexName + " " + objectName);
 
 	var gridListG = document.getElementById(gridListIndexName);
-	ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#" + hrefPrefix + objectName);
-	ref.id = gkFieldContext.useObjectPrefix + refId;
 
-	gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, originX, originY, originZ, podId, destination);
+	if (gridListG == undefined) {
+		console.error("could not find grid entry: " + gridListIndexName + " x,y,z: " + isoXYZ.x + "," + isoXYZ.y + "," + isoXYZ.z);
+	} else {
+		ref.setAttributeNS(gkIsoContext.xlinkNameSpace,"href","#" + hrefPrefix + objectName);
+		ref.id = gkFieldContext.useObjectPrefix + refId;
 
-	var useG = document.createElementNS(gkIsoContext.svgNameSpace,"g");
-	useG.id = gkFieldContext.useGPrefix + objectName;
-	gkIsoSetSvgObjectPositionWithOffset(useG, isoXYZ, originX, originY, originZ);
-	useG.appendChild(ref);
-	gridListG.appendChild(useG);
+		gkTerrainSetSvgObjectOnClick(ref, objectName, isoXYZ, originX, originY, originZ, podId, destination);
+
+		var useG = document.createElementNS(gkIsoContext.svgNameSpace,"g");
+		useG.id = gkFieldContext.useGPrefix + objectName;
+		gkIsoSetSvgObjectPositionWithOffset(useG, isoXYZ, originX, originY, originZ);
+		useG.appendChild(ref);
+		gridListG.appendChild(useG);
+	}
 }
 
 function gkFieldAddTerrainObject(hrefPrefix, refId, objectName, isoXYZ, originX, originY, originZ) {
