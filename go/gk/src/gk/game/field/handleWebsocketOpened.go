@@ -27,7 +27,7 @@ func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessag
 	var singleSession *ses.SingleSessionDef
 
 	singleSession = fieldContext.sessionContext.GetSessionFromId(websocketOpenedMessage.SessionId)
-	var podId int32 = singleSession.GetCurrentPodId();
+	var podId int32 = singleSession.GetCurrentPodId()
 
 	var websocketConnectionContext *websocketConnectionContextDef
 	var gkErr *gkerr.GkErrDef

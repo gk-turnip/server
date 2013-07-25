@@ -105,7 +105,7 @@ func (gkDbCon *GkDbConDef) GetLastChatArchiveEntries(count int) ([]LugChatArchiv
 		if err != nil {
 			return nil, gkerr.GenGkErr("rows.Scan"+getDatabaseErrorMessage(err), err, ERROR_ID_ROWS_SCAN)
 		}
-		results = append(results,lugChatArchive)
+		results = append(results, lugChatArchive)
 
 		if len(results) >= count {
 			break

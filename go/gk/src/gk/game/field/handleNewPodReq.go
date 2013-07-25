@@ -32,9 +32,9 @@ import (
 
 type newPodReqDef struct {
 	PodId string
-	X string
-	Y string
-	Z string
+	X     string
+	Y     string
+	Z     string
 }
 
 // websocketConnectionContext entry must be moved from old pod to new pod
@@ -70,7 +70,6 @@ func (fieldContext *FieldContextDef) handleNewPodReq(messageFromClient *message.
 
 	var newPodId int64
 	newPodId, _ = strconv.ParseInt(newPodReq.PodId, 10, 32)
-
 
 	if (fieldContext.isPodIdValid(int32(newPodId))) && (oldPodId != int32(newPodId)) {
 
@@ -119,7 +118,7 @@ func (fieldContext *FieldContextDef) uploadNewPodInfo(websocketConnectionContext
 		return gkErr
 	}
 
-	var messageToClient *message.MessageToClientDef = new (message.MessageToClientDef)
+	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
 	var podTitle string = fieldContext.podMap[podId].title
 	messageToClient.Command = message.NewPodTitleReq
 	messageToClient.JsonData = []byte(fmt.Sprintf("{ \"podTitle\": \"%s\" }", podTitle))

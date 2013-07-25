@@ -25,11 +25,11 @@ import (
 )
 
 import (
+	"gk/database"
 	"gk/game/message"
 	"gk/gkerr"
 	"gk/gkjson"
 	"gk/gklog"
-	"gk/database"
 )
 
 type chatReqDef struct {
@@ -93,7 +93,7 @@ func (fieldContext *FieldContextDef) handleChatReq(messageFromClient *message.Me
 	if gkErr != nil {
 		// inserting chat is non critical
 		// so just log the error
-		gklog.LogGkErr("fieldContext.persistenceContext.AddNewChatMessage",gkErr)
+		gklog.LogGkErr("fieldContext.persistenceContext.AddNewChatMessage", gkErr)
 	}
 
 	return nil
@@ -111,9 +111,9 @@ func (fieldContext *FieldContextDef) getPastChatJsonData() ([]byte, *gkerr.GkErr
 		return nil, gkErr
 	}
 
-	gklog.LogTrace(fmt.Sprintf("len lugChatArchiveList: %d",len(lugChatArchiveList)))
+	gklog.LogTrace(fmt.Sprintf("len lugChatArchiveList: %d", len(lugChatArchiveList)))
 
-	for i := 0;i < len(lugChatArchiveList);i++ {
+	for i := 0; i < len(lugChatArchiveList); i++ {
 		var line string
 
 		lugChatArchive := lugChatArchiveList[i]

@@ -22,8 +22,7 @@ import (
 )
 
 type LugChatArchiveDef struct {
-	UserName string
+	UserName            string
 	MessageCreationDate time.Time
-	ChatMessage string
+	ChatMessage         string
 }
-

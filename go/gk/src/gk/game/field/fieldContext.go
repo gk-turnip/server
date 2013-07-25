@@ -41,28 +41,28 @@ import (
 const firstPodId = 1
 
 type FieldContextDef struct {
-	sessionContext         *ses.SessionContextDef
-	persistenceContext     *persistence.PersistenceContextDef
-	WebsocketOpenedChan    chan WebsocketOpenedMessageDef
-	WebsocketClosedChan    chan WebsocketClosedMessageDef
-	MessageFromClientChan  chan *message.MessageFromClientDef
-	avatarSvgDir           string
-	terrainSvgDir          string
-	lastObjectId           int64
-	lastObjectIdMutex      sync.Mutex
-	rainContext            rainContextDef
-	savedChatMutex         *sync.Mutex
-	savedChat              *list.List
-	podMap					map[int32]*podEntryDef
+	sessionContext        *ses.SessionContextDef
+	persistenceContext    *persistence.PersistenceContextDef
+	WebsocketOpenedChan   chan WebsocketOpenedMessageDef
+	WebsocketClosedChan   chan WebsocketClosedMessageDef
+	MessageFromClientChan chan *message.MessageFromClientDef
+	avatarSvgDir          string
+	terrainSvgDir         string
+	lastObjectId          int64
+	lastObjectIdMutex     sync.Mutex
+	rainContext           rainContextDef
+	savedChatMutex        *sync.Mutex
+	savedChat             *list.List
+	podMap                map[int32]*podEntryDef
 }
 
 type podEntryDef struct {
-	podId int32
-	title string
-	terrainJson      *terrainJsonDef
+	podId                  int32
+	title                  string
+	terrainJson            *terrainJsonDef
 	websocketConnectionMap map[string]*websocketConnectionContextDef
-	avatarMap        map[string]*fieldObjectDef
-	objectMap        map[string]*fieldObjectDef
+	avatarMap              map[string]*fieldObjectDef
+	objectMap              map[string]*fieldObjectDef
 }
 
 type websocketConnectionContextDef struct {
@@ -114,7 +114,7 @@ func NewFieldContext(avatarSvgDir string, terrainSvgDir string, sessionContext *
 
 	fieldContext.podMap = make(map[int32]*podEntryDef)
 	for _, dbPod := range podList {
-gklog.LogTrace(fmt.Sprintf("populate pod %+v",dbPod))
+		gklog.LogTrace(fmt.Sprintf("populate pod %+v", dbPod))
 		var podEntry *podEntryDef = new(podEntryDef)
 		podEntry.podId = dbPod.Id
 		podEntry.title = dbPod.Title
@@ -132,10 +132,10 @@ gklog.LogTrace(fmt.Sprintf("populate pod %+v",dbPod))
 	fieldContext.savedChatMutex = new(sync.Mutex)
 	fieldContext.savedChat = list.New()
 
-//	fieldContext.terrainMap, gkErr = fieldContext.newTerrainMap(fieldContext, fieldContext.terrainSvgDir, fieldContext.persistenceContext)
-//	if gkErr != nil {
-//		return nil, gkErr
-//	}
+	//	fieldContext.terrainMap, gkErr = fieldContext.newTerrainMap(fieldContext, fieldContext.terrainSvgDir, fieldContext.persistenceContext)
+	//	if gkErr != nil {
+	//		return nil, gkErr
+	//	}
 
 	return fieldContext, nil
 }
@@ -180,13 +180,13 @@ func (fieldContext *FieldContextDef) addTerrainObject(fieldObject *fieldObjectDe
 
 	fieldContext.podMap[podId].objectMap[fieldObject.id] = fieldObject
 
-//	_, ok := fieldContext.globalObjectMap[podId]
-//	_, ok := fieldContext.podMap[podId]
-//	if ok {
-//		podEntry.globalObjectMap = make(map[string]*fieldObjectDef)
-//		fieldContext.globalObjectMap[podId] = make(map[string]*fieldObjectDef)
-//	}
-//	fieldContext.globalObjectMap[podId][fieldObject.id] = fieldObject
+	//	_, ok := fieldContext.globalObjectMap[podId]
+	//	_, ok := fieldContext.podMap[podId]
+	//	if ok {
+	//		podEntry.globalObjectMap = make(map[string]*fieldObjectDef)
+	//		fieldContext.globalObjectMap[podId] = make(map[string]*fieldObjectDef)
+	//	}
+	//	fieldContext.globalObjectMap[podId][fieldObject.id] = fieldObject
 }
 
 func (fieldContext *FieldContextDef) delAvatarObject(podId int32, fieldObject *fieldObjectDef) {
@@ -196,7 +196,7 @@ func (fieldContext *FieldContextDef) delAvatarObject(podId int32, fieldObject *f
 func (fieldContext *FieldContextDef) delTerrainObject(podId int32, fieldObject *fieldObjectDef) {
 
 	delete(fieldContext.podMap[podId].objectMap, fieldObject.id)
-//	delete(fieldContext.globalObjectMap[podId], fieldObject.id)
+	//	delete(fieldContext.globalObjectMap[podId], fieldObject.id)
 }
 
 func (fieldContext *FieldContextDef) sendAllAvatarObjects(podId int32, websocketConnectionContext *websocketConnectionContextDef) *gkerr.GkErrDef {
@@ -322,11 +322,11 @@ func (fieldContext *FieldContextDef) moveAllAvatarBySessionId(sessionId string, 
 			messageToClient.Data = make([]byte, 0, 0)
 
 			for _, websocketConnectionContext := range fieldContext.podMap[oldPodId].websocketConnectionMap {
-				if (sessionId == websocketConnectionContext.sessionId) {
-					fieldObject.isoXYZ.X = destinationX;
-					fieldObject.isoXYZ.Y = destinationY;
-					fieldObject.isoXYZ.Z = destinationZ;
-	gklog.LogTrace(fmt.Sprintf("moveAllAvatarBySessionId new destination: %d,%d,%d",fieldObject.isoXYZ.X, fieldObject.isoXYZ.Y, fieldObject.isoXYZ.Z))
+				if sessionId == websocketConnectionContext.sessionId {
+					fieldObject.isoXYZ.X = destinationX
+					fieldObject.isoXYZ.Y = destinationY
+					fieldObject.isoXYZ.Z = destinationZ
+					gklog.LogTrace(fmt.Sprintf("moveAllAvatarBySessionId new destination: %d,%d,%d", fieldObject.isoXYZ.X, fieldObject.isoXYZ.Y, fieldObject.isoXYZ.Z))
 				}
 				fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
 			}
@@ -353,17 +353,17 @@ func (fieldContext *FieldContextDef) reAddAvatarBySessionId(sessionId string, ne
 	for _, fieldObject := range fieldContext.podMap[newPodId].avatarMap {
 		if fieldObject.sourceSessionId == sessionId {
 			websocketConnectionContext := fieldContext.podMap[newPodId].websocketConnectionMap[sessionId]
-		gklog.LogTrace(fmt.Sprintf("reAddAvatarBySessionId new destination: %d,%d,%d",fieldObject.isoXYZ.X, fieldObject.isoXYZ.Y, fieldObject.isoXYZ.Z))
+			gklog.LogTrace(fmt.Sprintf("reAddAvatarBySessionId new destination: %d,%d,%d", fieldObject.isoXYZ.X, fieldObject.isoXYZ.Y, fieldObject.isoXYZ.Z))
 			gkErr = fieldContext.sendSingleAvatarObject(websocketConnectionContext, fieldObject)
 			if gkErr != nil {
 				return gkErr
 			}
 
-//			for _, websocketConnectionContext := range fieldContext.podMap[newPodId].websocketConnectionMap {
+			//			for _, websocketConnectionContext := range fieldContext.podMap[newPodId].websocketConnectionMap {
 
-//				if (sessionId == websocketConnectionContext.sessionId) {
-//				}
-//			}
+			//				if (sessionId == websocketConnectionContext.sessionId) {
+			//				}
+			//			}
 		}
 	}
 
@@ -486,7 +486,7 @@ func (fieldContext *FieldContextDef) doTerrainSvg(websocketConnectionContext *we
 		var terrain string = terrainJson.jsonMapData.TileList[i].Terrain
 		var ok bool
 
-		if (terrain != "") {
+		if terrain != "" {
 			_, ok = terrainSentMap[terrain]
 			if !ok {
 				var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)

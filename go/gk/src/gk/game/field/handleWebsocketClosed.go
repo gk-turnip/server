@@ -23,7 +23,7 @@ import (
 
 func (fieldContext *FieldContextDef) handleWebsocketClosed(websocketClosedMessage WebsocketClosedMessageDef) *gkerr.GkErrDef {
 
-//	var gkErr *gkerr.GkErrDef
+	//	var gkErr *gkerr.GkErrDef
 	var ok bool
 
 	for _, podEntry := range fieldContext.podMap {

@@ -24,7 +24,7 @@ import (
 
 import (
 	"gk/game/message"
-//	"gk/game/ses"
+	//	"gk/game/ses"
 	"gk/gkerr"
 )
 
@@ -55,8 +55,8 @@ func (fieldContext *FieldContextDef) addDandelion() {
 	var podId int32 = firstPodId // dandelions are only in the first pod
 
 	for _, websocketConnectionContext := range fieldContext.podMap[podId].websocketConnectionMap {
-//		var singleSession *ses.SingleSessionDef
-//		singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
+		//		var singleSession *ses.SingleSessionDef
+		//		singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
 		var terrainJson *terrainJsonDef
 		terrainJson = fieldContext.podMap[podId].terrainJson
 

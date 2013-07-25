@@ -25,7 +25,7 @@ import (
 )
 
 import (
-//	"gk/game/persistence"
+	//	"gk/game/persistence"
 	"gk/gkerr"
 )
 
@@ -46,7 +46,7 @@ type terrainJsonDef struct {
 
 func (fieldContext *FieldContextDef) newTerrainMap(podId int32) (*terrainJsonDef, *gkerr.GkErrDef) {
 	//	var terrainMap *terrainMapDef = new(terrainMapDef)
-//	var terrainMap map[int32]*terrainJsonDef = make(map[int32]*terrainJsonDef)
+	//	var terrainMap map[int32]*terrainJsonDef = make(map[int32]*terrainJsonDef)
 
 	var gkErr *gkerr.GkErrDef
 
