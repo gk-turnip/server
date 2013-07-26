@@ -19,11 +19,13 @@
 package sec
 
 import (
-	"crypto/rand"
+	crand "crypto/rand"
 	"crypto/sha512"
 	"errors"
 	"hash"
 	"io"
+	"time"
+	mrand "math/rand"
 )
 
 var passwordHashConstant = []byte("jvk56j3Bu") // this value must not change
@@ -31,7 +33,11 @@ const _hashLoopCount = 5000                    // this value must not change
 const _saltLength = 10
 const _forgotPasswordTokenLength = 12
 
-var saltValues = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+var tokenValues = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func init() {
+	mrand.Seed(time.Now().UnixNano())
+}
 
 // generate a hash for the given password and salt
 // intentionally slow for better security
@@ -92,22 +98,33 @@ func GenForgotPasswordToken() ([]byte, error) {
 	return genToken(_forgotPasswordTokenLength)
 }
 
-// geneate a new random salt
+// geneate a new random token
 func genToken(tokenLen int) ([]byte, error) {
-	salt := make([]byte, tokenLen, tokenLen)
+	token := make([]byte, tokenLen, tokenLen)
 
-	readCount, err := io.ReadFull(rand.Reader, salt)
+	readCount, err := io.ReadFull(crand.Reader, token)
 	if err != nil {
 		return nil, err
 	}
-	if readCount != len(salt) {
-		err = errors.New("GenSalt: could not get random salt")
+	if readCount != len(token) {
+		err = errors.New("genToken: could not get random token")
 		return nil, err
 	}
 
-	for i := 0; i < len(salt); i++ {
-		salt[i] = saltValues[salt[i]%byte(len(saltValues))]
+	for i := 0; i < len(token); i++ {
+		token[i] = tokenValues[token[i]%byte(len(tokenValues))]
 	}
 
-	return salt, nil
+	return token, nil
 }
+
+// about 10 to to 110 ms
+func GetSleepDurationPasswordAttempt() time.Duration {
+        return time.Duration(int32(time.Nanosecond) * mrand.Int31n(100000000) + 10000000)
+}
+
+// about 50 to 550 ms
+func GetSleepDurationPasswordInvalid() time.Duration {
+        return time.Duration(int32(time.Nanosecond) * mrand.Int31n(500000000) + 50000000)
+}
+

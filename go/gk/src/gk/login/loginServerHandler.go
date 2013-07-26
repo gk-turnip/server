@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
@@ -119,10 +118,6 @@ type errorDataDef struct {
 	Message string
 }
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 func (loginConfig *loginConfigDef) loginInit() *gkerr.GkErrDef {
 	var gkErr *gkerr.GkErrDef
 
@@ -201,10 +196,8 @@ func handleLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req *http
 	email = req.Form.Get(_emailParam)
 	token = req.Form.Get(_tokenParam)
 
-	// for security
-	// sleep between 10 and 19 milliseconds
-	randMilliseconds := int(rand.Int31n(1000)) + 1000
-	time.Sleep(time.Nanosecond * 10000 * time.Duration(randMilliseconds))
+	// for security sleep on password attempt
+	time.Sleep(sec.GetSleepDurationPasswordAttempt())
 
 	gklog.LogTrace("act: " + act)
 
@@ -353,8 +346,7 @@ func handleLoginLogin(loginConfig *loginConfigDef, res http.ResponseWriter, req 
 	if gotError {
 		// for security, to slow down an attack that is guessing passwords,
 		// sleep between 100 and 190 milliseconds
-		randMilliseconds := int(rand.Int31n(10)) + 10
-		time.Sleep(time.Nanosecond * 10000000 * time.Duration(randMilliseconds))
+		time.Sleep(sec.GetSleepDurationPasswordInvalid())
 
 		gkErr = _loginTemplate.Build(loginData)
 		if gkErr != nil {
