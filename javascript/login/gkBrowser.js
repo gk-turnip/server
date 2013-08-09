@@ -36,6 +36,14 @@ function gkBrowserCheckCompatibility() {
 		status.innerHTML = status.innerHTML + " SVG not supported";
 		ok = false;
 	}
+
+	if (window.XMLHttpRequest) {
+		status.innerHTML = status.innerHTML + " XMLHttpRequest ok";
+	} else {
+		status.innerHTML = status.innerHTML + " XMLHttpRequest not supported";
+		ok = false;
+	}
+
 	if (!ok) {
 		status.innerHTML = status.innerHTML + " YOUR BROWSER IS NOT SUPPORTED";
 		status.style.backgroundColor = "red";

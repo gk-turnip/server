@@ -9,5 +9,13 @@ cp -r ../javascript /var/www/gourdianknot/assets/gk
 cp -r $HOME/assets/game/audio /var/www/gourdianknot/assets/gk
 sudo cp -r ../gktool /var/www/gourdianknot
 
+cp ../../assets/game/svg/controls/*.json /var/www/gourdianknot/assets/gk/controls
+
+cd ../../assets/game/svg/controls
+for file in *.svg
+do
+	/home/turnip/server/go/gk/bin/fixSvgMain -in=$file -out=/var/www/gourdianknot/assets/gk/controls/$file
+done
+
 sudo /etc/init.d/loginServer start
 sudo /etc/init.d/gameServer start

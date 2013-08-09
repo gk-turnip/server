@@ -69,7 +69,7 @@ function gkIsoCreateSingleDiamond(isoXYZ, colour, opacity) {
 // the <svg> tag, but the svg image in the browser also already has
 // the <svg> tag, so I take the first child.
 // note that sometimes the svg files must be edited to add an extra
-// <g> tag around the entire contents after the <svt>
+// <g> tag around the entire contents after the <svg>
 // so that the first child is the entire image, minus the <svg>
 function gkIsoCreateSvgObject(rawSvgData) {
 	var g

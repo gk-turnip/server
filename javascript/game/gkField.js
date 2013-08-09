@@ -590,7 +590,7 @@ function gkFieldLoseFocus() {
 // add another grid list entry
 // must be called in gridListIndexName order
 function gkFieldAddGridListEntry(gridListIndexName) {
-	console.log("adding gridListIndexName: " + gridListIndexName);
+//	console.log("adding gridListIndexName: " + gridListIndexName);
 
 	var gridListLayer = document.getElementById(gkFieldContext.gridListLayer);
 
@@ -605,7 +605,7 @@ function gkFieldAddObjectToGridList(hrefPrefix, refId, objectName, isoXYZ, origi
 	var ref = document.createElementNS(gkIsoContext.svgNameSpace,"use");
 
 	var gridListIndexName = gkIsoGetGridListIndexName(isoXYZ.x, isoXYZ.y, isoXYZ.z);
-	console.log("gkFieldAddObjectToGridList: " + gridListIndexName + " " + objectName);
+//	console.log("gkFieldAddObjectToGridList: " + gridListIndexName + " " + objectName);
 
 	var gridListG = document.getElementById(gridListIndexName);
 
