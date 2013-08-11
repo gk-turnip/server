@@ -46,7 +46,7 @@ function gkControlHandleLoadMenuMap(menuMapText) {
 }
 
 function gkControlHandleLoadMenuItem(controlId, index) {
-	console.log("got menu item control loaded controlId: " + controlId + " index: " + index);
+	//console.log("got menu item control loaded controlId: " + controlId + " index: " + index);
 	//console.log(gkControlContext.loadMap[controlId].rawSvg);
 	//console.log(gkControlContext.loadMap[controlId].rawJson);
 	gkControlAddSvg(controlId, index);
@@ -134,11 +134,11 @@ function gkControlAddSvg(controlId, index) {
 	};
 
 	if ((controlId == "widthHeightPad") || (controlId == "zoomPad")) {
-		g.onmousedown = function() {
-			gkControlMenuItemMouseDown(controlId, index);
+		g.onmousedown = function(evt) {
+			gkControlMenuItemMouseDown(evt, controlId, index);
 		};
-		g.onmouseup = function() {
-			gkControlMenuItemMouseUp(controlId, index);
+		g.onmouseup = function(evt) {
+			gkControlMenuItemMouseUp(evt, controlId, index);
 		};
 		g.onmousemove = function(evt) {
 			gkControlMenuItemMouseMove(evt, controlId, index);
@@ -146,15 +146,18 @@ function gkControlAddSvg(controlId, index) {
 	}
 	var layer = document.getElementById(gkControlContext.controlLayer);
 	layer.appendChild(g);
-	console.log("added to layer: " + gkControlContext.controlLayer);
+	//console.log("added to layer: " + gkControlContext.controlLayer);
 
 	if (controlId == "zoomPad") {
 		gkControlSetZoomPadText();
 	}
+	if (controlId == "widthHeightPad") {
+		gkControlSetWidthHeightPadText();
+	}
 }
 
 function gkControlMenuItemClick(controlId, index) {
-	console.log("gkControlMenuItemClick " + controlId + " " + index);
+	//console.log("gkControlMenuItemClick " + controlId + " " + index);
 
 	var nextLevelControlId = controlId;
 
@@ -169,7 +172,7 @@ function gkControlMenuItemClick(controlId, index) {
 		}
 	}
 
-	console.log("new menu controlId: " + nextLevelControlId);
+	//console.log("new menu controlId: " + nextLevelControlId);
 	if (gkControlContext.menuMap[nextLevelControlId] != undefined) {
 		gkControlClearCurrentMenu();
 		for (var i = 0;i < gkControlContext.menuMap[nextLevelControlId].length;i++) {
@@ -178,13 +181,16 @@ function gkControlMenuItemClick(controlId, index) {
 	}
 }
 
-function gkControlMenuItemMouseDown(controlId, index) {
-	console.log("gkControlMenuItemMouseDown " + controlId + " " + index);
+function gkControlMenuItemMouseDown(evt, controlId, index) {
+	evt.preventDefault();
+	//console.log("gkControlMenuItemMouseDown " + controlId + " " + index);
 	gkControlContext.mouseDown = true;
+	gkControlMenuItemMouseMove(evt, controlId, index);
 }
 
-function gkControlMenuItemMouseUp(controlId, index) {
-	console.log("gkControlMenuItemMouseUp " + controlId + " " + index);
+function gkControlMenuItemMouseUp(evt, controlId, index) {
+	evt.preventDefault();
+	//console.log("gkControlMenuItemMouseUp " + controlId + " " + index);
 	gkControlContext.mouseDown = false;
 }
 
@@ -215,7 +221,7 @@ function gkControlMenuItemMouseMove(evt, controlId, index) {
 			y = 0.99;
 		}
 
-		console.log("gkControlMenuItemMouseMove " + x + "," + y + " " + controlId + " " + index);
+		//console.log("gkControlMenuItemMouseMove " + x + "," + y + " " + controlId + " " + index);
 
 		if (controlId == "widthHeightPad") {
 			gkControlHandleWidthHeightPad(x,y);
@@ -226,13 +232,25 @@ function gkControlMenuItemMouseMove(evt, controlId, index) {
 	}
 }
 
+function gkControlHandleWidthHeightInit() {
+	gkControlSetWidthHeightPadText();
+}
+
 function gkControlHandleWidthHeightPad(x, y) {
 	var width, height
 
-	width = Math.floor(300 + (x * 2700));
-	height = Math.floor(300 + (y * 2700));
+//console.log("x,y: " + x + "," + y);
+	width = Math.floor(300 + (x * 2260));
+	height = Math.floor(300 + (y * 2260));
 
-	console.log("new width: " + width + " height: " + height);
+	gkViewContext.svgWidth = width;
+	gkViewContext.svgHeight = height;
+
+	gkControlSetWidthHeightPadText();
+
+	gkViewRender();
+
+	//console.log("new width: " + width + " height: " + height);
 }
 
 function gkControlHandleZoomPad(x) {
@@ -246,7 +264,7 @@ function gkControlHandleZoomPad(x) {
 	gkControlSetZoomPadText();
 
 	gkViewRender();
-	console.log("new zoom level: " + zoomLevel);
+	//console.log("new zoom level: " + zoomLevel);
 }
 
 function gkControlSetZoomPadText() {
@@ -256,7 +274,18 @@ function gkControlSetZoomPadText() {
 	var zoomRect = document.getElementById("zoomPad_zoomRect");
 	var transX = (gkViewContext.scale - 0.5) * 133;
 	zoomRect.setAttribute("transform","translate(" + transX + "," + 0 +")");
-	console.log("transX: " + transX);
+	//console.log("transX: " + transX);
+}
+
+function gkControlSetWidthHeightPadText() {
+	var widthHeightText = document.getElementById("widthHeightPad_widthHeightText");
+	widthHeightText.textContent = gkViewContext.svgWidth + " X " + gkViewContext.svgHeight;
+
+	var widthHeightRect = document.getElementById("widthHeightPad_widthHeightRect");
+	var transX = (gkViewContext.svgWidth - 300) / 11.3;
+	var transY = (gkViewContext.svgHeight - 300) / 11.3;
+	widthHeightRect.setAttribute("transform","translate(" + transX + "," + transY +")");
+	//console.log("transX: " + transX + " transY: " + transY);
 }
 
 function gkControlClearCurrentMenu() {
