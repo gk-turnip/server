@@ -133,7 +133,7 @@ function gkControlAddSvg(controlId, index) {
 		gkControlMenuItemClick(controlId, index);
 	};
 
-	if ((controlId == "widthHeightPad") || (controlId == "zoomPad")) {
+	if ((controlId == "widthHeightPad") || (controlId == "zoomPad") || (controlId == "backgroundVolumePad") || (controlId == "effectsVolumePad")) {
 		g.onmousedown = function(evt) {
 			gkControlMenuItemMouseDown(evt, controlId, index);
 		};
@@ -148,11 +148,70 @@ function gkControlAddSvg(controlId, index) {
 	layer.appendChild(g);
 	//console.log("added to layer: " + gkControlContext.controlLayer);
 
+	console.log("gkControlAddSvg controlId: " + controlId);
 	if (controlId == "zoomPad") {
 		gkControlSetZoomPadText();
 	}
 	if (controlId == "widthHeightPad") {
 		gkControlSetWidthHeightPadText();
+	}
+	if (controlId == "backgroundVolumePad") {
+		gkControlSetBackgroundVolumePadText();
+	}
+	if (controlId == "effectsVolumePad") {
+		gkControlSetEffectsVolumePadText();
+	}
+
+	if (controlId == "start") {
+		var podNameText = document.createElementNS(gkIsoContext.svgNameSpace,"text");
+		podNameText.setAttribute("id", "menuPodNameText");
+		podNameText.setAttribute("transform","translate(" + 0 + "," + (((index + 1) * gkControlContext.menuItemHeight) + 25 ) + ")");
+		podNameText.setAttribute("font-family","sans-serif");
+		podNameText.setAttribute("font-wize","24");
+		layer.appendChild(podNameText);
+console.log("id: " + podNameText.id);
+		gkControlSetPodTitle();
+
+		var podPosText = document.createElementNS(gkIsoContext.svgNameSpace,"text");
+		podPosText.setAttribute("id", "menuPodPosText");
+		podPosText.setAttribute("transform","translate(" + 0 + "," + (((index + 2) * gkControlContext.menuItemHeight) + 25 ) + ")");
+		podPosText.setAttribute("font-family","sans-serif");
+		podPosText.setAttribute("font-wize","24");
+		layer.appendChild(podPosText);
+		gkControlSetPos();
+
+		var podFPSText = document.createElementNS(gkIsoContext.svgNameSpace,"text");
+		podFPSText.setAttribute("id", "menuPodFPSText");
+		podFPSText.setAttribute("transform","translate(" + 0 + "," + (((index + 3) * gkControlContext.menuItemHeight) + 25 ) + ")");
+		podFPSText.setAttribute("font-family","sans-serif");
+		podFPSText.setAttribute("font-wize","24");
+		layer.appendChild(podFPSText);
+		gkControlSetFPS();
+
+	}
+	console.log("TRACE got now control id menu displayed " + controlId);
+}
+
+function gkControlSetPodTitle() {
+	var podNameText = document.getElementById("menuPodNameText");
+	if (podNameText != undefined) {
+		podNameText.textContent = "current pod: " + gkFieldContext.podTitle;
+	}
+}
+
+function gkControlSetPos() {
+	if (gkFieldContext.currentPosX != undefined) {
+		var podPosText = document.getElementById("menuPodPosText");
+		if (podPosText != undefined) {
+			podPosText.textContent = "position: " + gkFieldContext.currentPosX + "," + gkFieldContext.currentPosY + "," + gkFieldContext.currentPosZ;
+		}
+	}
+}
+
+function gkControlSetFPS() {
+	var podFPSText = document.getElementById("menuPodFPSText");
+	if (podFPSText != undefined) {
+		podFPSText.textContent = "FPS: " + gkFieldContext.frameRate;
 	}
 }
 
@@ -229,6 +288,12 @@ function gkControlMenuItemMouseMove(evt, controlId, index) {
 		if (controlId == "zoomPad") {
 			gkControlHandleZoomPad(x);
 		}
+		if (controlId == "backgroundVolumePad") {
+			gkControlHandleBackgroundVolumePad(x);
+		}
+		if (controlId == "effectsVolumePad") {
+			gkControlHandleEffectsVolumePad(x);
+		}
 	}
 }
 
@@ -267,6 +332,32 @@ function gkControlHandleZoomPad(x) {
 	//console.log("new zoom level: " + zoomLevel);
 }
 
+function gkControlHandleBackgroundVolumePad(x) {
+	var volumeLevel;
+
+	console.log("new background volume x: " + x);
+	volumeLevel = x;
+
+	gkAudioVolumeChange(gkAudioContext.backgroundVolumeSelect, volumeLevel);
+
+	gkControlSetBackgroundVolumePadText();
+
+	console.log("new background volume level: " + volumeLevel);
+}
+
+function gkControlHandleEffectsVolumePad(x) {
+	var volumeLevel;
+
+	console.log("new effects volume x: " + x);
+	volumeLevel = x;
+
+	gkAudioVolumeChange(gkAudioContext.effectsVolumeSelect, volumeLevel);
+
+	gkControlSetEffectsVolumePadText();
+
+	console.log("new effects volume level: " + volumeLevel);
+}
+
 function gkControlSetZoomPadText() {
 	var zoomText = document.getElementById("zoomPad_zoomText");
 	zoomText.textContent = "zoom: " + gkViewContext.scale;
@@ -286,6 +377,30 @@ function gkControlSetWidthHeightPadText() {
 	var transY = (gkViewContext.svgHeight - 300) / 11.3;
 	widthHeightRect.setAttribute("transform","translate(" + transX + "," + transY +")");
 	//console.log("transX: " + transX + " transY: " + transY);
+}
+
+function gkControlSetBackgroundVolumePadText() {
+	var backgroundVolumeText = document.getElementById("backgroundVolumePad_backgroundVolumeText");
+	if (backgroundVolumeText != null) {
+		var volumeLevel = gkAudioGetVolume(gkAudioContext.backgroundVolumeSelect);
+		backgroundVolumeText.textContent = "vol: " + volumeLevel;
+
+		var backgroundVolumeRect = document.getElementById("backgroundVolumePad_backgroundVolumeRect");
+		var transX = volumeLevel * 190;
+		backgroundVolumeRect.setAttribute("transform","translate(" + transX + "," + 0 +")");
+	}
+}
+
+function gkControlSetEffectsVolumePadText() {
+	var effectsVolumeText = document.getElementById("effectsVolumePad_effectsVolumeText");
+	if (effectsVolumeText != null) {
+		var volumeLevel = gkAudioGetVolume(gkAudioContext.effectsVolumeSelect);
+		effectsVolumeText.textContent = "vol: " + volumeLevel;
+
+		var effectsVolumeRect = document.getElementById("effectsVolumePad_effectsVolumeRect");
+		var transX = volumeLevel * 190;
+		effectsVolumeRect.setAttribute("transform","translate(" + transX + "," + 0 +")");
+	}
 }
 
 function gkControlClearCurrentMenu() {

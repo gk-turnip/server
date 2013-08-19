@@ -31,22 +31,37 @@ function gkBrowserCheckCompatibility() {
 	}
 
 	if (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#Image", "1.1")) {
-		status.innerHTML = status.innerHTML + " SVG ok";
+		status.innerHTML = status.innerHTML + ", SVG ok";
 	} else {
-		status.innerHTML = status.innerHTML + " SVG not supported";
+		status.innerHTML = status.innerHTML + ", SVG not supported";
 		ok = false;
 	}
 
 	if (window.XMLHttpRequest) {
-		status.innerHTML = status.innerHTML + " XMLHttpRequest ok";
+		status.innerHTML = status.innerHTML + ", XMLHttpRequest ok";
 	} else {
-		status.innerHTML = status.innerHTML + " XMLHttpRequest not supported";
+		status.innerHTML = status.innerHTML + ", XMLHttpRequest not supported";
 		ok = false;
+	}
+
+	var auidoOk = false;
+	var tempAudio = document.createElement('audio');
+	if (tempAudio.canPlayType('audio/mpeg')) {
+		status.innerHTML = status.innerHTML + ", can play mp3";
+		audioOk = true;
+	}
+	if (tempAudio.canPlayType('audio/ogg')) {
+		status.innerHTML = status.innerHTML + ", can play ogg";
+		audioOk = true;
 	}
 
 	if (!ok) {
 		status.innerHTML = status.innerHTML + " YOUR BROWSER IS NOT SUPPORTED";
 		status.style.backgroundColor = "red";
+	} else {
+		if (!audioOk) {
+			status.innerHTML = status.innerHTML + " no audio support ";
+		}
 	}
 }
 

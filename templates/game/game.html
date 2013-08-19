@@ -1,6 +1,6 @@
 {{define "body"}}
-<body style="margin-left:5px; margin-top: 10px;" onload="init();" onKeydown="doKeyDown(event);" onkeyup="doKeyUp(event);">
-<div onclick="doClick(event);" onkeydown="doKeyDown(event);" onkeyup="doKeyUp(event);" onfocus="gkFieldGetFocus();" onblur="gkFieldLoseFocus();" tabindex="0">
+<body style="margin-left:5px; margin-top: 10px;" onload="init();" onKeydown="gkEventDoKeyDown(event);" onkeyup="gkEventDoKeyUp(event);">
+<div onclick="gkEventDoClick(event);" onkeydown="gkEventDoKeyDown(event);" onkeyup="gkEventDoKeyUp(event);" onfocus="gkFieldGetFocus();" onblur="gkFieldLoseFocus();" tabindex="0">
 <div id="svgSpacer" onclick="nothing()" tabindex="1"></div>
 <svg 
 	id="gkField" 
@@ -42,7 +42,7 @@
 <div class="gkGameLeft">
 	<h4>click within grid to move your whatknot, or use the arrow keys</h4>
 	<br/>
-	<select id="selectAvatar" onchange="changeAvatar();">
+	<select id="selectAvatar" onchange="gkEventChangeAvatar();">
 		<option value="" selected="selected">-- select avatar --</option>
 		<option value="babyWhatKnot1">babyWhatKnot1</option>
 		<option value="babyWhatKnot2">babyWhatKnot2</option>
@@ -58,74 +58,22 @@
 	</select>
 	&nbsp;<span id="wsConnectionStatus"></span>
 	<br/>
-	<span id="canPlay">can play unknown</span><br/>
-	background music volume:
-	<select id="volume1" onchange="volumeChange(1);">
-		<option value="0.00">off</option>
-		<option value="0.33" selected="selected">low</option>
-		<option value="0.66">medium</option>
-		<option value="0.99">high</option>
-	</select>
 
-	<br/>
-	sound clip volume:
-	<select id="volume2" onchange="volumeChange(2);">
-		<option value="0.00">off</option>
-		<option value="0.33" selected="selected">low</option>
-		<option value="0.66">medium</option>
-		<option value="0.99">high</option>
-	</select>
-	<br/>
-	FX volume:
-	<select id="volume3" onchange="volumeChange(3);">
-		<option value="0.00">off</option>
-		<option value="0.33" selected="selected">low</option>
-		<option value="0.66">medium</option>
-		<option value="0.99">high</option>
-	</select>
-	Enviroment volume:
-	<select id="volume4" onchange="volumeChange(4);">
-		<option value="0.00">off</option>
-		<option value="0.33" selected="selected">low</option>
-		<option value="0.66">medium</option>
-		<option value="0.99">high</option>
-	</select>
-
-	<input type="checkbox" id="rainswitcher" onmouseup="setRainStatus" />
-	<br/>
 	<audio id="audio1">Audio One</audio>
 	<audio id="audio2">Audio Two</audio>
 	<audio id="audio3">Audio Three</audio>
 	<audio id="audio4">Audio Four</audio>
-	<span id="scriptUse"></span>
-<form onsubmit="return gkChatSubmit();">
 
-	position <span id="posValueX"></span>, <span id="posValueY"></span>, <span id="posValueZ"></span><span id="podTitle"></span><br/>
-	zoom: <span id="zoomValue"></span><input id="zoomValueSubmitPlus" type="submit" onclick="doZoomChange(0.1);" value="+1"/>
-	<input id="zoomValueSubmitMinus" type="submit" onclick="doZoomChange(-0.1);" value="-1"/>
-	<br/>
-Width: <input id="svgWidthInput" type="text" size="4"/>
-Height: <input id="svgHeightInput" type="text" size="4"/>
-<input id="svgWidthHeightSubmit" type="submit" onclick="doSvgWidthHeightChange();" value="Change SVG Size"/>
-	<br/>
+	<span id="inFocus"></span>
 
-</form>
-<span id="frameRate"></span>
-<span id="inFocus"></span>
-</div>
-
-
-<div class="gkGameRight">
-<!--	<div id="objectList"></div> -->
 	<form onsubmit="return gkChatSubmit();">
-	Chat <input id="chatInput" type="text"></input>
-	<input id="chatSubmit" type="submit" value="submit"/>
-	<div id="chatDiv"></div>
-
+		Chat <input id="chatInput" type="text"></input>
+		<input id="chatSubmit" type="submit" value="submit"/>
+		<div id="chatDiv"></div>
 	</form>
 </div>
 
-<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.2.9 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
+<div class="gkGameFooter">Gourdian Knot pre-alpha release 0.2.10 <a href="http://www.gourdianknot.com">Gourdian Knot Main Page</a></div>
 
 </body>
 {{end}}

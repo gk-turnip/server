@@ -231,7 +231,7 @@ function gkFieldAddAvatar(jsonData, data) {
 }
 
 function gkFieldHandleFieldClick(winX, winY) {
-	console.log("doClick " + winX + "," + winY);
+	console.log("gkFieldHandleFieldClick " + winX + "," + winY);
 
 	var refObject
 	if (gkFieldContext.avatarId != undefined) {
@@ -247,7 +247,7 @@ function gkFieldHandleFieldClick(winX, winY) {
 
 		gkFieldSetNewAvatarDestination(isoXYZ);
 
-		gkAudioStartAudio(2, "boing", false);
+		gkAudioStartAudio(gkAudioContext.effectsVolumeSelect, "boing", false);
 
 		gkTerrainClearMoveMarker();
 		gkTerrainSetMoveMarker(g);
@@ -485,8 +485,9 @@ console.log("handle new push dest: " + refObject.pushIsoXYZDestination.x + "," +
 		gkFieldContext.duration1 = duration;
 		if ((gkFieldContext.duration1 + gkFieldContext.duration2) > 0) {
 			gkFieldContext.frameRate = (20000.0 / (gkFieldContext.duration1 + gkFieldContext.duration2 + gkFieldContext.duration3 + gkFieldContext.duration4 + gkFieldContext.duration5)).toFixed(2);
-			var frameRate = document.getElementById("frameRate");
-			frameRate.innerHTML = "fps: " + gkFieldContext.frameRate;
+			//var frameRate = document.getElementById("frameRate");
+			//frameRate.innerHTML = "fps: " + gkFieldContext.frameRate;
+			gkControlSetFPS();
 		}
 		gkFieldContext.lastIntervalTime = endTime;
 	}
@@ -512,21 +513,29 @@ function gkFieldDelAllObjects() {
 }
 
 function gkFieldUpdatePositionDisplay(isoXYZCurrent) {
-	var v;
+//	var v;
+//
+//	v = document.getElementById("posValueX");
+//	v.innerHTML = isoXYZCurrent.x;
+//	v = document.getElementById("posValueY");
+//	v.innerHTML = isoXYZCurrent.y;
+//	v = document.getElementById("posValueZ");
+//	v.innerHTML = isoXYZCurrent.z;
 
-	v = document.getElementById("posValueX");
-	v.innerHTML = isoXYZCurrent.x;
-	v = document.getElementById("posValueY");
-	v.innerHTML = isoXYZCurrent.y;
-	v = document.getElementById("posValueZ");
-	v.innerHTML = isoXYZCurrent.z;
+	gkFieldContext.currentPosX = isoXYZCurrent.x;
+	gkFieldContext.currentPosY = isoXYZCurrent.y;
+	gkFieldContext.currentPosZ = isoXYZCurrent.z;
+
+	gkControlSetPos();
 }
 
 function gkFieldNewPodTitleReq(jsonData) {
-	var v;
+//	var v;
 
-	v = document.getElementById("podTitle");
-	v.innerHTML = jsonData.podTitle;
+//	v = document.getElementById("podTitle");
+//	v.innerHTML = jsonData.podTitle;
+	gkFieldContext.podTitle = jsonData.podTitle
+	gkControlSetPodTitle();
 }
 
 function gkFieldSetArrowKeyDestination(x,y) {

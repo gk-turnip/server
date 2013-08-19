@@ -28,6 +28,8 @@ function gkAudioContextDef() {
 	this.canPlayOgg = false;
 	this.canPlayWav = false;
 	this.sourceDir = "unknown";
+	this.backgroundVolumeSelect = 1;
+	this.effectsVolumeSelect = 3;
 }
 
 // check what audio formats are supported by the browser
@@ -83,4 +85,10 @@ function gkAudioVolumeChange(audioSelect, volumeValue) {
 	var audio = document.getElementById("audio" + audioSelect);
 	audio.volume = volumeValue;
 }
+
+function gkAudioGetVolume(audioSelect) {
+	var audio = document.getElementById("audio" + audioSelect);
+	return audio.volume;
+}
+
 

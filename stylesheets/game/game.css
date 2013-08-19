@@ -1,11 +1,5 @@
 .gkGameLeft {
-	float: left;
-	width: 45%;
-}
-
-.gkGameRight {
-	float: left;
-	width: 45%;
+	width: 60%;
 }
 
 .gkGameFooter {
