@@ -581,19 +581,21 @@ function gkFieldSetDownKeyUp() {
 }
 
 function gkFieldGetFocus() {
-	var inFocus = document.getElementById("inFocus");
-	inFocus.innerHTML="game in focus";
-	inFocus.style.backgroundColor = "green";
-	inFocus.style.color = "white";
+//	var inFocus = document.getElementById("inFocus");
+//	inFocus.innerHTML="game in focus";
+//	inFocus.style.backgroundColor = "green";
+//	inFocus.style.color = "white";
 	gkFieldContext.inFocus = true;
+	gkControlSetInFocus();
 }
 
 function gkFieldLoseFocus() {
-	var inFocus = document.getElementById("inFocus");
-	inFocus.innerHTML="game not in focus";
-	inFocus.style.backgroundColor = "red";
-	inFocus.style.color = "white";
+//	var inFocus = document.getElementById("inFocus");
+//	inFocus.innerHTML="game not in focus";
+//	inFocus.style.backgroundColor = "red";
+//	inFocus.style.color = "white";
 	gkFieldContext.inFocus = false;
+	gkControlSetInFocus();
 }
 
 // add another grid list entry

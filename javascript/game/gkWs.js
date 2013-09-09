@@ -118,9 +118,9 @@ function gkWsDoOnClose() {
 	console.log("gkWsDoOnClose");
 	gkFieldDelAllObjects();
 	var errorOut = document.createTextNode("The WebSocket connection was closed.");
-	if (mode == "debug") {
-		alert("The WebSocket connection was closed.");
-	}
+	//if (mode == "debug") {
+	//	alert("The WebSocket connection was closed.");
+	//}
 	gkWsSetStatusNotConnected();
 console.log("reconnectTries: " + gkWsContext.reconnectTries);
 	if (gkWsContext.reconnectTries < 3) {

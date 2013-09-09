@@ -259,6 +259,49 @@ func (fieldContext *FieldContextDef) sendAllPastChat(websocketConnectionContext 
 	return nil
 }
 
+func (fieldContext *FieldContextDef) sendUserPrefRestore(websocketConnectionContext *websocketConnectionContextDef) *gkerr.GkErrDef {
+
+	var messageToClient *message.MessageToClientDef = new(message.MessageToClientDef)
+	var gkErr *gkerr.GkErrDef
+
+	messageToClient.Command = message.UserPrefRestoreReq
+	messageToClient.JsonData, gkErr = fieldContext.getUserPrefJsonData(websocketConnectionContext)
+	if gkErr != nil {
+		return gkErr
+	}
+	messageToClient.Data = make([]byte, 0, 0)
+
+	fieldContext.queueMessageToClient(websocketConnectionContext.sessionId, messageToClient)
+
+	return nil
+}
+
+func (fieldContext *FieldContextDef) getUserPrefJsonData(websocketConnectionContext *websocketConnectionContextDef) ([]byte, *gkerr.GkErrDef) {
+	var singleSession *ses.SingleSessionDef
+	var userPrefsList []database.DbUserPrefDef
+	var gkErr *gkerr.GkErrDef
+
+	singleSession = fieldContext.sessionContext.GetSessionFromId(websocketConnectionContext.sessionId)
+
+	userPrefsList, gkErr = fieldContext.persistenceContext.GetUserPrefsList(singleSession.GetUserName())
+
+	var jsonData []byte = make([]byte,0,512)
+
+	jsonData = append(jsonData,[]byte("{\"userPrefList\":[")...)
+
+	for i, e := range(userPrefsList) {
+		if i > 0 {
+			jsonData = append(jsonData,',')
+		}
+		jsonData = append(jsonData,[]byte(fmt.Sprintf("{\"prefName\": \"%s\", \"prefValue\": \"%s\"}", e.PrefName, e.PrefValue))...)
+	}
+
+	jsonData = append(jsonData,']')
+	jsonData = append(jsonData,'}')
+
+	return jsonData, gkErr
+}
+
 // all except for the current session
 func (fieldContext *FieldContextDef) sendNewAvatarToAll(podId int32, sessionId string, id string) *gkerr.GkErrDef {
 

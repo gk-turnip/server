@@ -61,5 +61,10 @@ func (fieldContext *FieldContextDef) handleWebsocketOpened(websocketOpenedMessag
 		return gkErr
 	}
 
+	gkErr = fieldContext.sendUserPrefRestore(websocketConnectionContext)
+	if gkErr != nil {
+		return gkErr
+	}
+
 	return nil
 }

@@ -45,3 +45,7 @@ const UserNameReq = "userNameReq"
 const ChatReq = "chatReq"
 
 const NewPodReq = "newPodReq"
+
+const UserPrefSaveReq = "userPrefSaveReq"
+const UserPrefRestoreReq = "userPrefRestoreReq"
+

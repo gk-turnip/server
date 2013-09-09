@@ -148,7 +148,7 @@ function gkControlAddSvg(controlId, index) {
 	layer.appendChild(g);
 	//console.log("added to layer: " + gkControlContext.controlLayer);
 
-	console.log("gkControlAddSvg controlId: " + controlId);
+	//console.log("gkControlAddSvg controlId: " + controlId);
 	if (controlId == "zoomPad") {
 		gkControlSetZoomPadText();
 	}
@@ -188,8 +188,15 @@ console.log("id: " + podNameText.id);
 		layer.appendChild(podFPSText);
 		gkControlSetFPS();
 
+		var inFocusText = document.createElementNS(gkIsoContext.svgNameSpace,"text");
+		inFocusText.setAttribute("id", "menuInFocusText");
+		inFocusText.setAttribute("transform","translate(" + 0 + "," + (((index + 4) * gkControlContext.menuItemHeight) + 25 ) + ")");
+		inFocusText.setAttribute("font-family","sans-serif");
+		inFocusText.setAttribute("font-wize","24");
+		layer.appendChild(inFocusText);
+		gkControlSetInFocus();
+
 	}
-	console.log("TRACE got now control id menu displayed " + controlId);
 }
 
 function gkControlSetPodTitle() {
@@ -215,6 +222,17 @@ function gkControlSetFPS() {
 	}
 }
 
+function gkControlSetInFocus() {
+	var inFocusText = document.getElementById("menuInFocusText");
+	if (inFocusText != undefined) {
+		if (gkFieldContext.inFocus) {
+			inFocusText.textContent = "in focus";
+		} else {
+			inFocusText.textContent = "not in focus";
+		}
+	}
+}
+
 function gkControlMenuItemClick(controlId, index) {
 	//console.log("gkControlMenuItemClick " + controlId + " " + index);
 
@@ -223,6 +241,7 @@ function gkControlMenuItemClick(controlId, index) {
 	if (controlId == "close") {
 		gkControlContext.mouseDown = false;
 
+		gkControlHandleClose(gkControlContext.menuStack[gkControlContext.menuStack.length - 1]);
 		gkControlContext.menuStack.pop();
 		nextLevelControlId = gkControlContext.menuStack[gkControlContext.menuStack.length - 1];
 	} else {
@@ -238,6 +257,50 @@ function gkControlMenuItemClick(controlId, index) {
 			gkControlLoad(gkControlContext.menuMap[nextLevelControlId][i].display, i, gkControlHandleLoadMenuItem);
 		}
 	}
+}
+
+function gkControlHandleClose(closeMenu) {
+	console.log("closeMenu: " + closeMenu);
+
+	if (closeMenu == "zoom") {
+		gkControlHandleCloseZoom();
+	} else {
+		if (closeMenu == "widthHeight") {
+			gkControlHandleCloseWidthHeight();
+		} else {
+			if (closeMenu == "backgroundVolume") {
+				gkControlHandleCloseBackgroundVolume();
+			} else{
+				if (closeMenu == "effectsVolume") {
+					gkControlHandleCloseEffectsVolume();
+				}
+			}
+		}
+	}
+}
+
+function gkControlHandleCloseZoom() {
+	gkControlSendUserPref("screenZoom",gkViewContext.scale);
+}
+
+function gkControlHandleCloseWidthHeight() {
+	gkControlSendUserPref("screenWidth",gkViewContext.svgWidth);
+	gkControlSendUserPref("screenHeight",gkViewContext.svgHeight);
+}
+
+function gkControlHandleCloseBackgroundVolume() {
+	var volumeLevel = gkAudioGetVolume(gkAudioContext.backgroundVolumeSelect);
+	gkControlSendUserPref("backgroundVolume", volumeLevel);
+}
+
+function gkControlHandleCloseEffectsVolume() {
+	var volumeLevel = gkAudioGetVolume(gkAudioContext.effectsVolumeSelect);
+	gkControlSendUserPref("effectsVolume", volumeLevel);
+}
+
+function gkControlSendUserPref(prefName, prefValue) {
+	console.log("sending " + prefName + " " + prefValue);
+	gkWsSendMessage("userPrefSaveReq~{\"prefName\":\"" + prefName + "\",\"prefValue\":\"" + prefValue + "\"}~");
 }
 
 function gkControlMenuItemMouseDown(evt, controlId, index) {
@@ -408,5 +471,33 @@ function gkControlClearCurrentMenu() {
 	while (layer.firstChild) {
 		layer.removeChild(layer.firstChild);
 	}
+}
+
+function gkControlHandleUserPrefRestoreReq(jsonData) {
+	var userPrefList = jsonData.userPrefList;
+	var i;
+
+	for (i = 0;i < userPrefList.length;i++) {
+		var prefName = userPrefList[i].prefName;
+		var prefValue = userPrefList[i].prefValue;
+
+		if (prefName == "screenWidth") {
+			gkViewContext.svgWidth = parseInt(prefValue);
+		}
+		if (prefName == "screenHeight") {
+			gkViewContext.svgHeight = parseInt(prefValue);
+		}
+		if (prefName == "screenZoom") {
+			gkViewContext.scale = parseFloat(prefValue);
+		}
+		if (prefName == "effectsVolume") {
+			gkAudioVolumeChange(gkAudioContext.effectsVolumeSelect, prefValue);
+		}
+		if (prefName == "backgroundVolume") {
+			gkAudioVolumeChange(gkAudioContext.backgroundVolumeSelect, prefValue);
+		}
+	}
+
+	gkViewRender();
 }
 

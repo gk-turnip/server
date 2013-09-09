@@ -1,15 +1,14 @@
 
--- for version 0.1.27
+-- for version 0.2.11
 
-create table context_users
+-- holds user preferences
+
+create table user_prefs
 	(
-	id int,
-	last_position_x smallint,
-	last_position_y smallint,
-	last_position_z smallint,
-	last_pod_id int,
-	primary key(id),
-	foreign key(id) references users(id),
-	foreign key(last_pod_id) references pods(id)
+	user_id int,
+	pref_name varchar(20),
+	pref_value text,
+	primary key(user_id, pref_name),
+	foreign key(user_id) references users(id)
 	);
 

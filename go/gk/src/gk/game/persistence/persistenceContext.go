@@ -46,3 +46,11 @@ func (persistenceContext *PersistenceContextDef) GetLastChatArchiveEntries(count
 func (persistenceContext *PersistenceContextDef) GetPodsList() ([]database.DbPodDef, *gkerr.GkErrDef) {
 	return persistenceContext.connection.GetPodsList()
 }
+
+func (persistenceContext *PersistenceContextDef) SetUserPref(userName string, prefName string, prefValue string) *gkerr.GkErrDef {
+	return persistenceContext.connection.SetUserPref(userName, prefName, prefValue)
+}
+
+func (persistenceContext *PersistenceContextDef) GetUserPrefsList(userName string) ([]database.DbUserPrefDef, *gkerr.GkErrDef) {
+	return persistenceContext.connection.GetUserPrefsList(userName)
+}

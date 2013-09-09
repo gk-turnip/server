@@ -8,8 +8,8 @@ function gkViewContextDef() {
 	this.scale = 1.0;
 	this.fernWidth = 6;
 	this.fernHeight = 6;
-	this.svgWidth = 600;
-	this.svgHeight = 300;
+	this.svgWidth = 800;
+	this.svgHeight = 400;
 //	this.viewMap = new Object();
 	this.marginX = 5;
 	this.marginY = 10;

@@ -75,6 +75,10 @@ function gkDispatchWsMessage(command, jsonData, data) {
 		console.log("gkDispatch newPodTitleReq");
 		gkFieldNewPodTitleReq(jsonData);
 		break;
+	case "userPrefRestoreReq":
+		console.log("gkDispatch newPodTitleReq");
+		gkControlHandleUserPrefRestoreReq(jsonData);
+		break;
 	default:
 		console.error("did not understand command from game server " + command);
 	}
