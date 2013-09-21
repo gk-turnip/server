@@ -18,30 +18,13 @@
 package field
 
 import (
-	"time"
-)
-
-import (
 	"gk/gkerr"
 )
 
-func (fieldContext *FieldContextDef) handleTicker(time.Time) *gkerr.GkErrDef {
-	var gkErr *gkerr.GkErrDef
+func (fieldContext *FieldContextDef) handleDynamicObjectsTicker() *gkerr.GkErrDef {
+	//fieldContext.x.handleDynamicObjectsTicker()
 
-	gkErr = fieldContext.handleRain()
-	if gkErr != nil {
-		return gkErr
-	}
-
-	gkErr = fieldContext.handleDandelions()
-	if gkErr != nil {
-		return gkErr
-	}
-
-	gkErr = fieldContext.handleDynamicObjectsTicker()
-	if gkErr != nil {
-		return gkErr
-	}
-
+	// is new seed object required?
 	return nil
 }
+

@@ -15,33 +15,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package field
+package dynamicobject
 
-import (
-	"time"
-)
 
-import (
-	"gk/gkerr"
-)
-
-func (fieldContext *FieldContextDef) handleTicker(time.Time) *gkerr.GkErrDef {
-	var gkErr *gkerr.GkErrDef
-
-	gkErr = fieldContext.handleRain()
-	if gkErr != nil {
-		return gkErr
-	}
-
-	gkErr = fieldContext.handleDandelions()
-	if gkErr != nil {
-		return gkErr
-	}
-
-	gkErr = fieldContext.handleDynamicObjectsTicker()
-	if gkErr != nil {
-		return gkErr
-	}
-
-	return nil
-}

@@ -21,13 +21,14 @@ function gkControlInit() {
 function gkControlLoadMenuMap() {
 	var xmlhttp = new XMLHttpRequest();
 	var fullUrl = gkControlContext.controlUrlPrefix + "menuMap.json";
+//console.log("fullUrl: " + fullUrl);
 
 	xmlhttp.onreadystatechange=function() {
 		if (xmlhttp.readyState == 4) {
 			if (xmlhttp.status == 200) {
 				gkControlHandleLoadMenuMap(xmlhttp.responseText);
 			} else {
-				console.log("error loading XMLHttpRequest " + fullUrl + " " + xmlhttp.status);
+				console.error("error loading XMLHttpRequest " + fullUrl + " " + xmlhttp.status);
 			}
 		}
 	}
@@ -37,6 +38,7 @@ function gkControlLoadMenuMap() {
 }
 
 function gkControlHandleLoadMenuMap(menuMapText) {
+//console.log("menuMapText: " + menuMapText);
 	gkControlContext.menuMap = JSON.parse(menuMapText, null);
 
 	gkControlContext.menuStack.push("menu");
@@ -71,7 +73,7 @@ function gkControlLoadSvg(controlId, index, controlFunction) {
 			if (xmlhttp.status == 200) {
 				gkControlHandleLoadSvg(xmlhttp.responseText, index, controlId);
 			} else {
-				console.log("error loading XMLHttpRequest " + fullUrl + " " + xmlhttp.status);
+				console.error("error loading XMLHttpRequest " + fullUrl + " " + xmlhttp.status);
 			}
 		}
 	}
@@ -89,7 +91,7 @@ function gkControlLoadJson(controlId, index, controlFunction) {
 			if (xmlhttp.status == 200) {
 				gkControlHandleLoadJson(xmlhttp.responseText, index, controlId);
 			} else {
-				console.log("error loading XMLHttpRequest " + fullUrl + " " + xmlhttp.status);
+				console.error("error loading XMLHttpRequest " + fullUrl + " " + xmlhttp.status);
 			}
 		}
 	}
@@ -133,7 +135,7 @@ function gkControlAddSvg(controlId, index) {
 		gkControlMenuItemClick(controlId, index);
 	};
 
-	if ((controlId == "widthHeightPad") || (controlId == "zoomPad") || (controlId == "backgroundVolumePad") || (controlId == "effectsVolumePad")) {
+	if ((controlId == "widthHeightPad") || (controlId == "zoomPad") || (controlId == "panPad") || (controlId == "backgroundVolumePad") || (controlId == "effectsVolumePad")) {
 		g.onmousedown = function(evt) {
 			gkControlMenuItemMouseDown(evt, controlId, index);
 		};
@@ -149,11 +151,14 @@ function gkControlAddSvg(controlId, index) {
 	//console.log("added to layer: " + gkControlContext.controlLayer);
 
 	//console.log("gkControlAddSvg controlId: " + controlId);
+	if (controlId == "widthHeightPad") {
+		gkControlSetWidthHeightPadText();
+	}
 	if (controlId == "zoomPad") {
 		gkControlSetZoomPadText();
 	}
-	if (controlId == "widthHeightPad") {
-		gkControlSetWidthHeightPadText();
+	if (controlId == "panPad") {
+		gkControlSetPanPadText();
 	}
 	if (controlId == "backgroundVolumePad") {
 		gkControlSetBackgroundVolumePadText();
@@ -346,10 +351,13 @@ function gkControlMenuItemMouseMove(evt, controlId, index) {
 		//console.log("gkControlMenuItemMouseMove " + x + "," + y + " " + controlId + " " + index);
 
 		if (controlId == "widthHeightPad") {
-			gkControlHandleWidthHeightPad(x,y);
+			gkControlHandleWidthHeightPad(x, y);
 		}
 		if (controlId == "zoomPad") {
 			gkControlHandleZoomPad(x);
+		}
+		if (controlId == "panPad") {
+			gkControlHandlePanPad(x, y);
 		}
 		if (controlId == "backgroundVolumePad") {
 			gkControlHandleBackgroundVolumePad(x);
@@ -358,10 +366,6 @@ function gkControlMenuItemMouseMove(evt, controlId, index) {
 			gkControlHandleEffectsVolumePad(x);
 		}
 	}
-}
-
-function gkControlHandleWidthHeightInit() {
-	gkControlSetWidthHeightPadText();
 }
 
 function gkControlHandleWidthHeightPad(x, y) {
@@ -384,7 +388,10 @@ function gkControlHandleWidthHeightPad(x, y) {
 function gkControlHandleZoomPad(x) {
 	var zoomLevel;
 
-	zoomLevel = 0.5 + (x * 1.5);
+console.log("zoom x: " + x);
+
+	zoomLevel = ((gkViewContext.highScale - gkViewContext.lowScale) * x) + gkViewContext.lowScale;
+
 	zoomLevel = Math.floor(zoomLevel * 10) / 10;
 
 	gkViewContext.scale = zoomLevel;
@@ -393,6 +400,36 @@ function gkControlHandleZoomPad(x) {
 
 	gkViewRender();
 	//console.log("new zoom level: " + zoomLevel);
+}
+
+function gkControlHandlePanPad(x, y) {
+	var offsetX, offsetY
+
+console.log("x,y: " + x + "," + y);
+console.log("view: " + gkViewContext.viewOffsetIsoXYZ.x + "," + gkViewContext.viewOffsetIsoXYZ.y);
+
+//	var WinXY = gkViewContext.viewOffsetIsoXYZ.convertToWin();
+
+	offsetX = Math.floor((x * (gkViewContext.highPanX - gkViewContext.lowPanX)) + gkViewContext.lowPanX);
+	offsetY = Math.floor((y * (gkViewContext.highPanY - gkViewContext.lowPanY)) + gkViewContext.lowPanY);
+
+	var newOffsetWinXY = new GkWinXYDef(offsetX, offsetY);
+	gkViewContext.viewOffsetIsoXYZ = newOffsetWinXY.convertToIso(0);
+
+//	gkViewContext.viewOffsetIsoXYZ.x = offsetX;
+//	gkViewContext.viewOffsetIsoXYZ.y = offsetY;
+
+//	width = Math.floor(300 + (x * 2260));
+//	height = Math.floor(300 + (y * 2260));
+
+//	gkViewContext.svgWidth = width;
+//	gkViewContext.svgHeight = height;
+
+	gkControlSetPanPadText();
+
+	gkViewRender();
+
+console.log("new view: " + gkViewContext.viewOffsetIsoXYZ.x + "," + gkViewContext.viewOffsetIsoXYZ.y);
 }
 
 function gkControlHandleBackgroundVolumePad(x) {
@@ -426,7 +463,9 @@ function gkControlSetZoomPadText() {
 	zoomText.textContent = "zoom: " + gkViewContext.scale;
 
 	var zoomRect = document.getElementById("zoomPad_zoomRect");
-	var transX = (gkViewContext.scale - 0.5) * 133;
+//	var transX = (gkViewContext.scale - gkViewContext.lowScale) * 133;
+
+	var transX = (gkViewContext.scale - gkViewContext.lowScale) / (gkViewContext.highScale - gkViewContext.lowScale) * 195;
 	zoomRect.setAttribute("transform","translate(" + transX + "," + 0 +")");
 	//console.log("transX: " + transX);
 }
@@ -440,6 +479,32 @@ function gkControlSetWidthHeightPadText() {
 	var transY = (gkViewContext.svgHeight - 300) / 11.3;
 	widthHeightRect.setAttribute("transform","translate(" + transX + "," + transY +")");
 	//console.log("transX: " + transX + " transY: " + transY);
+}
+
+function gkControlSetPanPadText() {
+	var panText = document.getElementById("panPad_panText");
+
+	panText.textContent = gkViewContext.viewOffsetIsoXYZ.x + "," + gkViewContext.viewOffsetIsoXYZ.y;
+
+	var panRect = document.getElementById("panPad_panRect");
+
+	isoWinXY = gkViewContext.viewOffsetIsoXYZ.convertToWin();
+
+	var transX = ((isoWinXY.x - gkViewContext.lowPanX) / (gkViewContext.highPanX - gkViewContext.lowPanX)) * 200;
+	var transY = ((isoWinXY.y - gkViewContext.lowPanY) / (gkViewContext.highPanY - gkViewContext.lowPanY)) * 200;
+
+	panRect.setAttribute("transform","translate(" + transX + "," + transY +")");
+
+	console.log("transX: " + transX + " transY: " + transY);
+
+//	widthHeightText.textContent = gkViewContext.svgWidth + " X " + gkViewContext.svgHeight;
+//
+//	var widthHeightRect = document.getElementById("widthHeightPad_widthHeightRect");
+//	var transX = (gkViewContext.svgWidth - 300) / 11.3;
+//	var transY = (gkViewContext.svgHeight - 300) / 11.3;
+//	widthHeightRect.setAttribute("transform","translate(" + transX + "," + transY +")");
+//	//console.log("transX: " + transX + " transY: " + transY);
+
 }
 
 function gkControlSetBackgroundVolumePadText() {

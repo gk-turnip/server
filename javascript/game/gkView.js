@@ -15,6 +15,12 @@ function gkViewContextDef() {
 	this.marginY = 10;
 	this.scrollEdgeX = 100;
 	this.scrollEdgeY = 100;
+	this.lowScale = 0.2;
+	this.highScale = 3.0;
+	this.lowPanX = -3000;
+	this.highPanX = 3000;
+	this.lowPanY = -2000;
+	this.highPanY = 2000;
 }
 
 // change the offset and scale of the view
