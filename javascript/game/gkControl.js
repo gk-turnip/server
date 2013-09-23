@@ -9,6 +9,7 @@ function gkControlContextDef() {
 	this.loadMap = new Object();
 	this.menuMap = null;
 	this.menuItemHeight = 50;
+	this.menuWidth = 50;
 	this.menuStack = new Array();
 	this.mouseDown = false;
 }
@@ -21,7 +22,7 @@ function gkControlInit() {
 function gkControlLoadMenuMap() {
 	var xmlhttp = new XMLHttpRequest();
 	var fullUrl = gkControlContext.controlUrlPrefix + "menuMap.json";
-//console.log("fullUrl: " + fullUrl);
+console.log("fullUrl: " + fullUrl);
 
 	xmlhttp.onreadystatechange=function() {
 		if (xmlhttp.readyState == 4) {
@@ -239,28 +240,40 @@ function gkControlSetInFocus() {
 }
 
 function gkControlMenuItemClick(controlId, index) {
-	//console.log("gkControlMenuItemClick " + controlId + " " + index);
+	console.log("gkControlMenuItemClick " + controlId + " " + index);
 
 	var nextLevelControlId = controlId;
 
-	if (controlId == "close") {
-		gkControlContext.mouseDown = false;
-
-		gkControlHandleClose(gkControlContext.menuStack[gkControlContext.menuStack.length - 1]);
-		gkControlContext.menuStack.pop();
-		nextLevelControlId = gkControlContext.menuStack[gkControlContext.menuStack.length - 1];
+	if (controlId == "addTile") {
+		gkControlHandleAddTileSelect();
 	} else {
-		if (gkControlContext.menuMap[nextLevelControlId] != undefined) {
-			gkControlContext.menuStack.push(controlId);
+		if (controlId == "removeTile") {
+			gkControlHandleRemoveTileSelect();
+		} else {
+			if (controlId == "close") {
+				gkControlContext.mouseDown = false;
+
+				gkControlHandleClose(gkControlContext.menuStack[gkControlContext.menuStack.length - 1]);
+				gkControlContext.menuStack.pop();
+				nextLevelControlId = gkControlContext.menuStack[gkControlContext.menuStack.length - 1];
+			} else {
+				if (gkControlContext.menuMap[nextLevelControlId] != undefined) {
+					gkControlContext.menuStack.push(controlId);
+				}
+			}
+
+			//console.log("new menu controlId: " + nextLevelControlId);
+			if (gkControlContext.menuMap[nextLevelControlId] != undefined) {
+				gkControlClearCurrentMenu();
+				for (var i = 0;i < gkControlContext.menuMap[nextLevelControlId].length;i++) {
+					gkControlLoad(gkControlContext.menuMap[nextLevelControlId][i].display, i, gkControlHandleLoadMenuItem);
+				}
+			}
 		}
 	}
 
-	//console.log("new menu controlId: " + nextLevelControlId);
-	if (gkControlContext.menuMap[nextLevelControlId] != undefined) {
-		gkControlClearCurrentMenu();
-		for (var i = 0;i < gkControlContext.menuMap[nextLevelControlId].length;i++) {
-			gkControlLoad(gkControlContext.menuMap[nextLevelControlId][i].display, i, gkControlHandleLoadMenuItem);
-		}
+	if (controlId == "terrainEdit") {
+		gkControlHandleTerrainEditSelect();
 	}
 }
 
@@ -275,9 +288,13 @@ function gkControlHandleClose(closeMenu) {
 		} else {
 			if (closeMenu == "backgroundVolume") {
 				gkControlHandleCloseBackgroundVolume();
-			} else{
+			} else {
 				if (closeMenu == "effectsVolume") {
 					gkControlHandleCloseEffectsVolume();
+				} else {
+					if (closeMenu == "terrainEdit") {
+						gkControlHandleCloseTerrainEdit();
+					}
 				}
 			}
 		}
@@ -564,5 +581,76 @@ function gkControlHandleUserPrefRestoreReq(jsonData) {
 	}
 
 	gkViewRender();
+}
+
+function gkControlHandleTerrainEditSelect() {
+	console.log("got gkControlHandleTerrainEditSelect");
+
+	gkTerrainEditSetAddTileOff();
+	gkTerrainEditSetRemoveTileOff();
+}
+
+function gkControlHandleCloseTerrainEdit() {
+	console.log("got gkControlHandleCloseTerrainEdit need to clear add/remove terrain flags");
+
+	gkTerrainEditSetAddTileOff();
+	gkTerrainEditSetRemoveTileOff();
+}
+
+function gkControlHandleAddTileSelect() {
+	console.log("need to set check on add tile");
+	gkTerrainEditSetAddTileOn();
+	gkTerrainEditSetRemoveTileOff();
+
+	gkControlChangeTileCheckMark();
+}
+
+function gkControlHandleRemoveTileSelect() {
+	console.log("need to set check on remove tile");
+	gkTerrainEditSetAddTileOff();
+	gkTerrainEditSetRemoveTileOn();
+
+	gkControlChangeTileCheckMark();
+}
+
+function gkControlChangeTileCheckMark() {
+	var checkMarkG;
+	var checkMarkScale;
+
+	checkMarkScale = "0.01";
+	checkMarkG = document.getElementById("addTile_checkMark");
+	if (gkTerrainEditIsAddTileOn()) {
+		checkMarkScale = "1";
+	}
+	checkMarkG.setAttribute("transform","scale(" + checkMarkScale + ")");
+
+	checkMarkScale = "0.01";
+	checkMarkG = document.getElementById("removeTile_checkMark");
+	if (gkTerrainEditIsRemoveTileOn()) {
+		checkMarkScale = "1";
+	}
+	checkMarkG.setAttribute("transform","scale(" + checkMarkScale + ")");
+}
+
+function gkControlIsMenuUp() {
+//	console.log("testing for menu up stack length: " + gkControlContext.menuStack.length);
+
+	return gkControlContext.menuStack.length > 1
+}
+
+function gkControlGetMenuWidth() {
+	return gkControlContext.menuWidth;
+}
+
+function gkControlGetMenuHeight() {
+
+	var nextLevelControlId = gkControlContext.menuStack[gkControlContext.menuStack.length - 1];
+
+
+	var menuItemCount = gkControlContext.menuMap[nextLevelControlId].length;
+
+//	console.log("GetMenuHeight mic: " + menuItemCount + " nlci: " + nextLevelControlId);
+
+	return menuItemCount * gkControlContext.menuItemHeight;
 }
 
