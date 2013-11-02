@@ -277,6 +277,24 @@ function gkTerrainRemoveTile(x, y, idPrefix) {
 	gkViewRender();
 }
 
+function gkTerrainSetAttribute(x, y, idPrefix) {
+	console.log("gkTerrainSetAttribute");
+
+	var isoXYZ = gkViewConvertWinToIso(x, gkViewContext.marginX, y, gkViewContext.marginY, 0);
+
+	var isoX = gkIsoGetFernFromDecifern(isoXYZ.x);
+	var isoY = gkIsoGetFernFromDecifern(isoXYZ.y);
+
+	var mapKey = gkTerrainGetMapKey(isoX, isoY);
+
+	if (gkTerrainContext.terrainMapMap[mapKey] != undefined) {
+		var attributeName = gkTerrainEditGetAttributeText();
+		gkTerrainContext.terrainMapMap[mapKey][attributeName] = true;
+	}
+
+	gkViewRender();
+}
+
 function gkTerrainClearMoveMarker() {
 	if (gkTerrainContext.moveMarker != null) {
 		var objectLayer = document.getElementById("gkTerrainObjectLayer");
@@ -394,5 +412,18 @@ function gkTerrainGetSvgMapEntry(terrainName) {
 	svgMapEntry = gkTerrainContext.terrainSvgMap[terrainName]
 
 	return svgMapEntry
+}
+
+function gkTerrainGetCurrentTerrain() {
+	var totalTerrain = new Object();
+
+
+	totalTerrain.podId = gkFieldGetCurrentPodId();
+	totalTerrain.terrainMapMap = gkTerrainContext.terrainMapMap;
+	totalTerrain.terrainSvgMap = gkTerrainContext.terrainSvgMap;
+	totalTerrain.terrainWallMap = gkTerrainContext.terrainWallMap;
+	totalTerrain.terrainAudioMap = gkTerrainContext.terrainAudioMap;
+
+	return totalTerrain;
 }
 

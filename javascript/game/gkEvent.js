@@ -24,6 +24,7 @@ function gkEventInit(websocketAddressPrefx, websocketPath, audioPathPrefix, sess
 }
 
 function gkEventDoClick(e) {
+	console.log("gkEventDoClick");
 
 	if ((!gkControlIsMenuUp()) || (e.pageX > gkControlGetMenuWidth()) || (e.pageY > gkControlGetMenuHeight())) {
 		if (gkTerrainEditNeedClick()) {

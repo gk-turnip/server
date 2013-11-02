@@ -535,7 +535,9 @@ function gkFieldNewPodTitleReq(jsonData) {
 
 //	v = document.getElementById("podTitle");
 //	v.innerHTML = jsonData.podTitle;
-	gkFieldContext.podTitle = jsonData.podTitle
+
+	gkFieldContext.podId = jsonData.podId;
+	gkFieldContext.podTitle = jsonData.podTitle;
 	gkControlSetPodTitle();
 }
 
@@ -698,3 +700,8 @@ function gkFieldChangeGridListPosition(refObject) {
 		gridListG.appendChild(ref);
 	}
 }
+
+function gkFieldGetCurrentPodId() {
+	return gkFieldContext.podId;
+}
+

@@ -49,3 +49,5 @@ const NewPodReq = "newPodReq"
 const UserPrefSaveReq = "userPrefSaveReq"
 const UserPrefRestoreReq = "userPrefRestoreReq"
 
+const SaveTerrainEditReq = "saveTerrainEditReq"
+

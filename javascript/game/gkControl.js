@@ -12,6 +12,8 @@ function gkControlContextDef() {
 	this.menuWidth = 50;
 	this.menuStack = new Array();
 	this.mouseDown = false;
+	this.elevationFern = 0;
+	this.elevationDeciFern = 0;
 }
 
 function gkControlInit() {
@@ -136,7 +138,9 @@ function gkControlAddSvg(controlId, index) {
 		gkControlMenuItemClick(controlId, index);
 	};
 
-	if ((controlId == "widthHeightPad") || (controlId == "zoomPad") || (controlId == "panPad") || (controlId == "backgroundVolumePad") || (controlId == "effectsVolumePad")) {
+console.log("need to add mouse events to: " + controlId);
+	if ((controlId == "widthHeightPad") || (controlId == "zoomPad") || (controlId == "panPad") || (controlId == "backgroundVolumePad") || (controlId == "effectsVolumePad") || (controlId == "terrainElevationPad") || (controlId == "terrainAttributePad")) {
+console.log("adding mouse event handler for control: " + controlId);
 		g.onmousedown = function(evt) {
 			gkControlMenuItemMouseDown(evt, controlId, index);
 		};
@@ -166,6 +170,9 @@ function gkControlAddSvg(controlId, index) {
 	}
 	if (controlId == "effectsVolumePad") {
 		gkControlSetEffectsVolumePadText();
+	}
+	if (controlId == "terrainAttibutePad") {
+		gkControlSetAttributePadText();
 	}
 
 	if (controlId == "start") {
@@ -240,7 +247,7 @@ function gkControlSetInFocus() {
 }
 
 function gkControlMenuItemClick(controlId, index) {
-	console.log("gkControlMenuItemClick " + controlId + " " + index);
+	console.log("gkControlMenuItemClick: " + controlId + " " + index);
 
 	var nextLevelControlId = controlId;
 
@@ -250,23 +257,27 @@ function gkControlMenuItemClick(controlId, index) {
 		if (controlId == "removeTile") {
 			gkControlHandleRemoveTileSelect();
 		} else {
-			if (controlId == "close") {
-				gkControlContext.mouseDown = false;
-
-				gkControlHandleClose(gkControlContext.menuStack[gkControlContext.menuStack.length - 1]);
-				gkControlContext.menuStack.pop();
-				nextLevelControlId = gkControlContext.menuStack[gkControlContext.menuStack.length - 1];
+			if (controlId == "terrainSaveEdit") {
+				gkControlHandleTerrainSaveEdit();
 			} else {
-				if (gkControlContext.menuMap[nextLevelControlId] != undefined) {
-					gkControlContext.menuStack.push(controlId);
-				}
-			}
+				if (controlId == "close") {
+					gkControlContext.mouseDown = false;
 
-			//console.log("new menu controlId: " + nextLevelControlId);
-			if (gkControlContext.menuMap[nextLevelControlId] != undefined) {
-				gkControlClearCurrentMenu();
-				for (var i = 0;i < gkControlContext.menuMap[nextLevelControlId].length;i++) {
-					gkControlLoad(gkControlContext.menuMap[nextLevelControlId][i].display, i, gkControlHandleLoadMenuItem);
+					gkControlHandleClose(gkControlContext.menuStack[gkControlContext.menuStack.length - 1]);
+					gkControlContext.menuStack.pop();
+					nextLevelControlId = gkControlContext.menuStack[gkControlContext.menuStack.length - 1];
+				} else {
+					if (gkControlContext.menuMap[nextLevelControlId] != undefined) {
+						gkControlContext.menuStack.push(controlId);
+					}
+				}
+
+				//console.log("new menu controlId: " + nextLevelControlId);
+				if (gkControlContext.menuMap[nextLevelControlId] != undefined) {
+					gkControlClearCurrentMenu();
+					for (var i = 0;i < gkControlContext.menuMap[nextLevelControlId].length;i++) {
+						gkControlLoad(gkControlContext.menuMap[nextLevelControlId][i].display, i, gkControlHandleLoadMenuItem);
+					}
 				}
 			}
 		}
@@ -292,7 +303,7 @@ function gkControlHandleClose(closeMenu) {
 				if (closeMenu == "effectsVolume") {
 					gkControlHandleCloseEffectsVolume();
 				} else {
-					if (closeMenu == "terrainEdit") {
+					if (closeMenu == "terrainTileEdit") {
 						gkControlHandleCloseTerrainEdit();
 					}
 				}
@@ -327,19 +338,20 @@ function gkControlSendUserPref(prefName, prefValue) {
 
 function gkControlMenuItemMouseDown(evt, controlId, index) {
 	evt.preventDefault();
-	//console.log("gkControlMenuItemMouseDown " + controlId + " " + index);
+	console.log("gkControlMenuItemMouseDown " + controlId + " " + index);
 	gkControlContext.mouseDown = true;
 	gkControlMenuItemMouseMove(evt, controlId, index);
 }
 
 function gkControlMenuItemMouseUp(evt, controlId, index) {
 	evt.preventDefault();
-	//console.log("gkControlMenuItemMouseUp " + controlId + " " + index);
+	console.log("gkControlMenuItemMouseUp " + controlId + " " + index);
 	gkControlContext.mouseDown = false;
 }
 
 function gkControlMenuItemMouseMove(evt, controlId, index) {
 	evt.preventDefault();
+	console.log("gkControlMenuItemMouseMove " + controlId + " " + index);
 
 	if (gkControlContext.mouseDown) {
 		var x,y;
@@ -365,7 +377,7 @@ function gkControlMenuItemMouseMove(evt, controlId, index) {
 			y = 0.99;
 		}
 
-		//console.log("gkControlMenuItemMouseMove " + x + "," + y + " " + controlId + " " + index);
+		console.log("gkControlMenuItemMouseMove " + x + "," + y + " " + controlId + " " + index);
 
 		if (controlId == "widthHeightPad") {
 			gkControlHandleWidthHeightPad(x, y);
@@ -381,6 +393,12 @@ function gkControlMenuItemMouseMove(evt, controlId, index) {
 		}
 		if (controlId == "effectsVolumePad") {
 			gkControlHandleEffectsVolumePad(x);
+		}
+		if (controlId == "terrainElevationPad") {
+			gkControlHandleTerrainElevationPad(x, y);
+		}
+		if (controlId == "terrainAttributePad") {
+			gkControlHandleTerrainAttributePad(x);
 		}
 	}
 }
@@ -475,6 +493,30 @@ function gkControlHandleEffectsVolumePad(x) {
 	console.log("new effects volume level: " + volumeLevel);
 }
 
+function gkControlHandleTerrainElevationPad(x, y) {
+	console.log("gkControlHandleTerrainElevation: " + x + "," + y);
+
+	gkControlSetElevationPadText();
+}
+
+function gkControlHandleTerrainAttributePad(x) {
+	var attributeIndex;
+
+console.log("attribute x: " + x);
+
+	attributeIndex = x * 2;
+
+	attributeIndex = Math.floor(attributeIndex);
+
+	gkTerrainEditSetAttributeIndex(attributeIndex);
+
+	gkControlSetAttributePadText();
+
+	gkViewRender();
+
+	console.log("new attributeIndex: " + attributeIndex);
+}
+
 function gkControlSetZoomPadText() {
 	var zoomText = document.getElementById("zoomPad_zoomText");
 	zoomText.textContent = "zoom: " + gkViewContext.scale;
@@ -484,6 +526,18 @@ function gkControlSetZoomPadText() {
 
 	var transX = (gkViewContext.scale - gkViewContext.lowScale) / (gkViewContext.highScale - gkViewContext.lowScale) * 195;
 	zoomRect.setAttribute("transform","translate(" + transX + "," + 0 +")");
+	//console.log("transX: " + transX);
+}
+
+function gkControlSetElevationPadText() {
+	var elevationText = document.getElementById("elevationPad_elevationText");
+	elevationText.textContent = "elevation: " + (gkControlContext.elevationFern * 10) + gkControlContext.elevationDeciFern;
+
+	var elevationRect = document.getElementById("elevationPad_elevationRect");
+//	var transX = (gkViewContext.scale - gkViewContext.lowScale) * 133;
+
+	var transX = (gkViewContext.scale - gkViewContext.lowScale) / (gkViewContext.highScale - gkViewContext.lowScale) * 195;
+	elevationRect.setAttribute("transform","translate(" + transX + "," + 0 +")");
 	//console.log("transX: " + transX);
 }
 
@@ -545,6 +599,18 @@ function gkControlSetEffectsVolumePadText() {
 		var effectsVolumeRect = document.getElementById("effectsVolumePad_effectsVolumeRect");
 		var transX = volumeLevel * 190;
 		effectsVolumeRect.setAttribute("transform","translate(" + transX + "," + 0 +")");
+	}
+}
+
+function gkControlSetAttributePadText() {
+	var terrainAttributeText = document.getElementById("terrainAttributePad_terrainAttributeText");
+	if (terrainAttributeText != null) {
+		var attributeIndex = gkTerrainEditGetAttributeIndex();
+		terrainAttributeText.textContent = "attribute: " + gkTerrainEditGetAttributeText();
+
+		var terrainAttributeRect = document.getElementById("terrainAttributePad_terrainAttributeRect");
+		var transX = attributeIndex * 190;
+		terrainAttributeRect.setAttribute("transform","translate(" + transX + "," + 0 +")");
 	}
 }
 
@@ -652,5 +718,16 @@ function gkControlGetMenuHeight() {
 //	console.log("GetMenuHeight mic: " + menuItemCount + " nlci: " + nextLevelControlId);
 
 	return menuItemCount * gkControlContext.menuItemHeight;
+}
+
+function gkControlHandleTerrainSaveEdit() {
+	console.log("gkControlHandleTerrainSaveEdit");
+
+	var totalTerrain = gkTerrainGetCurrentTerrain();
+
+	jsonMessage = JSON.stringify(totalTerrain);
+
+	gkWsSendMessage("saveTerrainEditReq~" + jsonMessage + "~");
+
 }
 

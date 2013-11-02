@@ -6,6 +6,8 @@ function gkTerrainEditContextDef() {
 	this.terrainEditRemoveTile = false;
 	this.defaultTerrainName = "fern_2d";
 	this.editTileIdPrefix = "et_";
+	this.attributeList = ["none","field"];
+	this.currentAttributeIndex = 0;
 }
 
 function gkTerrainEditSetAddTileOn() {
@@ -33,7 +35,7 @@ function gkTerrainEditIsRemoveTileOn() {
 }
 
 function gkTerrainEditNeedClick() {
-	return gkTerrainEditContext.terrainEditAddTile || gkTerrainEditContext.terrainEditRemoveTile;
+	return gkTerrainEditContext.terrainEditAddTile || gkTerrainEditContext.terrainEditRemoveTile || (gkTerrainEditContext.currentAttributeIndex > 0);
 }
 
 function gkTerrainEditHandleClick(x, y) {
@@ -45,8 +47,23 @@ function gkTerrainEditHandleClick(x, y) {
 		if (gkTerrainEditIsRemoveTileOn()) {
 			gkTerrainRemoveTile(x, y, gkTerrainEditContext.editTileIdPrefix);
 		} else {
-			console.error("one of the terrain edit tile should be on");
+			if (gkTerrainEditContext.currentAttributeIndex > 0) {
+				gkTerrainSetAttribute(x, y, gkTerrainEditContext.editTileIdPrefix);
+			} else {
+				console.error("internal error, gkTerrainEditHandleClick invalid state");
+			}
 		}
 	}
 }
 
+function gkTerrainEditSetAttributeIndex(attributeIndex) {
+	gkTerrainEditContext.currentAttributeIndex = attributeIndex;
+}
+
+function gkTerrainEditGetAttributeIndex() {
+	return gkTerrainEditContext.currentAttributeIndex;
+}
+
+function gkTerrainEditGetAttributeText() {
+	return gkTerrainEditContext.attributeList[gkTerrainEditContext.currentAttributeIndex];
+}
