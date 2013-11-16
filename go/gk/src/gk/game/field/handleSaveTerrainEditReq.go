@@ -72,6 +72,9 @@ func (fieldContext *FieldContextDef) handleSaveTerrainEditReq(messageFromClient 
 	for k, v := range saveTerrainEditReq.TerrainMapMap {
 		gklog.LogTrace(fmt.Sprintf("k: %+v",k))
 		gklog.LogTrace(fmt.Sprintf("v: %+v",v))
+// v has:
+// x, y, zlist, terrainName, Field
+
 	}
 
 //

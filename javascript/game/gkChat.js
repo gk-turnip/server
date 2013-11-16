@@ -93,8 +93,6 @@ function gkChatMessageFromServer(userName, message, timeInMs) {
 
 		if (userSpan2.innerHTML.length > 0) {
 			userSpan2.setAttribute('class','chatUser');
-			userSpan2.setAttribute('onmouseover','gkChatShowFullName(i + 1)')
-			userSpan2.setAttribute('onmouseout','gkChatHideFullName(i + 1)')
 		}
     }
 
@@ -104,18 +102,7 @@ function gkChatMessageFromServer(userName, message, timeInMs) {
     userSpan1 = document.getElementById("chatUser_1");
     userSpan1.innerHTML = userName
 	userSpan1.setAttribute('class','chatUser');
-	userSpan1.setAttribute('onmouseover','gkChatShowFullName(1)')
-	userSpan1.setAttribute('onmouseout','gkChatHideFullName(1)')
     messageSpan1 = document.getElementById("chatMessage_1");
     messageSpan1.innerHTML = message
 }
 
-function gkChatShowFullName(i) {
-	var userSpan = document.getElementById("chatUser_" + i);
-	userSpan.setAttribute('class','chatUserFull');
-}
-
-function gkChatHideFullName(i) {
-	var userSpan = document.getElementById("chatUser_" + i);
-	userSpan.setAttribute('class','chatUser');
-}

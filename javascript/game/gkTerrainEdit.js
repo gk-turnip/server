@@ -6,7 +6,7 @@ function gkTerrainEditContextDef() {
 	this.terrainEditRemoveTile = false;
 	this.defaultTerrainName = "fern_2d";
 	this.editTileIdPrefix = "et_";
-	this.attributeList = ["none","field"];
+	this.attributeList = ["none","wall","field"];
 	this.currentAttributeIndex = 0;
 }
 
@@ -67,3 +67,8 @@ function gkTerrainEditGetAttributeIndex() {
 function gkTerrainEditGetAttributeText() {
 	return gkTerrainEditContext.attributeList[gkTerrainEditContext.currentAttributeIndex];
 }
+
+function gkTerrainEditGetAttributeCount() {
+	return gkTerrainEditContext.attributeList.length;
+}
+

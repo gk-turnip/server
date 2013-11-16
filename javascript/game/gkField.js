@@ -45,15 +45,16 @@ function gkFieldContextDef() {
 	this.frameRateDisplayCount = 0;
 	this.maxElevationMove = 11;
 	this.oldAvatarDestination = undefined;
-	this.baseLayer = "gkTerrainBaseLayer"
-	this.gridListLayer = "gkTerrainGridListLayer"
-	this.defsTerrainPrefix = "t_"
-	this.defsObjectPrefix = "o_"
-	this.useObjectPrefix = "u_"
-	this.useTextPrefix = "x_"
-	this.useGPrefix = "g_"
-	this.terrainTilePrefix = "ti_"
-	this.terrainObjectPrefix = "to_"
+	this.baseLayer = "gkTerrainBaseLayer";
+	this.gridListLayer = "gkTerrainGridListLayer";
+	this.EditLayer = "gkTerrainEditLayer";
+	this.defsTerrainPrefix = "t_";
+	this.defsObjectPrefix = "o_";
+	this.useObjectPrefix = "u_";
+	this.useTextPrefix = "x_";
+	this.useGPrefix = "g_";
+	this.terrainTilePrefix = "ti_";
+	this.terrainObjectPrefix = "to_";
 }
 
 function gkFieldInit() {
